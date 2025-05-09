@@ -1,12 +1,12 @@
 # Uncomment the next line to define a global platform for your project
 # platform :ios, '9.0'
 
-target 'FreelanceApp' do
+target 'JazClient' do
   # Comment the next line if you don't want to use dynamic frameworks
   use_frameworks!
 
-  # Pods for FreelanceApp
+  # Pods for JazClient
   pod 'goSellSDK'
   pod 'TamaraSDK'
-  
+
 end

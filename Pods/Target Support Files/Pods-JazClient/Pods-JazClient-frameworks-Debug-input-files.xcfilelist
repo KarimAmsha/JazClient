@@ -1,4 +1,4 @@
-${PODS_ROOT}/Target Support Files/Pods-FreelanceApp/Pods-FreelanceApp-frameworks.sh
+${PODS_ROOT}/Target Support Files/Pods-JazClient/Pods-JazClient-frameworks.sh
 ${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework
 ${BUILT_PRODUCTS_DIR}/EditableTextInsetsTextFieldV2/EditableTextInsetsTextFieldV2.framework
 ${BUILT_PRODUCTS_DIR}/Moya/Moya.framework

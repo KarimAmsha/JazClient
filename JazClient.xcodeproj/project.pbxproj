@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		138D4A9842DD1A3E7C85E1AD /* Pods_JazClient.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1529D249766BB80A85CB301E /* Pods_JazClient.framework */; };
 		1E0053342C1EF7CD00C75E42 /* ExplorWishView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E0053332C1EF7CD00C75E42 /* ExplorWishView.swift */; };
 		1E0053382C1F009800C75E42 /* MyWishView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E0053372C1F009800C75E42 /* MyWishView.swift */; };
 		1E00533B2C1F051F00C75E42 /* AddReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E00533A2C1F051F00C75E42 /* AddReviewView.swift */; };
@@ -279,11 +280,10 @@
 		52D9E6D22DCB956400ED2874 /* ProjectsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52D9E6D12DCB956400ED2874 /* ProjectsView.swift */; };
 		52D9E6D42DCB957500ED2874 /* AddServiceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52D9E6D32DCB957500ED2874 /* AddServiceView.swift */; };
 		52F03F922DC1448F00D11215 /* TamaraProduct.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52F03F912DC1448E00D11215 /* TamaraProduct.swift */; };
-		F872D44543075CFBF2B4A677 /* Pods_FreelanceApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B391A68D56F805841B7EE54 /* Pods_FreelanceApp.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		11DEF683BD58D6C42A431A68 /* Pods-FreelanceApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FreelanceApp.debug.xcconfig"; path = "Target Support Files/Pods-FreelanceApp/Pods-FreelanceApp.debug.xcconfig"; sourceTree = "<group>"; };
+		1529D249766BB80A85CB301E /* Pods_JazClient.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_JazClient.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		1E0053332C1EF7CD00C75E42 /* ExplorWishView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExplorWishView.swift; sourceTree = "<group>"; };
 		1E0053372C1F009800C75E42 /* MyWishView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyWishView.swift; sourceTree = "<group>"; };
 		1E00533A2C1F051F00C75E42 /* AddReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddReviewView.swift; sourceTree = "<group>"; };
@@ -466,7 +466,7 @@
 		1EDEF6822BE1A1D200863C10 /* SelectedGiftView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedGiftView.swift; sourceTree = "<group>"; };
 		1EDEF6842BE1A93600863C10 /* FriendWishesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendWishesView.swift; sourceTree = "<group>"; };
 		1EDEF6862BE1ABDF00863C10 /* ProgressLineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressLineView.swift; sourceTree = "<group>"; };
-		1EEC2BCC2BD83E6000975953 /* FreelanceApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FreelanceApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1EEC2BCC2BD83E6000975953 /* JazClient.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JazClient.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1EEC2BCF2BD83E6000975953 /* FreelanceApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FreelanceApp.swift; sourceTree = "<group>"; };
 		1EEC2BD12BD83E6000975953 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		1EEC2BD32BD83E6300975953 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -482,7 +482,6 @@
 		1EFB9B312C1C40B900C15CE4 /* AddUserProduct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddUserProduct.swift; sourceTree = "<group>"; };
 		1EFB9B342C1C4CFE00C15CE4 /* VIPGiftView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VIPGiftView.swift; sourceTree = "<group>"; };
 		1EFB9B362C1C624B00C15CE4 /* EventListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventListView.swift; sourceTree = "<group>"; };
-		2B391A68D56F805841B7EE54 /* Pods_FreelanceApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FreelanceApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5235B18A2DCC93BB009F75FA /* ClientProjectsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientProjectsView.swift; sourceTree = "<group>"; };
 		5235B18E2DCC98BA009F75FA /* SpeedRequestSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeedRequestSheet.swift; sourceTree = "<group>"; };
 		5235B1902DCC98D6009F75FA /* EditRequestSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditRequestSheet.swift; sourceTree = "<group>"; };
@@ -530,7 +529,8 @@
 		52D9E6D12DCB956400ED2874 /* ProjectsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectsView.swift; sourceTree = "<group>"; };
 		52D9E6D32DCB957500ED2874 /* AddServiceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddServiceView.swift; sourceTree = "<group>"; };
 		52F03F912DC1448E00D11215 /* TamaraProduct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TamaraProduct.swift; sourceTree = "<group>"; };
-		55B38A8D84CF5B9E08BEC8F8 /* Pods-FreelanceApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FreelanceApp.release.xcconfig"; path = "Target Support Files/Pods-FreelanceApp/Pods-FreelanceApp.release.xcconfig"; sourceTree = "<group>"; };
+		95E0310465154B5681E8E684 /* Pods-JazClient.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-JazClient.debug.xcconfig"; path = "Target Support Files/Pods-JazClient/Pods-JazClient.debug.xcconfig"; sourceTree = "<group>"; };
+		E4CC718D3C66047CC515F4A8 /* Pods-JazClient.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-JazClient.release.xcconfig"; path = "Target Support Files/Pods-JazClient/Pods-JazClient.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -569,7 +569,7 @@
 				1ECC948D2BDC5D8B002BFE54 /* FirebaseAppDistribution-Beta in Frameworks */,
 				1ECC94992BDC5D8B002BFE54 /* FirebaseDynamicLinks in Frameworks */,
 				1ECC949F2BDC5D8B002BFE54 /* FirebaseFirestoreSwift in Frameworks */,
-				F872D44543075CFBF2B4A677 /* Pods_FreelanceApp.framework in Frameworks */,
+				138D4A9842DD1A3E7C85E1AD /* Pods_JazClient.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1023,22 +1023,22 @@
 		1EEC2BC32BD83E6000975953 = {
 			isa = PBXGroup;
 			children = (
-				1EEC2BCE2BD83E6000975953 /* FreelanceApp */,
+				1EEC2BCE2BD83E6000975953 /* JazClient */,
 				1EEC2BCD2BD83E6000975953 /* Products */,
 				304E035519AD4FBEEEDC9A60 /* Pods */,
-				65990345DAB10ED1583F3F85 /* Frameworks */,
+				87F24C34687A9548B686C79A /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
 		1EEC2BCD2BD83E6000975953 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				1EEC2BCC2BD83E6000975953 /* FreelanceApp.app */,
+				1EEC2BCC2BD83E6000975953 /* JazClient.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		1EEC2BCE2BD83E6000975953 /* FreelanceApp */ = {
+		1EEC2BCE2BD83E6000975953 /* JazClient */ = {
 			isa = PBXGroup;
 			children = (
 				1E41E1FD2BE947560061AC47 /* FreelanceApp.entitlements */,
@@ -1052,7 +1052,7 @@
 				1ECC94472BDC56B8002BFE54 /* Supporting Files */,
 				1EEC2BD52BD83E6300975953 /* Preview Content */,
 			);
-			path = FreelanceApp;
+			path = JazClient;
 			sourceTree = "<group>";
 		};
 		1EEC2BD52BD83E6300975953 /* Preview Content */ = {
@@ -1086,8 +1086,8 @@
 		304E035519AD4FBEEEDC9A60 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				11DEF683BD58D6C42A431A68 /* Pods-FreelanceApp.debug.xcconfig */,
-				55B38A8D84CF5B9E08BEC8F8 /* Pods-FreelanceApp.release.xcconfig */,
+				95E0310465154B5681E8E684 /* Pods-JazClient.debug.xcconfig */,
+				E4CC718D3C66047CC515F4A8 /* Pods-JazClient.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -1157,10 +1157,10 @@
 			path = Projects;
 			sourceTree = "<group>";
 		};
-		65990345DAB10ED1583F3F85 /* Frameworks */ = {
+		87F24C34687A9548B686C79A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				2B391A68D56F805841B7EE54 /* Pods_FreelanceApp.framework */,
+				1529D249766BB80A85CB301E /* Pods_JazClient.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -1168,21 +1168,21 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		1EEC2BCB2BD83E6000975953 /* FreelanceApp */ = {
+		1EEC2BCB2BD83E6000975953 /* JazClient */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 1EEC2BDA2BD83E6300975953 /* Build configuration list for PBXNativeTarget "FreelanceApp" */;
+			buildConfigurationList = 1EEC2BDA2BD83E6300975953 /* Build configuration list for PBXNativeTarget "JazClient" */;
 			buildPhases = (
-				731E55B46FA70979F477C4C2 /* [CP] Check Pods Manifest.lock */,
+				E6AE881FA0971EC323FD5E09 /* [CP] Check Pods Manifest.lock */,
 				1EEC2BC82BD83E6000975953 /* Sources */,
 				1EEC2BC92BD83E6000975953 /* Frameworks */,
 				1EEC2BCA2BD83E6000975953 /* Resources */,
-				10E8A9788A749A573FFC26CA /* [CP] Embed Pods Frameworks */,
+				E03F5DA19A4C54E6AE1758AF /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = FreelanceApp;
+			name = JazClient;
 			packageProductDependencies = (
 				1ECC94822BDC5D8B002BFE54 /* FirebaseAnalytics */,
 				1ECC94842BDC5D8B002BFE54 /* FirebaseAnalyticsOnDeviceConversion */,
@@ -1217,7 +1217,7 @@
 				1EA740552BFBADC20028AAD0 /* RefreshableScrollView */,
 			);
 			productName = Wishy;
-			productReference = 1EEC2BCC2BD83E6000975953 /* FreelanceApp.app */;
+			productReference = 1EEC2BCC2BD83E6000975953 /* JazClient.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -1235,7 +1235,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 1EEC2BC72BD83E6000975953 /* Build configuration list for PBXProject "FreelanceApp" */;
+			buildConfigurationList = 1EEC2BC72BD83E6000975953 /* Build configuration list for PBXProject "JazClient" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = ar;
 			hasScannedForEncodings = 0;
@@ -1256,7 +1256,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				1EEC2BCB2BD83E6000975953 /* FreelanceApp */,
+				1EEC2BCB2BD83E6000975953 /* JazClient */,
 			);
 		};
 /* End PBXProject section */
@@ -1282,28 +1282,24 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		10E8A9788A749A573FFC26CA /* [CP] Embed Pods Frameworks */ = {
+		E03F5DA19A4C54E6AE1758AF /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-FreelanceApp/Pods-FreelanceApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-JazClient/Pods-JazClient-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-FreelanceApp/Pods-FreelanceApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-JazClient/Pods-JazClient-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-FreelanceApp/Pods-FreelanceApp-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-JazClient/Pods-JazClient-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		731E55B46FA70979F477C4C2 /* [CP] Check Pods Manifest.lock */ = {
+		E6AE881FA0971EC323FD5E09 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1318,7 +1314,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-FreelanceApp-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-JazClient-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1704,7 +1700,7 @@
 		};
 		1EEC2BDB2BD83E6300975953 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 11DEF683BD58D6C42A431A68 /* Pods-FreelanceApp.debug.xcconfig */;
+			baseConfigurationReference = 95E0310465154B5681E8E684 /* Pods-JazClient.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -1717,7 +1713,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = FreelanceApp/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = FreelanceApp;
+				INFOPLIST_KEY_CFBundleDisplayName = JazClient;
 				INFOPLIST_KEY_NSCameraUsageDescription = "FreelanceApp will use camera to upload user photo";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "FreelanceApp will use location to send orders, track your order, and continuously provide real-time updates";
 				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "FreelanceApp will use location to send orders, track your order, and continuously provide real-time updates";
@@ -1734,8 +1730,8 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.4;
-				PRODUCT_BUNDLE_IDENTIFIER = sa.com.Fazaa.FreelanceApp;
+				MARKETING_VERSION = 3.0.4;
+				PRODUCT_BUNDLE_IDENTIFIER = sa.com.jaz.client;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -1750,7 +1746,7 @@
 		};
 		1EEC2BDC2BD83E6300975953 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 55B38A8D84CF5B9E08BEC8F8 /* Pods-FreelanceApp.release.xcconfig */;
+			baseConfigurationReference = E4CC718D3C66047CC515F4A8 /* Pods-JazClient.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -1763,7 +1759,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = FreelanceApp/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = FreelanceApp;
+				INFOPLIST_KEY_CFBundleDisplayName = JazClient;
 				INFOPLIST_KEY_NSCameraUsageDescription = "FreelanceApp will use camera to upload user photo";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "FreelanceApp will use location to send orders, track your order, and continuously provide real-time updates";
 				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "FreelanceApp will use location to send orders, track your order, and continuously provide real-time updates";
@@ -1780,8 +1776,8 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.4;
-				PRODUCT_BUNDLE_IDENTIFIER = sa.com.Fazaa.FreelanceApp;
+				MARKETING_VERSION = 3.0.4;
+				PRODUCT_BUNDLE_IDENTIFIER = sa.com.jaz.client;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -1797,7 +1793,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1EEC2BC72BD83E6000975953 /* Build configuration list for PBXProject "FreelanceApp" */ = {
+		1EEC2BC72BD83E6000975953 /* Build configuration list for PBXProject "JazClient" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1EEC2BD82BD83E6300975953 /* Debug */,
@@ -1806,7 +1802,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		1EEC2BDA2BD83E6300975953 /* Build configuration list for PBXNativeTarget "FreelanceApp" */ = {
+		1EEC2BDA2BD83E6300975953 /* Build configuration list for PBXNativeTarget "JazClient" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1EEC2BDB2BD83E6300975953 /* Debug */,

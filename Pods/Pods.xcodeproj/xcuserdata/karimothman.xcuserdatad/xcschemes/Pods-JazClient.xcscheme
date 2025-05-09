@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "0EA9FB6B3EEFD49E1A496C490EA2BC3B"
-               BuildableName = "Pods_FreelanceApp.framework"
-               BlueprintName = "Pods-FreelanceApp"
+               BlueprintIdentifier = "A1E0CB64E67DA710BD895DB7EE030E2F"
+               BuildableName = "Pods_JazClient.framework"
+               BlueprintName = "Pods-JazClient"
                ReferencedContainer = "container:Pods.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>

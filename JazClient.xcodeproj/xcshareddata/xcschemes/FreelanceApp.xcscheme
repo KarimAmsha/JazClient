@@ -16,9 +16,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "1EEC2BCB2BD83E6000975953"
-               BuildableName = "FreelanceApp.app"
-               BlueprintName = "FreelanceApp"
-               ReferencedContainer = "container:FreelanceApp.xcodeproj">
+               BuildableName = "JazClient.app"
+               BlueprintName = "JazClient"
+               ReferencedContainer = "container:JazClient.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -45,9 +45,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "1EEC2BCB2BD83E6000975953"
-            BuildableName = "FreelanceApp.app"
-            BlueprintName = "FreelanceApp"
-            ReferencedContainer = "container:FreelanceApp.xcodeproj">
+            BuildableName = "JazClient.app"
+            BlueprintName = "JazClient"
+            ReferencedContainer = "container:JazClient.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -62,9 +62,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "1EEC2BCB2BD83E6000975953"
-            BuildableName = "FreelanceApp.app"
-            BlueprintName = "FreelanceApp"
-            ReferencedContainer = "container:FreelanceApp.xcodeproj">
+            BuildableName = "JazClient.app"
+            BlueprintName = "JazClient"
+            ReferencedContainer = "container:JazClient.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
