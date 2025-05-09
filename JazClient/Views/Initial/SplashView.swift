@@ -15,7 +15,7 @@ struct SplashView: View {
             Color.primaryGradientColor()
                 .ignoresSafeArea()
 
-            Image("")
+            Image("ic_logo")
                 .opacity(logoOpacity)
         }
         .onAppear {

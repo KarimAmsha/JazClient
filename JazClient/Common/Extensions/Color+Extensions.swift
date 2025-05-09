@@ -33,35 +33,34 @@ extension Color {
         )
     }
     
-    // ✅ Primary Colors (محدثة حسب الهوية الجديدة)
+    static func primary() -> Color {
+        return Color(hex: "ED8911") // اللون الرئيسي
+    }
+
     static func primary1() -> Color {
-        return Color(hex: "4C8E48") // أخضر فاتح
+        return Color(hex: "F29C29") // أفتح شوي
     }
 
     static func primary2() -> Color {
-        return Color(hex: "225E2E") // أخضر داكن
-    }
-
-    static func primary() -> Color {
-        return Color(hex: "225E2E") // الأخضر الأساسي
+        return Color(hex: "D67C0F") // أغمق شوي
     }
 
     static func primaryNormal() -> Color {
-        return Color(hex: "3A7334") // أخضر متوسط
+        return Color(hex: "ED8911") // ثابت
     }
 
     static func primaryLight() -> Color {
-        return Color(hex: "F2F2F2") // فاتح جداً
+        return Color(hex: "FFE0B3") // خلفيات خفيفة
     }
 
     static func primaryLightHover() -> Color {
-        return Color(hex: "F3F3F3")
+        return Color(hex: "FFCA80") // حالة hover
     }
 
     static func primaryLightActive() -> Color {
-        return Color(hex: "FEF3DE")
+        return Color(hex: "FFB74D") // حالة الضغط
     }
-
+    
     // ✅ خلفيات إضافية من الصور
     static func backgroundF3F3F3() -> Color {
         return Color(hex: "F3F3F3")

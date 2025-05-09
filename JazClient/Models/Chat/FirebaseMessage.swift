@@ -10,7 +10,7 @@ import Foundation
 struct FirebaseMessage: Codable, Identifiable {
     var id: String?
     var message: String?
-    var messageDate: Int?
+    var messageDate: Int64?
     var senderId: String?
 
     enum CodingKeys: String, CodingKey {

@@ -232,7 +232,7 @@
 		1EFB9B322C1C40B900C15CE4 /* AddUserProduct.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EFB9B312C1C40B900C15CE4 /* AddUserProduct.swift */; };
 		1EFB9B352C1C4CFE00C15CE4 /* VIPGiftView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EFB9B342C1C4CFE00C15CE4 /* VIPGiftView.swift */; };
 		1EFB9B372C1C624B00C15CE4 /* EventListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EFB9B362C1C624B00C15CE4 /* EventListView.swift */; };
-		52294D392DC54FA900C1D456 /* FreelanceApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EEC2BCF2BD83E6000975953 /* FreelanceApp.swift */; };
+		521DAC352DCDD9FF003BB59B /* JazClientApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EEC2BCF2BD83E6000975953 /* JazClientApp.swift */; };
 		5235B18B2DCC93BC009F75FA /* ClientProjectsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5235B18A2DCC93BB009F75FA /* ClientProjectsView.swift */; };
 		5235B18F2DCC98BB009F75FA /* SpeedRequestSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5235B18E2DCC98BA009F75FA /* SpeedRequestSheet.swift */; };
 		5235B1912DCC98D7009F75FA /* EditRequestSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5235B1902DCC98D6009F75FA /* EditRequestSheet.swift */; };
@@ -319,7 +319,7 @@
 		1E2804432C067E4E0021DFB0 /* ProductsSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductsSearchView.swift; sourceTree = "<group>"; };
 		1E38FB652C24A8E7001A2B78 /* CategoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryView.swift; sourceTree = "<group>"; };
 		1E41E1FB2BE942490061AC47 /* FirestoreService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreService.swift; sourceTree = "<group>"; };
-		1E41E1FD2BE947560061AC47 /* FreelanceApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FreelanceApp.entitlements; sourceTree = "<group>"; };
+		1E41E1FD2BE947560061AC47 /* JazClient.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = JazClient.entitlements; sourceTree = "<group>"; };
 		1E479B302C4D881B006130E1 /* WhatsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhatsApp.swift; sourceTree = "<group>"; };
 		1E5F318A2BE23C9B00E5A914 /* FriendWishesListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendWishesListView.swift; sourceTree = "<group>"; };
 		1E5F318C2BE23E5100E5A914 /* FriendWishesDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendWishesDetailsView.swift; sourceTree = "<group>"; };
@@ -467,7 +467,7 @@
 		1EDEF6842BE1A93600863C10 /* FriendWishesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendWishesView.swift; sourceTree = "<group>"; };
 		1EDEF6862BE1ABDF00863C10 /* ProgressLineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressLineView.swift; sourceTree = "<group>"; };
 		1EEC2BCC2BD83E6000975953 /* JazClient.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JazClient.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		1EEC2BCF2BD83E6000975953 /* FreelanceApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FreelanceApp.swift; sourceTree = "<group>"; };
+		1EEC2BCF2BD83E6000975953 /* JazClientApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JazClientApp.swift; sourceTree = "<group>"; };
 		1EEC2BD12BD83E6000975953 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		1EEC2BD32BD83E6300975953 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1EEC2BD62BD83E6300975953 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
@@ -649,7 +649,7 @@
 		1ECC94472BDC56B8002BFE54 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				1EEC2BCF2BD83E6000975953 /* FreelanceApp.swift */,
+				1EEC2BCF2BD83E6000975953 /* JazClientApp.swift */,
 			);
 			path = "Supporting Files";
 			sourceTree = "<group>";
@@ -1041,7 +1041,7 @@
 		1EEC2BCE2BD83E6000975953 /* JazClient */ = {
 			isa = PBXGroup;
 			children = (
-				1E41E1FD2BE947560061AC47 /* FreelanceApp.entitlements */,
+				1E41E1FD2BE947560061AC47 /* JazClient.entitlements */,
 				1ECC94E52BDC638A002BFE54 /* Info.plist */,
 				1ECC944D2BDC56EE002BFE54 /* Models */,
 				1ECC944C2BDC56E6002BFE54 /* Views */,
@@ -1290,9 +1290,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-JazClient/Pods-JazClient-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-JazClient/Pods-JazClient-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1328,7 +1332,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				52294D392DC54FA900C1D456 /* FreelanceApp.swift in Sources */,
+				521DAC352DCDD9FF003BB59B /* JazClientApp.swift in Sources */,
 				1EDEF6762BE1788300863C10 /* MyOrdersView.swift in Sources */,
 				52C6AD5A2DCA3E4D00D0A672 /* GeneralAlertToastView.swift in Sources */,
 				52D9E6CC2DCB92AA00ED2874 /* MainTabItem.swift in Sources */,
@@ -1704,21 +1708,21 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = FreelanceApp/FreelanceApp.entitlements;
+				CODE_SIGN_ENTITLEMENTS = JazClient/JazClient.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"FreelanceApp/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"JazClient/Preview Content\"";
 				DEVELOPMENT_TEAM = K3R8X4877H;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = FreelanceApp/Info.plist;
+				INFOPLIST_FILE = JazClient/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = JazClient;
-				INFOPLIST_KEY_NSCameraUsageDescription = "FreelanceApp will use camera to upload user photo";
-				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "FreelanceApp will use location to send orders, track your order, and continuously provide real-time updates";
-				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "FreelanceApp will use location to send orders, track your order, and continuously provide real-time updates";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "FreelanceApp will use location to send orders, track your order, and continuously provide real-time updates";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "FreelanceApp will use photo library to upload user photo";
+				INFOPLIST_KEY_NSCameraUsageDescription = "JazClient will use camera to upload user photo";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "JazClient will use location to send orders, track your order, and continuously provide real-time updates";
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "JazClient will use location to send orders, track your order, and continuously provide real-time updates";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "JazClient will use location to send orders, track your order, and continuously provide real-time updates";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "JazClient will use photo library to upload user photo";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -1750,21 +1754,21 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = FreelanceApp/FreelanceApp.entitlements;
+				CODE_SIGN_ENTITLEMENTS = JazClient/JazClient.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"FreelanceApp/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"JazClient/Preview Content\"";
 				DEVELOPMENT_TEAM = K3R8X4877H;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = FreelanceApp/Info.plist;
+				INFOPLIST_FILE = JazClient/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = JazClient;
-				INFOPLIST_KEY_NSCameraUsageDescription = "FreelanceApp will use camera to upload user photo";
-				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "FreelanceApp will use location to send orders, track your order, and continuously provide real-time updates";
-				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "FreelanceApp will use location to send orders, track your order, and continuously provide real-time updates";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "FreelanceApp will use location to send orders, track your order, and continuously provide real-time updates";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "FreelanceApp will use photo library to upload user photo";
+				INFOPLIST_KEY_NSCameraUsageDescription = "JazClient will use camera to upload user photo";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "JazClient will use location to send orders, track your order, and continuously provide real-time updates";
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "JazClient will use location to send orders, track your order, and continuously provide real-time updates";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "JazClient will use location to send orders, track your order, and continuously provide real-time updates";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "JazClient will use photo library to upload user photo";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

@@ -33,10 +33,10 @@ class ChatViewModel: ObservableObject {
         #if DEBUG
         if chatId == "debug" {
             self.messages = [
-                FirebaseMessage(id: "1", message: "أهلاً، هذا مثال!", messageDate: Int(Date().timeIntervalSince1970 - 100), senderId: "user2"),
-                FirebaseMessage(id: "2", message: "تجريب الرسائل", messageDate: Int(Date().timeIntervalSince1970 - 60), senderId: "user1")
+                FirebaseMessage(id: "1", message: "أهلاً، هذا مثال!", messageDate: Int64(Date().timeIntervalSince1970 - 100), senderId: "user2"),
+                FirebaseMessage(id: "2", message: "تجريب الرسائل", messageDate: Int64(Date().timeIntervalSince1970 - 60), senderId: "user1")
             ]
-            self.chat = FirebaseChat(id: chatId, chatEnabled: true, lastMessage: "تجريب الرسائل", lastMessageDate: Int(Date().timeIntervalSince1970 - 60), orderId: "ORD_TEST", senderId: "user1", receiverId: "user2", messagesList: nil)
+            self.chat = FirebaseChat(id: chatId, chatEnabled: true, lastMessage: "تجريب الرسائل", lastMessageDate: Int64(Date().timeIntervalSince1970 - 60), orderId: "ORD_TEST", senderId: "user1", receiverId: "user2", messagesList: nil)
             return
         }
         #endif
@@ -62,7 +62,7 @@ class ChatViewModel: ObservableObject {
                         let message = FirebaseMessage(
                             id: dict["id"] as? String,
                             message: dict["message"] as? String,
-                            messageDate: dict["messageDate"] as? Int,
+                            messageDate: dict["messageDate"] as? Int64,
                             senderId: dict["senderId"] as? String
                         )
                         tempMessages.append(message)
@@ -80,7 +80,7 @@ class ChatViewModel: ObservableObject {
                     id: snapshot.key,
                     chatEnabled: dict["chatEnabled"] as? Bool,
                     lastMessage: dict["lastMessage"] as? String,
-                    lastMessageDate: dict["lastMessageDate"] as? Int,
+                    lastMessageDate: dict["lastMessageDate"] as? Int64,
                     orderId: dict["orderId"] as? String,
                     senderId: dict["senderId"] as? String,
                     receiverId: dict["receiverId"] as? String,
@@ -166,15 +166,15 @@ class MockChatViewModel: ChatViewModel {
     init() {
         super.init(chatId: "mock_chat_id", currentUserId: "user1")
         self.messages = [
-            FirebaseMessage(id: "1", message: "مرحبا، كيف فيني أساعدك؟", messageDate: Int(Date().timeIntervalSince1970 - 300), senderId: "user2"),
-            FirebaseMessage(id: "2", message: "عندي استفسار عن الخدمة اللي بتقدمها", messageDate: Int(Date().timeIntervalSince1970 - 200), senderId: "user1"),
-            FirebaseMessage(id: "3", message: "تفضل، احكيلي التفاصيل", messageDate: Int(Date().timeIntervalSince1970 - 100), senderId: "user2")
+            FirebaseMessage(id: "1", message: "مرحبا، كيف فيني أساعدك؟", messageDate: Int64(Date().timeIntervalSince1970 - 300), senderId: "user2"),
+            FirebaseMessage(id: "2", message: "عندي استفسار عن الخدمة اللي بتقدمها", messageDate: Int64(Date().timeIntervalSince1970 - 200), senderId: "user1"),
+            FirebaseMessage(id: "3", message: "تفضل، احكيلي التفاصيل", messageDate: Int64(Date().timeIntervalSince1970 - 100), senderId: "user2")
         ]
         self.chat = FirebaseChat(
             id: "mock_chat_id",
             chatEnabled: true,
             lastMessage: "تفضل، احكيلي التفاصيل",
-            lastMessageDate: Int(Date().timeIntervalSince1970 - 100),
+            lastMessageDate: Int64(Date().timeIntervalSince1970 - 100),
             orderId: "ORD999",
             senderId: "user1",
             receiverId: "user2",
