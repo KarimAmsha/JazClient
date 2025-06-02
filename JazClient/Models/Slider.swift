@@ -7,12 +7,12 @@
 
 import SwiftUI
 
-struct Slider: Codable, Hashable {
-    let id: String?
+struct Slider: Codable, Hashable, Identifiable {
+    let id: String
     let title: String?
     let description: String?
     let image: String?
-    
+
     enum CodingKeys: String, CodingKey {
         case id = "_id"
         case title
@@ -20,4 +20,3 @@ struct Slider: Codable, Hashable {
         case image
     }
 }
-

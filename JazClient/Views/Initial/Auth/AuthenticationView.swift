@@ -22,7 +22,9 @@ struct AuthenticationView: View {
             RegistrationFlowView()
         } else if loginStatus == .verification {
             SMSVerificationView(id: "", mobile: "", loginStatus: $loginStatus)
-        } else if case .profile(let token) = loginStatus {
+        } else if loginStatus == .accountCreated {
+            AccountCreatedView(loginStatus: $loginStatus)
+        } else if case .completeProfile(let token) = loginStatus {
             PersonalInfoView()
         } else if loginStatus == .forgetPassword {
 //            ForgetPasswordView(loginStatus: $loginStatus)

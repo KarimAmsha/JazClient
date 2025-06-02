@@ -182,8 +182,6 @@ struct PersonalInfoView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 HStack {
-                    Image("ic_gift")
-
                     VStack(alignment: .leading, spacing: 2) {
                         Text(LocalizedStringKey.myProfile)
                             .customFont(weight: .bold, size: 20)

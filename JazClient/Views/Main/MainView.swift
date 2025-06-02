@@ -33,6 +33,7 @@ struct MainView: View {
 
         return items
     }
+    @State private var selectedTab: TabItem2 = .home
 
     var body: some View {
         NavigationStack(path: $appRouter.navPath) {
@@ -44,54 +45,21 @@ struct MainView: View {
 
                 VStack(spacing: 0) {
                     Spacer()
-                    
-                    switch appState.currentPage {
+                    switch selectedTab {
                     case .home:
                         HomeView()
-                    case .chat:
-//                        ChatListView(userId: UserSettings.shared.id ?? "")
-                        ChatListView(viewModel: MockChatListViewModel(userId: "user1"))
-                    case .projects:
-                        if settings.userRole == .provider {
-                            ProjectsView()
-                        } else {
-                            ClientProjectsView()
-                        }
-                    case .addService:
-                        settings.id == nil ? CustomeEmptyView().eraseToAnyView() : AddServiceView().eraseToAnyView()
-                    case .more:
-                        settings.id == nil ? CustomeEmptyView().eraseToAnyView() : ProfileView().eraseToAnyView()
+                    case .services:
+                        EmptyView()
+                    case .jaz:
+                        EmptyView()
+                    case .orders:
+                        MyOrdersView()
+                    case .profile:
+                        ProfileView()
                     }
-
-                    VStack(spacing: 0) {
-                        CustomDivider()
-                            .padding(.bottom)
-
-                        GeometryReader { geometry in
-                            HStack(spacing: 0) {
-                                ForEach(tabItems, id: \.page) { item in
-                                    TabBarIcon(
-                                        appState: appState,
-                                        assignedPage: item.page,
-                                        width: 24,
-                                        height: 24,
-                                        iconName: item.iconSystemName,
-                                        tabName: item.title,
-                                        isNotified: item.isNotified
-                                    )
-                                    .frame(maxWidth: .infinity)
-                                }
-                            }
-                            .padding(.horizontal)
-                            .padding(.bottom, 25)
-                            .frame(height: 60)
-                            .background(Color.white)
-                        }
-                        .frame(height: 70)
-                    }
-                    .frame(height: 70)
-                    .background(Color.white)
+                    CustomTabBar(selectedTab: $selectedTab)
                 }
+                .edgesIgnoringSafeArea(.bottom)
             }
             .background(Color.background())
             .edgesIgnoringSafeArea(.bottom)

@@ -35,9 +35,19 @@ struct LoginView: View {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 32) {
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("يا هلا! 👋")
-                            .font(.title2.bold())
+                        HStack {
+                            Text("مرحبا بك ! 👋")
+                                .font(.title2.bold())
+                                .foregroundColor(.black)
+                            Spacer()
+                            Button {
+                            } label: {
+                                Text("ادخل كزائر")
+                                    .padding()
+                            }
                             .foregroundColor(.black)
+                            .background(Color.primary().cornerRadius(8))
+                        }
 
                         Text("سعيدين برؤيتك من جديد! قم بإدخال البيانات التالية بشكل صحيح للوصول إلى حسابك ...")
                             .font(.subheadline)
@@ -62,30 +72,39 @@ struct LoginView: View {
                                 }
                             }
                         } label: {
-                            Text("ارسل رمز التحقق")
+                            Text(LocalizedStringKey.login)
                         }
-                        .buttonStyle(GradientPrimaryButton(fontSize: 16, fontWeight: .bold, background: Color.primaryGradientColor(), foreground: .white, height: 48, radius: 12))
+                        .buttonStyle(GradientPrimaryButton(fontSize: 16, fontWeight: .bold, background: Color.primaryGradientColor(), foreground: .black, height: 48, radius: 12))
                         .disabled(viewModel.isLoading)
 
-                        HStack {
-                            Button("سجل الآن") {
-                                loginType = .register
-                            }
-                            .font(.footnote)
-                            .foregroundColor(.gray)
-                            .padding(.horizontal)
-                            .padding(.vertical, 10)
-                            .background(Color.gray.opacity(0.1))
-                            .cornerRadius(10)
-
-                            Spacer()
-
-                            Button("ليس لديك حساب؟") {
-                                loginType = .register
-                            }
-                            .font(.footnote)
-                            .foregroundColor(.gray)
+                        Button {
+                            //
+                        } label: {
+                            Text("تسجيل الشركة")
                         }
+                        .buttonStyle(GradientPrimaryButton(fontSize: 16, fontWeight: .bold, background: Color.GetGradientWhiteColor(), foreground: .primary(), height: 48, radius: 12))
+                        .border(.primary(), width: 1, cornerRadius: 12)
+                        .disabled(viewModel.isLoading)
+
+//                        HStack {
+//                            Button("سجل الآن") {
+//                                loginType = .register
+//                            }
+//                            .font(.footnote)
+//                            .foregroundColor(.gray)
+//                            .padding(.horizontal)
+//                            .padding(.vertical, 10)
+//                            .background(Color.gray.opacity(0.1))
+//                            .cornerRadius(10)
+//
+//                            Spacer()
+//
+//                            Button("ليس لديك حساب؟") {
+//                                loginType = .register
+//                            }
+//                            .font(.footnote)
+//                            .foregroundColor(.gray)
+//                        }
                     }
 
                     Spacer()
@@ -181,6 +200,7 @@ extension LoginView {
     private func continueRegistration(with params: [String: Any]) {
         viewModel.registerUser(params: params) { id, token in
             appState.userId = id
+            appState.token = token
             loginStatus = .verification
         }
     }

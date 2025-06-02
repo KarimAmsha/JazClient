@@ -296,18 +296,20 @@ enum LoginStatus: Equatable {
     case welcome
     case register
     case login
+    case accountCreated
     case forgetPassword
     case changePassword
     case identityConfirmation(String)
     case verification
     case selectLocation
-    case profile(String)
+    case completeProfile(String)
 
     static func == (lhs: LoginStatus, rhs: LoginStatus) -> Bool {
         switch (lhs, rhs) {
         case (.welcome, .welcome),
              (.register, .register),
             (.login, .login),
+            (.accountCreated, .accountCreated),
             (.forgetPassword, .forgetPassword),
             (.changePassword, .changePassword),
              (.verification, .verification),
@@ -318,7 +320,7 @@ enum LoginStatus: Equatable {
             // Compare identityConfirmation based on the associated String
             return lhsString == rhsString
 
-        case let (.profile(lhsString), .profile(rhsString)):
+        case let (.completeProfile(lhsString), .completeProfile(rhsString)):
             // Compare profiles based on the associated String and array of tuples
             return lhsString == rhsString 
 

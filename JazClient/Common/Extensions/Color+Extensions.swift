@@ -142,6 +142,11 @@ extension Color {
     func secondaryDarker() -> Color {
         return Color(hex: "003B33")
     }
+    
+    static
+    func cyan() -> Color {
+        return Color(hex: "00A5B9")
+    }
 
     static
     func black131313() -> Color {

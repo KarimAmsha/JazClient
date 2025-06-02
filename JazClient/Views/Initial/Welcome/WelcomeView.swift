@@ -56,16 +56,16 @@ struct WelcomeView: View {
                                     }
                                     .buttonStyle(GradientPrimaryButton(fontSize: 16, fontWeight: .bold, background: Color.primaryGradientColor(), foreground: .white, height: 48, radius: 12))
                                     
-                                    if currentPage == 2 {
-                                        Button {
-                                            withAnimation {
-                                                loginStatus = .register
-                                            }
-                                        } label: {
-                                            Text(LocalizedStringKey.createNewAccount)
-                                        }
-                                        .buttonStyle(GradientPrimaryButton(fontSize: 16, fontWeight: .bold, background: Color.primaryGradientColor(), foreground: .white, height: 48, radius: 12))
-                                    }
+//                                    if currentPage == 2 {
+//                                        Button {
+//                                            withAnimation {
+//                                                loginStatus = .register
+//                                            }
+//                                        } label: {
+//                                            Text(LocalizedStringKey.createNewAccount)
+//                                        }
+//                                        .buttonStyle(GradientPrimaryButton(fontSize: 16, fontWeight: .bold, background: Color.primaryGradientColor(), foreground: .white, height: 48, radius: 12))
+//                                    }
                                 }
                                                                 
                                 Button {

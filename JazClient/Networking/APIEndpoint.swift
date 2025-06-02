@@ -42,7 +42,7 @@ enum APIEndpoint {
     case getTotalPrices(params: [String: Any], token: String)
     case getRates(page: Int?, limit: Int?, id: String, token: String)
     case getAppConstants
-    case getHome
+    case getHome(q: String?, lat: Double, lng: Double)
     case guest
     case deleteAccount(id: String, token: String)
     case getContact
@@ -228,8 +228,22 @@ enum APIEndpoint {
             return "/mobile/rates/\(id)"
         case .getAppConstants:
             return "/mobile/constant/get"
-        case .getHome:
-            return "/mobile/home/get"
+        case .getHome(let q, let lat, let lng):
+            var params: [String: Any] = [:]
+
+            if let q = q {
+                params["q"] = q
+
+            }
+            params["lat"] = lat
+            params["lng"] = lng
+            if !params.isEmpty {
+                var url = "/mobile/home/get?"
+                url += params.map { "\($0.key)=\($0.value)" }.joined(separator: "&")
+                return url
+            } else {
+                return "/mobile/home/get"
+            }
         case .guest:
             return "/mobile/guest/token"
         case .deleteAccount(let id, _):

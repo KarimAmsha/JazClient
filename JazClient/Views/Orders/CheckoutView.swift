@@ -43,7 +43,7 @@ struct CheckoutView: View {
     let cartItems: CartItems?
     @StateObject var orderViewModel = OrderViewModel(errorHandling: ErrorHandling())
     @State var currentUserLocation: AddressItem?
-    @StateObject private var locationManager2 = LocationManager2()
+    @StateObject var locationManager = LocationManager.shared
     @State private var selectedPurchaseType: PurchaseType = .myself
     @State private var isAddressBook = false
     @State private var coupon: String = ""
@@ -188,8 +188,8 @@ struct CheckoutView: View {
                 alertType: .constant(.error)
             )
         )
-        .onChange(of: locationManager2.location) { value in
-            if let location = locationManager2.location {
+        .onChange(of: locationManager.userLocation) { value in
+            if let location = value {
                 print("New Location: \(location)")
                 currentUserLocation = AddressItem(
                     streetName: "",
@@ -200,9 +200,9 @@ struct CheckoutView: View {
                     createAt: "",
                     id: "",
                     title: "موقعي الحالي",
-                    lat: location.coordinate.latitude,
-                    lng: location.coordinate.longitude,
-                    address: locationManager2.address,
+                    lat: location.latitude,
+                    lng: location.longitude,
+                    address: locationManager.address,
                     userId: "",
                     discount: 0
                 )
@@ -330,7 +330,7 @@ struct CheckoutView: View {
                 //
             }
             cartViewModel.getCartItems()
-            locationManager2.startUpdatingLocation()
+            locationManager.startUpdatingLocation()
             
             GoSellSDK.mode = .production
         }

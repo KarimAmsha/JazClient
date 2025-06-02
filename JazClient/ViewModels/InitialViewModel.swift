@@ -151,10 +151,10 @@ class InitialViewModel: ObservableObject {
             .store(in: &cancellables)
     }
     
-    func fetchHomeItems() {
+    func fetchHomeItems(q: String?, lat: Double, lng: Double) {
         isLoading = true
         errorMessage = nil
-        let endpoint = DataProvider.Endpoint.getHome
+        let endpoint = DataProvider.Endpoint.getHome(q: q, lat: lat, lng: lng)
         
         DataProvider.shared.request(endpoint: endpoint, responseType: SingleAPIResponse<HomeItems>.self)
             .sink(receiveCompletion: { completion in
@@ -166,6 +166,7 @@ class InitialViewModel: ObservableObject {
                     self.handleAPIError(error)
                 }
             }, receiveValue: { [weak self] (response: SingleAPIResponse<HomeItems>) in
+                print("ssss \(response)")
                 if response.status {
                     self?.homeItems = response.items
                     self?.errorMessage = nil

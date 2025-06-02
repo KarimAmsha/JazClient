@@ -50,7 +50,7 @@ class DataProvider {
         case getTotalPrices(params: [String: Any], token: String)
         case getRates(page: Int?, limit: Int?, id: String, token: String)
         case getAppConstants
-        case getHome
+        case getHome(q: String?, lat: Double, lng: Double)
         case deleteAccount(id: String, token: String)
         case guest
         case getContact
@@ -163,8 +163,8 @@ class DataProvider {
                 return .getRates(page: page, limit: limit, id: id, token: token)
             case .getAppConstants:
                 return .getAppConstants
-            case .getHome:
-                return .getHome
+            case .getHome(let q, let lat, let lng):
+                return .getHome(q: q, lat: lat, lng: lng)
             case .deleteAccount(let id, let token):
                 return .deleteAccount(id: id, token: token)
             case .guest:

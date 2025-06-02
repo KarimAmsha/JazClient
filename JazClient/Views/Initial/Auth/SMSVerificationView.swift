@@ -41,12 +41,12 @@ struct SMSVerificationView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                Text("قم بادخال كلمة المرور المؤقتة المرسلة الى رقم هاتفك")
+                Text("قم بادخال رمز التفعيل المرسل الى رقم هاتفك")
                     .font(.footnote)
                     .multilineTextAlignment(.leading)
                     .foregroundColor(.gray)
 
-                Text("+970 594 0700 68")
+                Text(mobile)
                     .font(.headline)
             }
 
@@ -106,7 +106,7 @@ struct SMSVerificationView: View {
             if profileCompleted {
                 settings.loggedIn = true
             } else {
-                loginStatus = .profile(appState.token)
+                loginStatus = .accountCreated
             }
         }
     }

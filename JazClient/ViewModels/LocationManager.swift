@@ -1,19 +1,15 @@
-//
-//  LocationManager.swift
-//  Wishy
-//
-//  Created by Karim Amsha on 27.04.2024.
-//
-
 import Foundation
 import CoreLocation
+import Combine
 
-class LocationManager: NSObject, CLLocationManagerDelegate {
+class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     static let shared = LocationManager()
 
-    private var locationManager = CLLocationManager()
-    private var locationCompletion: ((CLLocationCoordinate2D?) -> Void)?
+    private let locationManager = CLLocationManager()
     @Published var userLocation: CLLocationCoordinate2D?
+    @Published var address: String = ""
+
+    private var locationCompletion: ((CLLocationCoordinate2D?) -> Void)?
 
     override private init() {
         super.init()
@@ -43,61 +39,34 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
     // MARK: - CLLocationManagerDelegate
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let location = locations.last?.coordinate else {
+        guard let location = locations.last else {
             locationCompletion?(nil)
             return
         }
-        userLocation = location
-        locationCompletion?(location)
-        
-        // Stop updating location after receiving the first location
+
+        let coordinate = location.coordinate
+        self.userLocation = coordinate
+        locationCompletion?(coordinate)
+        fetchAddress(from: location)
+
+        // Stop updating after getting location
         stopUpdatingLocation()
     }
 
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        print("Location update failed with error: \(error.localizedDescription)")
+        print("Location update failed: \(error.localizedDescription)")
         locationCompletion?(nil)
     }
-}
 
-import Foundation
-import CoreLocation
-import Combine
-
-class LocationManager2: NSObject, ObservableObject, CLLocationManagerDelegate {
-    private var locationManager = CLLocationManager()
-    @Published var location: CLLocation? {
-        didSet {
-            fetchAddress(from: location)
-        }
-    }
-    @Published var address: String = ""
-    
-    override init() {
-        super.init()
-        locationManager.delegate = self
-        locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        locationManager.requestWhenInUseAuthorization()
-        locationManager.startUpdatingLocation()
-    }
-    
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        if let location = locations.first {
-            self.location = location
-        }
-    }
-    
-    func fetchAddress(from location: CLLocation?) {
-        guard let location = location else { return }
-        
+    private func fetchAddress(from location: CLLocation) {
         let geocoder = CLGeocoder()
-        geocoder.reverseGeocodeLocation(location) { (placemarks, error) in
+        geocoder.reverseGeocodeLocation(location) { placemarks, error in
             if let error = error {
-                print("Failed to get address: \(error.localizedDescription)")
+                print("Reverse geocoding failed: \(error.localizedDescription)")
                 self.address = "Address not found"
                 return
             }
-            
+
             if let placemark = placemarks?.first {
                 let addressString = [
                     placemark.name,
@@ -106,17 +75,11 @@ class LocationManager2: NSObject, ObservableObject, CLLocationManagerDelegate {
                     placemark.postalCode,
                     placemark.country
                 ].compactMap { $0 }.joined(separator: ", ")
-                
+
                 DispatchQueue.main.async {
                     self.address = addressString
                 }
             }
         }
-    }
-}
-
-extension LocationManager2 {
-    func startUpdatingLocation() {
-        locationManager.startUpdatingLocation()
     }
 }

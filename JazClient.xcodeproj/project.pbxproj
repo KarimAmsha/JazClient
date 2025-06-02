@@ -258,8 +258,9 @@
 		5267FAC92DCD42650063AF67 /* ChatListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5267FAC82DCD42640063AF67 /* ChatListViewModel.swift */; };
 		5267FACB2DCD42F20063AF67 /* FirebaseUserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5267FACA2DCD42F10063AF67 /* FirebaseUserService.swift */; };
 		5267FACD2DCD44850063AF67 /* PushNotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5267FACC2DCD44840063AF67 /* PushNotificationService.swift */; };
+		5291E9E02DED968D0019BB66 /* AccountCreatedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5291E9DF2DED968C0019BB66 /* AccountCreatedView.swift */; };
+		5291E9E42DEDE9640019BB66 /* ServicesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5291E9E32DEDE9630019BB66 /* ServicesView.swift */; };
 		52AEC8D72DCBE61C00B4FC84 /* ServiceModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52AEC8D62DCBE61A00B4FC84 /* ServiceModel.swift */; };
-		52AEC8D92DCBF23500B4FC84 /* .swift in Sources */ = {isa = PBXBuildFile; fileRef = 52AEC8D82DCBF22900B4FC84 /* .swift */; };
 		52AEC8DD2DCBF26900B4FC84 /* DeliveryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52AEC8DC2DCBF26100B4FC84 /* DeliveryView.swift */; };
 		52AEC8DF2DCBF27C00B4FC84 /* ServiceRatingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52AEC8DE2DCBF27B00B4FC84 /* ServiceRatingView.swift */; };
 		52AEC8E12DCBF47300B4FC84 /* RejectionReasonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52AEC8E02DCBF47100B4FC84 /* RejectionReasonView.swift */; };
@@ -507,8 +508,9 @@
 		5267FAC82DCD42640063AF67 /* ChatListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatListViewModel.swift; sourceTree = "<group>"; };
 		5267FACA2DCD42F10063AF67 /* FirebaseUserService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseUserService.swift; sourceTree = "<group>"; };
 		5267FACC2DCD44840063AF67 /* PushNotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationService.swift; sourceTree = "<group>"; };
+		5291E9DF2DED968C0019BB66 /* AccountCreatedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreatedView.swift; sourceTree = "<group>"; };
+		5291E9E32DEDE9630019BB66 /* ServicesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServicesView.swift; sourceTree = "<group>"; };
 		52AEC8D62DCBE61A00B4FC84 /* ServiceModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceModel.swift; sourceTree = "<group>"; };
-		52AEC8D82DCBF22900B4FC84 /* .swift */ = {isa = PBXFileReference; lastKnownFileType = text; path = .swift; sourceTree = "<group>"; };
 		52AEC8DC2DCBF26100B4FC84 /* DeliveryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeliveryView.swift; sourceTree = "<group>"; };
 		52AEC8DE2DCBF27B00B4FC84 /* ServiceRatingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceRatingView.swift; sourceTree = "<group>"; };
 		52AEC8E02DCBF47100B4FC84 /* RejectionReasonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RejectionReasonView.swift; sourceTree = "<group>"; };
@@ -896,6 +898,7 @@
 		1ECC95052BDD156F002BFE54 /* Auth */ = {
 			isa = PBXGroup;
 			children = (
+				5291E9DF2DED968C0019BB66 /* AccountCreatedView.swift */,
 				52D9E6C02DCB500B00ED2874 /* RegistrationSteper */,
 				1ECC95062BDD1587002BFE54 /* AuthenticationView.swift */,
 				1ECC95082BDD15A5002BFE54 /* LoginView.swift */,
@@ -1132,7 +1135,7 @@
 		52D9E6CD2DCB953600ED2874 /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				52AEC8D82DCBF22900B4FC84 /* .swift */,
+				5291E9E32DEDE9630019BB66 /* ServicesView.swift */,
 				52D9E6D32DCB957500ED2874 /* AddServiceView.swift */,
 			);
 			path = Services;
@@ -1335,6 +1338,7 @@
 				521DAC352DCDD9FF003BB59B /* JazClientApp.swift in Sources */,
 				1EDEF6762BE1788300863C10 /* MyOrdersView.swift in Sources */,
 				52C6AD5A2DCA3E4D00D0A672 /* GeneralAlertToastView.swift in Sources */,
+				5291E9E02DED968D0019BB66 /* AccountCreatedView.swift in Sources */,
 				52D9E6CC2DCB92AA00ED2874 /* MainTabItem.swift in Sources */,
 				52AEC8E12DCBF47300B4FC84 /* RejectionReasonView.swift in Sources */,
 				5235B1972DCC99AA009F75FA /* RejectionReasonSheet.swift in Sources */,
@@ -1383,6 +1387,7 @@
 				1E2804292C04CECF0021DFB0 /* Contact.swift in Sources */,
 				1ECC94D22BDC5E49002BFE54 /* AsyncImageView.swift in Sources */,
 				1EC27FF42C0392060007279D /* UpdateCart.swift in Sources */,
+				5291E9E42DEDE9640019BB66 /* ServicesView.swift in Sources */,
 				1ECC946F2BDC5B68002BFE54 /* NSNotification+Extensions.swift in Sources */,
 				1EDEF6832BE1A1D200863C10 /* SelectedGiftView.swift in Sources */,
 				1ECC94CE2BDC5E49002BFE54 /* CustomToggleStyle.swift in Sources */,
@@ -1483,7 +1488,6 @@
 				1E2804192C04C6700021DFB0 /* AddressBookView.swift in Sources */,
 				1E28042D2C04D3F30021DFB0 /* NotificationsView.swift in Sources */,
 				1E2804232C04C7C70021DFB0 /* Complain.swift in Sources */,
-				52AEC8D92DCBF23500B4FC84 /* .swift in Sources */,
 				1E28041B2C04C6700021DFB0 /* EditAddressView.swift in Sources */,
 				5235B1912DCC98D7009F75FA /* EditRequestSheet.swift in Sources */,
 				5235B19F2DCCD5EA009F75FA /* NotificationsSettingsView.swift in Sources */,
