@@ -1,111 +1,189 @@
-//
-//  ServicesView.swift
-//  JazClient
-//
-//  Created by Karim OTHMAN on 2.06.2025.
-//
-
 import SwiftUI
 
 struct ServicesView: View {
     @EnvironmentObject var appRouter: AppRouter
     @ObservedObject var viewModel: InitialViewModel
-    let selectedIndexFromHome: Int?
+    let selectedCategoryId: String? // nil if from tab bar
 
     @State private var selectedTabIndex: Int = 0
-
+    @State private var showBackButton: Bool = false
+    @State private var searchText: String = ""
+    
+    var isSearching: Bool {
+        !searchText.trimmingCharacters(in: .whitespaces).isEmpty
+    }
+    
     var body: some View {
         VStack(spacing: 0) {
-//            Picker("", selection: $selectedTabIndex) {
-//                ForEach(viewModel.homeItems?.category, id: \ .self) { index in
-//                    Text(viewModel.homeItems?.category?[index].localizedName ?? "")
-//                        .tag(index)
-//                }
-//            }
-//            .pickerStyle(.segmented)
-//            .padding(.horizontal)
-//
-//            HStack {
-//                TextField("ابحث عن خدمة", text: .constant(""))
-//                    .padding(10)
-//                    .background(Color.gray.opacity(0.1))
-//                    .cornerRadius(10)
-//
-//                Button(action: {}) {
-//                    Image(systemName: "magnifyingglass")
-//                        .foregroundColor(.black)
-//                }
-//            }
-//            .padding(.horizontal)
+            
+            // MARK: - Tabs (Hidden when searching)
+            if !isSearching {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(Array(viewModel.homeItems?.category?.enumerated() ?? [].enumerated()), id: \.element.id) { idx, category in
+                            Button(action: { selectedTabIndex = idx }) {
+                                Text(category.localizedName)
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .padding(.vertical, 8)
+                                    .padding(.horizontal, 16)
+                                    .background(selectedTabIndex == idx ? Color(hex: "#0097A7") : Color(.systemGray6))
+                                    .foregroundColor(selectedTabIndex == idx ? .white : .black)
+                                    .cornerRadius(12)
+                            }
+                        }
+                    }
+                    .padding(.horizontal)
+                    .padding(.vertical, 8)
+                }
+            }
 
-//            ScrollView {
-//                LazyVStack(spacing: 16) {
-//                    ForEach(viewModel.homeItems?.category?[safe: selectedTabIndex]?.sub ?? [], id: \._id) { item in
-//                        VStack(alignment: .leading, spacing: 8) {
-//                            HStack(alignment: .top) {
-//                                VStack(alignment: .leading, spacing: 4) {
-//                                    Text(item.title)
-//                                        .font(.system(size: 16, weight: .bold))
-//
-//                                    Text(viewModel.homeItems?.category?[safe: selectedTabIndex]?.localizedName ?? "")
-//                                        .font(.system(size: 14))
-//                                        .foregroundColor(.gray)
-//                                }
-//
-//                                Spacer()
-//
-//                                AsyncImage(url: URL(string: item.image ?? "")) { image in
-//                                    image.resizable()
-//                                } placeholder: {
-//                                    Color.gray.opacity(0.2)
-//                                }
-//                                .frame(width: 50, height: 50)
-//                            }
-//
-//                            Text(item.description)
-//                                .font(.system(size: 13))
-//                                .lineLimit(3)
-//
-//                            Button(action: {}) {
-//                                Text("اطلب الآن")
-//                                    .frame(maxWidth: .infinity)
-//                                    .padding()
-//                                    .foregroundColor(.white)
-//                                    .background(Color.orange)
-//                                    .cornerRadius(10)
-//                            }
-//                        }
-//                        .padding()
-//                        .background(Color.white)
-//                        .cornerRadius(12)
-//                        .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
-//                        .padding(.horizontal)
-//                    }
-//                }
-//            }
+            // MARK: - Search Bar
+            HStack {
+                TextField("ابحث عن خدمة", text: $searchText)
+                    .padding(10)
+                    .background(Color.gray.opacity(0.1))
+                    .cornerRadius(10)
+                    .submitLabel(.search)
+                    .onSubmit { fetchDataWithSearch() }
+                    .onChange(of: searchText) { _ in
+                        // instant search (optional: add debounce for performance)
+                        if searchText.count > 2 || searchText.isEmpty {
+                            fetchDataWithSearch()
+                        }
+                    }
+                Button(action: { fetchDataWithSearch() }) {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.black)
+                }
+            }
+            .padding(.horizontal)
+            .padding(.bottom, 6)
+
+            // MARK: - Services List
+            ScrollView {
+                LazyVStack(spacing: 16) {
+                    if isSearching {
+                        // All results from all categories (with title)
+                        ForEach(viewModel.homeItems?.category ?? [], id: \.id) { category in
+                            if let subItems = category.sub {
+                                ForEach(subItems, id: \.id) { item in
+                                    ServiceCardView(item: item, categoryName: category.localizedName)
+                                }
+                            }
+                        }
+                    } else {
+                        // Current tab only
+                        if let subItems = viewModel.homeItems?.category?[safe: selectedTabIndex]?.sub {
+                            ForEach(subItems, id: \.id) { item in
+                                ServiceCardView(
+                                    item: item,
+                                    categoryName: viewModel.homeItems?.category?[safe: selectedTabIndex]?.localizedName ?? ""
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         }
+        .background(Color.background())
+        .navigationBarBackButtonHidden()
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Text("الخدمات")
-                    .font(.system(size: 20, weight: .bold))
+            ToolbarItem(placement: .navigationBarLeading) {
+                HStack {
+                    if showBackButton {
+                        Button(action: { appRouter.navigateBack() }) {
+                            Image(systemName: "chevron.backward")
+                                .font(.system(size: 20, weight: .bold))
+                                .foregroundColor(.black)
+                        }
+                    }
+                    Text("الخدمات")
+                        .font(.system(size: 20, weight: .bold))
+                        .padding(.leading, showBackButton ? 8 : 0)
+                    Spacer()
+                }
+                .padding(.horizontal)
             }
         }
         .onAppear {
-            if let selectedIndexFromHome = selectedIndexFromHome {
-                self.selectedTabIndex = selectedIndexFromHome
-            } else {
-                self.selectedTabIndex = 0
-            }
+            updateSelectedTab()
+            showBackButton = selectedCategoryId != nil // Only show if coming from home
+            fetchDataWithSearch()
         }
     }
-}
+    
+    func updateSelectedTab() {
+        if let id = selectedCategoryId,
+           let index = viewModel.homeItems?.category?.firstIndex(where: { $0.id == id }) {
+            selectedTabIndex = index
+        } else {
+            selectedTabIndex = 0
+        }
+    }
 
-extension Array {
-    subscript(safe index: Index) -> Element? {
-        return indices.contains(index) ? self[index] : nil
+    func fetchDataWithSearch() {
+        // هنا يفضل إضافة جلب اللوكيشن بدلاً من ثوابت lat/lng
+        viewModel.fetchHomeItems(
+            q: searchText.trimmingCharacters(in: .whitespaces).isEmpty ? nil : searchText,
+            lat: 18.2418308,
+            lng: 42.4660169
+        )
     }
 }
 
+// MARK: - Service Card View (Extracted for Cleanliness)
+struct ServiceCardView: View {
+    let item: SubCategory // غيّر للنوع المناسب عندك إذا اسمه غير ذلك
+    let categoryName: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(item.title)
+                        .font(.system(size: 16, weight: .bold))
+                    if !categoryName.isEmpty {
+                        Text(categoryName)
+                            .font(.system(size: 14))
+                            .foregroundColor(.gray)
+                    }
+                }
+                Spacer()
+                AsyncImage(url: URL(string: item.image ?? "")) { image in
+                    image.resizable()
+                } placeholder: {
+                    Color.gray.opacity(0.2)
+                }
+                .frame(width: 50, height: 50)
+            }
+            Text(item.description)
+                .font(.system(size: 13))
+                .lineLimit(3)
+            Button(action: {}) {
+                Text("اطلب الآن")
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .foregroundColor(.white)
+                    .background(Color.orange)
+                    .cornerRadius(10)
+            }
+        }
+        .padding()
+        .background(Color.white)
+        .cornerRadius(12)
+        .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
+        .padding(.horizontal)
+    }
+}
+
+// MARK: - Safe Array Access
+extension Array {
+    subscript(safe index: Index) -> Element? {
+        indices.contains(index) ? self[index] : nil
+    }
+}
+
+// MARK: - Preview
 #Preview {
-    ServicesView(viewModel: InitialViewModel(errorHandling: ErrorHandling()), selectedIndexFromHome: 0)
+    ServicesView(viewModel: InitialViewModel(errorHandling: ErrorHandling()), selectedCategoryId: nil)
 }

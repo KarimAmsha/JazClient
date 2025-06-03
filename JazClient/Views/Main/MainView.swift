@@ -1,10 +1,3 @@
-//
-//  MainView.swift
-//  Wishy
-//
-//  Created by Karim Amsha on 27.04.2024.
-//
-
 import SwiftUI
 import PopupView
 
@@ -16,23 +9,6 @@ struct MainView: View {
     @ObservedObject var appRouter = AppRouter()
     @ObservedObject var viewModel = InitialViewModel(errorHandling: ErrorHandling())
     @StateObject var cartViewModel = CartViewModel(errorHandling: ErrorHandling())
-    private var tabItems: [MainTabItem] {
-        var items: [MainTabItem] = [
-            MainTabItem(page: .home, iconSystemName: "house", title: "الرئيسية"),
-            MainTabItem(page: .chat, iconSystemName: "message", title: "الرسائل", isNotified: true),
-            MainTabItem(page: .projects, iconSystemName: "briefcase", title: "المشاريع"),
-            MainTabItem(page: .more, iconSystemName: "line.3.horizontal", title: "المزيد")
-        ]
-
-        if settings.userRole == .provider {
-            items.insert(
-                MainTabItem(page: .addService, iconSystemName: "plus.circle", title: "إضافة خدمة"),
-                at: 2
-            )
-        }
-
-        return items
-    }
     @State private var selectedTab: TabItem2 = .home
 
     var body: some View {
@@ -42,21 +18,9 @@ struct MainView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .foregroundColor(.clear)
                     .background(.white)
-
                 VStack(spacing: 0) {
                     Spacer()
-                    switch selectedTab {
-                    case .home:
-                        HomeView()
-                    case .services:
-                        EmptyView()
-                    case .jaz:
-                        EmptyView()
-                    case .orders:
-                        MyOrdersView()
-                    case .profile:
-                        ProfileView()
-                    }
+                    mainTabContent
                     CustomTabBar(selectedTab: $selectedTab)
                 }
                 .edgesIgnoringSafeArea(.bottom)
@@ -68,115 +32,13 @@ struct MainView: View {
             .navigationBarTitleDisplayMode(.inline)
             .environmentObject(appRouter)
             .navigationDestination(for: AppRouter.Destination.self) { destination in
-                switch destination {
-                case .profile:
-                    ProfileView()
-                case .editProfile:
-                    EditProfileView()
-                case .changePassword:
-                    EmptyView()
-//                    ChangePasswordView()
-                case .changePhoneNumber:
-                    EmptyView()
-//                    ChangePhoneNumberView()
-                case .contactUs:
-                    ContactUsView()
-                case .rewards:
-                    EmptyView()
-//                    RewardsView()
-                case .paymentSuccess:
-                    SuccessView()
-                case .constant(let item):
-                    ConstantView(item: .constant(item))
-                case .myOrders:
-                    MyOrdersView()
-                case .orderDetails(let orderID):
-                    OrderDetailsView(orderID: orderID)
-                case .upcomingReminders:
-                    UpcomingRemindersView()
-                case .productsListView(let specialCategory):
-                    ProductsListView(viewModel: viewModel, specialCategory: specialCategory)
-                case .productDetails(let id):
-                    ProductDetailsView(viewModel: viewModel, productId: id)
-                case .selectedGiftView:
-                    SelectedGiftView()
-                case .friendWishes(let user):
-                    FriendWishesView(user: user)
-                case .friendWishesListView:
-                    FriendWishesListView()
-                case .friendWishesDetailsView(let id):
-                    FriendWishesDetailsView(wishId: id, viewModel: viewModel)
-                case .retailFriendWishesView:
-                    RetailFriendWishesView()
-                case .retailPaymentView(let id):
-                    RetailPaymentView(wishId: id)
-                case .addressBook:
-                    AddressBookView()
-                case .addAddressBook:
-                    AddAddressView()
-                case .editAddressBook(let item):
-                    EditAddressView(addressItem: item)
-                case .addressBookDetails(let item):
-                    AddressDetailsView(addressItem: item)
-                case .notifications:
-                    NotificationsView()
-                case .checkoutView(let cartItems):
-                    CheckoutView(cartItems: cartItems)
-                case .productsSearchView:
-                    ProductsSearchView(viewModel: viewModel)
-                case .wishesView:
-                    WishesView()
-                case .userProducts(let id):
-                    UserProductsView(viewModel: viewModel, id: id)
-                case .addUserProduct:
-                    AddUserProductView(viewModel: viewModel)
-                case .VIPGiftView(let type):
-                    VIPGiftView(viewModel: viewModel, categoryType: type)
-                case .userWishes(let userId, let groupId):
-                    UserWishesView(userId: userId, group_id: groupId)
-                case .wishCheckOut(let id):
-                    WishCheckOutView(wishId: id)
-                case .walletView:
-                    WalletView()
-                case .explorWishView(let id):
-                    ExplorWishView(wishId: id, viewModel: viewModel)
-                case .myWishView(let id):
-                    MyWishView(wishId: id, viewModel: viewModel)
-                case .addReview(let id):
-                    AddReviewView(orderId: id)
-                case .deliveryDetails:
-                    DeliveryDetailsView()
-                case .earningsView:
-                    EarningsView()
-                case .notificationsSettings:
-                    NotificationsSettingsView()
-                case .accountSettings:
-                    AccountSettingsView()
-                case .freelancerList:
-                    FreelancerListView()
-                case .freelancerProfile:
-                    FreelancerProfileView()
-                case .serviceDetails:
-                    ServiceDetailsView()
-                case .chatDetail(let id):
-//                    ChatDetailView(chatId: id, currentUserId: UserSettings.shared.id ?? "")
-                    ChatDetailView(viewModel: MockChatViewModel())
-                }
+                navigationDestinationView(for: destination)
             }
             .popup(isPresented: Binding<Bool>(
                 get: { appRouter.activePopup != nil },
                 set: { _ in appRouter.togglePopup(nil) })
             ) {
-               if let popup = appRouter.activePopup {
-                   switch popup {
-                   case .cancelOrder(let alertModel):
-                       AlertView(alertModel: alertModel)
-                   case .alert(let alertModel):
-                       AlertView(alertModel: alertModel)
-                   case .inputAlert(let alertModelWithInput):
-                       InputAlertView(alertModel: alertModelWithInput)
-                   }
-               }
+                popupView
             } customize: {
                 $0
                     .type(.toast)
@@ -192,16 +54,7 @@ struct MainView: View {
                 get: { appRouter.appPopup != nil },
                 set: { _ in appRouter.toggleAppPopup(nil) })
             ) {
-                if let popup = appRouter.appPopup {
-                    switch popup {
-                    case .alertError(let title, let message):
-                        GeneralAlertToastView(title: title, message: message, type: .error)
-                    case .alertSuccess(let title, let message):
-                        GeneralAlertToastView(title: title, message: message, type: .success)
-                    case .alertInfo(let title, let message):
-                        GeneralAlertToastView(title: title, message: message, type: .info)
-                    }
-                }
+                appPopupView
             } customize: {
                 $0
                     .type(.toast)
@@ -219,9 +72,92 @@ struct MainView: View {
     }
 }
 
+// MARK: - Main Tab Content
+
+extension MainView {
+    @ViewBuilder
+    var mainTabContent: some View {
+        switch selectedTab {
+        case .home:
+            HomeView()
+        case .services:
+            ServicesView(viewModel: viewModel, selectedCategoryId: nil)
+        case .jaz:
+            EmptyView()
+        case .orders:
+            MyOrdersView()
+        case .profile:
+            ProfileView()
+        }
+    }
+}
+
+// MARK: - Navigation Destination Routing
+
+extension MainView {
+    @ViewBuilder
+    func navigationDestinationView(for destination: AppRouter.Destination) -> some View {
+        switch destination {
+        // Account Section
+        case .profile: ProfileView()
+        case .editProfile: EditProfileView()
+        case .changePassword: EmptyView()
+        case .changePhoneNumber: EmptyView()
+        // More Section
+        case .contactUs: ContactUsView()
+        case .rewards: EmptyView()
+        // Orders
+        case .myOrders: MyOrdersView()
+        case .orderDetails(let orderID): OrderDetailsView(orderID: orderID)
+        // Products
+        case .productsListView(let specialCategory): ProductsListView(viewModel: viewModel, specialCategory: specialCategory)
+        case .productDetails(let id): ProductDetailsView(viewModel: viewModel, productId: id)
+        // Services
+        case .services(let selectedCategoryId): ServicesView(viewModel: viewModel, selectedCategoryId: selectedCategoryId)
+        case .serviceDetails: ServiceDetailsView()
+        // Other Sections
+        case .paymentSuccess: SuccessView()
+        case .constant(let item): ConstantView(item: .constant(item))
+        // Add more cases as needed...
+        default: EmptyView()
+        }
+    }
+}
+
+// MARK: - Popup Helpers
+
+extension MainView {
+    @ViewBuilder
+    var popupView: some View {
+        if let popup = appRouter.activePopup {
+            switch popup {
+            case .cancelOrder(let alertModel):
+                AlertView(alertModel: alertModel)
+            case .alert(let alertModel):
+                AlertView(alertModel: alertModel)
+            case .inputAlert(let alertModelWithInput):
+                InputAlertView(alertModel: alertModelWithInput)
+            }
+        }
+    }
+
+    @ViewBuilder
+    var appPopupView: some View {
+        if let popup = appRouter.appPopup {
+            switch popup {
+            case .alertError(let title, let message):
+                GeneralAlertToastView(title: title, message: message, type: .error)
+            case .alertSuccess(let title, let message):
+                GeneralAlertToastView(title: title, message: message, type: .success)
+            case .alertInfo(let title, let message):
+                GeneralAlertToastView(title: title, message: message, type: .info)
+            }
+        }
+    }
+}
+
 #Preview {
     MainView()
         .environmentObject(UserSettings())
         .environmentObject(AppState())
 }
-
