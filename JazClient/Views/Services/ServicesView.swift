@@ -62,23 +62,43 @@ struct ServicesView: View {
             // MARK: - Services List
             ScrollView {
                 LazyVStack(spacing: 16) {
-                    if isSearching {
-                        // All results from all categories (with title)
-                        ForEach(viewModel.homeItems?.category ?? [], id: \.id) { category in
-                            if let subItems = category.sub {
+                    if isSearching, let categories = viewModel.homeItems?.category {
+                        ForEach(categories, id: \.id) { category in
+                            if let subItems = category.sub, !subItems.isEmpty {
+                                // عنوان التصنيف لكل مجموعة نتائج
+                                Text(category.localizedName)
+                                    .font(.system(size: 15, weight: .bold))
+                                    .foregroundColor(.accentColor)
+                                    .frame(maxWidth: .infinity, alignment: .trailing)
+                                    .padding(.trailing)
+                                    .padding(.top, 12)
                                 ForEach(subItems, id: \.id) { item in
-                                    ServiceCardView(item: item, categoryName: category.localizedName)
+                                    ServiceCardView(
+                                        item: item,
+                                        categoryName: category.localizedName
+                                    ) {
+                                        // كود الإجراء عند الضغط (مثال)
+                                        let selectedCategory = category
+                                        let selectedSubCategory = item
+                                        appRouter.navigate(to: .addOrder(selectedCategory: selectedCategory, selectedSubCategory: selectedSubCategory))
+                                    }
                                 }
                             }
                         }
                     } else {
-                        // Current tab only
-                        if let subItems = viewModel.homeItems?.category?[safe: selectedTabIndex]?.sub {
+                        // الوضع الافتراضي: فقط تبويب التصنيف الحالي
+                        if let category = viewModel.homeItems?.category?[safe: selectedTabIndex],
+                           let subItems = category.sub, !subItems.isEmpty {
                             ForEach(subItems, id: \.id) { item in
                                 ServiceCardView(
                                     item: item,
-                                    categoryName: viewModel.homeItems?.category?[safe: selectedTabIndex]?.localizedName ?? ""
-                                )
+                                    categoryName: category.localizedName
+                                ) {
+                                    // كود الإجراء عند الضغط
+                                    let selectedCategory = category
+                                    let selectedSubCategory = item
+                                    appRouter.navigate(to: .addOrder(selectedCategory: selectedCategory, selectedSubCategory: selectedSubCategory))
+                                }
                             }
                         }
                     }
@@ -133,8 +153,9 @@ struct ServicesView: View {
 
 // MARK: - Service Card View (Extracted for Cleanliness)
 struct ServiceCardView: View {
-    let item: SubCategory // غيّر للنوع المناسب عندك إذا اسمه غير ذلك
+    let item: SubCategory
     let categoryName: String
+    let onOrderTap: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -155,11 +176,13 @@ struct ServiceCardView: View {
                     Color.gray.opacity(0.2)
                 }
                 .frame(width: 50, height: 50)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
             }
             Text(item.description)
                 .font(.system(size: 13))
+                .foregroundColor(.black)
                 .lineLimit(3)
-            Button(action: {}) {
+            Button(action: onOrderTap) {
                 Text("اطلب الآن")
                     .frame(maxWidth: .infinity)
                     .padding()

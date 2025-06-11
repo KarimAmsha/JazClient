@@ -55,6 +55,7 @@ final class AppRouter: ObservableObject {
         case serviceDetails
         case chatDetail(String)
         case services(String?)
+        case addOrder(selectedCategory: Category?, selectedSubCategory: SubCategory?)
     }
     
     public enum Popup: Hashable {

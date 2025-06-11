@@ -264,6 +264,7 @@
 		52AEC8DD2DCBF26900B4FC84 /* DeliveryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52AEC8DC2DCBF26100B4FC84 /* DeliveryView.swift */; };
 		52AEC8DF2DCBF27C00B4FC84 /* ServiceRatingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52AEC8DE2DCBF27B00B4FC84 /* ServiceRatingView.swift */; };
 		52AEC8E12DCBF47300B4FC84 /* RejectionReasonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52AEC8E02DCBF47100B4FC84 /* RejectionReasonView.swift */; };
+		52C51D442DF97C34007E7D87 /* AddOrderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52C51D432DF97C33007E7D87 /* AddOrderView.swift */; };
 		52C6AD582DCA3DF900D0A672 /* MessageAlertObserverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52C6AD572DCA3DF700D0A672 /* MessageAlertObserverView.swift */; };
 		52C6AD5A2DCA3E4D00D0A672 /* GeneralAlertToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52C6AD592DCA3E4C00D0A672 /* GeneralAlertToastView.swift */; };
 		52C6AD5C2DCA419500D0A672 /* TamaraWebViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52C6AD5B2DCA419400D0A672 /* TamaraWebViewModel.swift */; };
@@ -514,6 +515,7 @@
 		52AEC8DC2DCBF26100B4FC84 /* DeliveryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeliveryView.swift; sourceTree = "<group>"; };
 		52AEC8DE2DCBF27B00B4FC84 /* ServiceRatingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceRatingView.swift; sourceTree = "<group>"; };
 		52AEC8E02DCBF47100B4FC84 /* RejectionReasonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RejectionReasonView.swift; sourceTree = "<group>"; };
+		52C51D432DF97C33007E7D87 /* AddOrderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddOrderView.swift; sourceTree = "<group>"; };
 		52C6AD572DCA3DF700D0A672 /* MessageAlertObserverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageAlertObserverView.swift; sourceTree = "<group>"; };
 		52C6AD592DCA3E4C00D0A672 /* GeneralAlertToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralAlertToastView.swift; sourceTree = "<group>"; };
 		52C6AD5B2DCA419400D0A672 /* TamaraWebViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TamaraWebViewModel.swift; sourceTree = "<group>"; };
@@ -1001,6 +1003,7 @@
 		1EDEF6742BE1787500863C10 /* Orders */ = {
 			isa = PBXGroup;
 			children = (
+				52C51D432DF97C33007E7D87 /* AddOrderView.swift */,
 				1EDEF6752BE1788300863C10 /* MyOrdersView.swift */,
 				1EDEF6772BE17C0C00863C10 /* OrderDetailsView.swift */,
 				1EC27FFB2C03B1AB0007279D /* OrderItemView.swift */,
@@ -1434,6 +1437,7 @@
 				1ECC94D62BDC5FB1002BFE54 /* AlertModel.swift in Sources */,
 				1EA7FEF52C1A205B00823465 /* Friend.swift in Sources */,
 				1EDEF6732BE1764200863C10 /* HTMLView.swift in Sources */,
+				52C51D442DF97C34007E7D87 /* AddOrderView.swift in Sources */,
 				52AEC8DD2DCBF26900B4FC84 /* DeliveryView.swift in Sources */,
 				1ECC94732BDC5B68002BFE54 /* View+Extensions.swift in Sources */,
 				1ECC95162BDD17E4002BFE54 /* InputAlertView.swift in Sources */,

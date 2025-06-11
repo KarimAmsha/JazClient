@@ -83,7 +83,7 @@ extension MainView {
         case .services:
             ServicesView(viewModel: viewModel, selectedCategoryId: nil)
         case .jaz:
-            EmptyView()
+            AddOrderView(selectedCategory: nil, selectedSubCategory: nil, viewModel: viewModel)
         case .orders:
             MyOrdersView()
         case .profile:
@@ -119,6 +119,12 @@ extension MainView {
         case .paymentSuccess: SuccessView()
         case .constant(let item): ConstantView(item: .constant(item))
         // Add more cases as needed...
+        case .addOrder(let selectedCategory, let selectedSubCategory):
+            AddOrderView(
+                selectedCategory: selectedCategory,
+                selectedSubCategory: selectedSubCategory,
+                viewModel: viewModel
+            )
         default: EmptyView()
         }
     }
