@@ -1,5 +1,5 @@
 {
-  "originHash" : "8cb5e5a14a81ba3a2a1bc8ba3e3b2172e50a56a507e2727a7aed42178682fdb5",
+  "originHash" : "080e22f9f81bbaa192272dabf303cc07b5c86140bc657a7e142f3def36363188",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -98,6 +98,15 @@
       "state" : {
         "revision" : "a0bc79961d7be727d258d33d5a6b2f1023270ba1",
         "version" : "1.22.5"
+      }
+    },
+    {
+      "identity" : "moyasar-ios-sdk",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/moyasar/moyasar-ios-sdk.git",
+      "state" : {
+        "revision" : "bc38902ef7c657c89373236dddd34416823cc869",
+        "version" : "1.0.5"
       }
     },
     {

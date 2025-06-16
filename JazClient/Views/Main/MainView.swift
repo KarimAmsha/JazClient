@@ -83,7 +83,14 @@ extension MainView {
         case .services:
             ServicesView(viewModel: viewModel, selectedCategoryId: nil)
         case .jaz:
-            AddOrderView(selectedCategory: nil, selectedSubCategory: nil, viewModel: viewModel)
+            AddOrderView(
+                viewModel: viewModel,
+                userViewModel: UserViewModel(errorHandling: ErrorHandling()),
+                locationManager: LocationManager.shared,
+                selectedCategory: nil,
+                selectedSubCategory: nil,
+                cameFromMain: true
+            )
         case .orders:
             MyOrdersView()
         case .profile:
@@ -121,10 +128,15 @@ extension MainView {
         // Add more cases as needed...
         case .addOrder(let selectedCategory, let selectedSubCategory):
             AddOrderView(
+                viewModel: viewModel,
+                userViewModel: UserViewModel(errorHandling: ErrorHandling()),
+                locationManager: LocationManager.shared,
                 selectedCategory: selectedCategory,
                 selectedSubCategory: selectedSubCategory,
-                viewModel: viewModel
+                cameFromMain: false
             )
+        case .checkout(let orderData):
+            CheckoutView(orderData: orderData)
         default: EmptyView()
         }
     }

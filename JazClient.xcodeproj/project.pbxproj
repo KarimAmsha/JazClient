@@ -53,7 +53,6 @@
 		1E8E6F102C174C90003BA912 /* WishesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E8E6F0F2C174C90003BA912 /* WishesViewModel.swift */; };
 		1E8E6F122C174E4F003BA912 /* Group.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E8E6F112C174E4F003BA912 /* Group.swift */; };
 		1EA562392C0776440016B508 /* OrderDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA562382C0776440016B508 /* OrderDetails.swift */; };
-		1EA6D31C2C1D961F007E8AE0 /* WishCheckOutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA6D31B2C1D961F007E8AE0 /* WishCheckOutView.swift */; };
 		1EA6D31F2C1DB0D2007E8AE0 /* WalletView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA6D31E2C1DB0D2007E8AE0 /* WalletView.swift */; };
 		1EA6D3212C1DB0E7007E8AE0 /* TransactionsRowiew.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA6D3202C1DB0E7007E8AE0 /* TransactionsRowiew.swift */; };
 		1EA6D3252C1DB109007E8AE0 /* AddBalanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA6D3242C1DB109007E8AE0 /* AddBalanceView.swift */; };
@@ -258,6 +257,8 @@
 		5267FAC92DCD42650063AF67 /* ChatListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5267FAC82DCD42640063AF67 /* ChatListViewModel.swift */; };
 		5267FACB2DCD42F20063AF67 /* FirebaseUserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5267FACA2DCD42F10063AF67 /* FirebaseUserService.swift */; };
 		5267FACD2DCD44850063AF67 /* PushNotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5267FACC2DCD44840063AF67 /* PushNotificationService.swift */; };
+		528541502E00268700ED92D1 /* MoyasarSdk in Frameworks */ = {isa = PBXBuildFile; productRef = 5285414F2E00268700ED92D1 /* MoyasarSdk */; };
+		528541522E002A2300ED92D1 /* OrderData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 528541512E002A1E00ED92D1 /* OrderData.swift */; };
 		5291E9E02DED968D0019BB66 /* AccountCreatedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5291E9DF2DED968C0019BB66 /* AccountCreatedView.swift */; };
 		5291E9E42DEDE9640019BB66 /* ServicesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5291E9E32DEDE9630019BB66 /* ServicesView.swift */; };
 		52AEC8D72DCBE61C00B4FC84 /* ServiceModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52AEC8D62DCBE61A00B4FC84 /* ServiceModel.swift */; };
@@ -332,7 +333,6 @@
 		1E8E6F0F2C174C90003BA912 /* WishesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishesViewModel.swift; sourceTree = "<group>"; };
 		1E8E6F112C174E4F003BA912 /* Group.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Group.swift; sourceTree = "<group>"; };
 		1EA562382C0776440016B508 /* OrderDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderDetails.swift; sourceTree = "<group>"; };
-		1EA6D31B2C1D961F007E8AE0 /* WishCheckOutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WishCheckOutView.swift; sourceTree = "<group>"; };
 		1EA6D31E2C1DB0D2007E8AE0 /* WalletView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletView.swift; sourceTree = "<group>"; };
 		1EA6D3202C1DB0E7007E8AE0 /* TransactionsRowiew.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionsRowiew.swift; sourceTree = "<group>"; };
 		1EA6D3242C1DB109007E8AE0 /* AddBalanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddBalanceView.swift; sourceTree = "<group>"; };
@@ -509,6 +509,7 @@
 		5267FAC82DCD42640063AF67 /* ChatListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatListViewModel.swift; sourceTree = "<group>"; };
 		5267FACA2DCD42F10063AF67 /* FirebaseUserService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseUserService.swift; sourceTree = "<group>"; };
 		5267FACC2DCD44840063AF67 /* PushNotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationService.swift; sourceTree = "<group>"; };
+		528541512E002A1E00ED92D1 /* OrderData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderData.swift; sourceTree = "<group>"; };
 		5291E9DF2DED968C0019BB66 /* AccountCreatedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreatedView.swift; sourceTree = "<group>"; };
 		5291E9E32DEDE9630019BB66 /* ServicesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServicesView.swift; sourceTree = "<group>"; };
 		52AEC8D62DCBE61A00B4FC84 /* ServiceModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceModel.swift; sourceTree = "<group>"; };
@@ -543,6 +544,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1ECC94A72BDC5D8B002BFE54 /* FirebaseInAppMessagingSwift-Beta in Frameworks */,
+				528541502E00268700ED92D1 /* MoyasarSdk in Frameworks */,
 				1ECC94972BDC5D8B002BFE54 /* FirebaseDatabaseSwift in Frameworks */,
 				1EA740562BFBADC20028AAD0 /* RefreshableScrollView in Frameworks */,
 				1ECC94952BDC5D8B002BFE54 /* FirebaseDatabase in Frameworks */,
@@ -750,6 +752,7 @@
 		1ECC944D2BDC56EE002BFE54 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				528541512E002A1E00ED92D1 /* OrderData.swift */,
 				5267FAB82DCD3D980063AF67 /* Chat */,
 				52AEC8D62DCBE61A00B4FC84 /* ServiceModel.swift */,
 				52D9E6CB2DCB92A800ED2874 /* MainTabItem.swift */,
@@ -1011,7 +1014,6 @@
 				1E28043B2C04FE160021DFB0 /* CheckoutView.swift */,
 				1E28043D2C0503850021DFB0 /* AddressListView.swift */,
 				1E28043F2C0506F70021DFB0 /* ShowMapView.swift */,
-				1EA6D31B2C1D961F007E8AE0 /* WishCheckOutView.swift */,
 				1E0053402C1F2D8900C75E42 /* ShowOrderOnMapView.swift */,
 			);
 			path = Orders;
@@ -1221,6 +1223,7 @@
 				1ECC95292BDD2B02002BFE54 /* Alamofire */,
 				1EA740502BFB909E0028AAD0 /* SkeletonUI */,
 				1EA740552BFBADC20028AAD0 /* RefreshableScrollView */,
+				5285414F2E00268700ED92D1 /* MoyasarSdk */,
 			);
 			productName = Wishy;
 			productReference = 1EEC2BCC2BD83E6000975953 /* JazClient.app */;
@@ -1257,6 +1260,7 @@
 				1ECC95282BDD2B02002BFE54 /* XCRemoteSwiftPackageReference "Alamofire" */,
 				1EA7404F2BFB909D0028AAD0 /* XCRemoteSwiftPackageReference "SkeletonUI" */,
 				1EA740542BFBADC20028AAD0 /* XCRemoteSwiftPackageReference "RefreshableScrollView" */,
+				5285414E2E00268700ED92D1 /* XCRemoteSwiftPackageReference "moyasar-ios-sdk" */,
 			);
 			productRefGroup = 1EEC2BCD2BD83E6000975953 /* Products */;
 			projectDirPath = "";
@@ -1367,7 +1371,6 @@
 				1ECC94D82BDC5FF7002BFE54 /* CustomModel.swift in Sources */,
 				1ECC95142BDD17D1002BFE54 /* AlertView.swift in Sources */,
 				1EDEF66D2BE1689200863C10 /* CustomListItem.swift in Sources */,
-				1EA6D31C2C1D961F007E8AE0 /* WishCheckOutView.swift in Sources */,
 				1ECC95372BDD8150002BFE54 /* PersonalInfoView.swift in Sources */,
 				1EA6D3212C1DB0E7007E8AE0 /* TransactionsRowiew.swift in Sources */,
 				1E2804342C04D4DA0021DFB0 /* NotificationsStruct.swift in Sources */,
@@ -1516,6 +1519,7 @@
 				1ECC94722BDC5B68002BFE54 /* Color+Extensions.swift in Sources */,
 				1ECC953D2BDD8298002BFE54 /* UserViewModel.swift in Sources */,
 				1ECC951F2BDD1874002BFE54 /* CustomDivider.swift in Sources */,
+				528541522E002A2300ED92D1 /* OrderData.swift in Sources */,
 				1ECC94F02BDD11D4002BFE54 /* LanguageManager.swift in Sources */,
 				1E28041A2C04C6700021DFB0 /* AddressRowView.swift in Sources */,
 				1ECC94EA2BDC6A3F002BFE54 /* WelcomeSlideView.swift in Sources */,
@@ -1866,6 +1870,14 @@
 				minimumVersion = 5.8.1;
 			};
 		};
+		5285414E2E00268700ED92D1 /* XCRemoteSwiftPackageReference "moyasar-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/moyasar/moyasar-ios-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -2023,6 +2035,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 1ECC95282BDD2B02002BFE54 /* XCRemoteSwiftPackageReference "Alamofire" */;
 			productName = Alamofire;
+		};
+		5285414F2E00268700ED92D1 /* MoyasarSdk */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5285414E2E00268700ED92D1 /* XCRemoteSwiftPackageReference "moyasar-ios-sdk" */;
+			productName = MoyasarSdk;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

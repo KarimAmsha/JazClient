@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct AddressItem: Codable, Hashable, Identifiable {
+struct AddressItem: Codable, Hashable, Identifiable, Equatable {
     let streetName: String?
     let floorNo: String?
     let buildingNo: String?

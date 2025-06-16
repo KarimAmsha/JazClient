@@ -1,15 +1,8 @@
-//
-//  AddOrderView.swift
-//  JazClient
-//
-//  Created by Karim OTHMAN on 11.06.2025.
-//
-
 import SwiftUI
 import CoreLocation
+import MapKit
 
 struct AddOrderView: View {
-    @Environment(\.dismiss) var dismiss
     @EnvironmentObject var appRouter: AppRouter
     @ObservedObject var viewModel: InitialViewModel
     @ObservedObject var userViewModel: UserViewModel
@@ -25,11 +18,11 @@ struct AddOrderView: View {
     @State private var date: Date = Date()
     @State private var time: Date = Date()
     @State private var extraDetails: String = ""
-
-    // عنوان
     @State private var isCurrentLocationSelected: Bool = true
     @State private var selectedAddress: AddressItem? = nil
     @State private var isShowingAllAddresses = false
+    @State private var showValidationError = false
+    @State private var validationMessage = ""
 
     var subCategories: [SubCategory] {
         pickedCategory?.sub ?? []
@@ -37,42 +30,22 @@ struct AddOrderView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // --- Toolbar ---
-            HStack {
-                if !cameFromMain {
-                    Button(action: { dismiss() }) {
-                        Image(systemName: "chevron.backward")
-                            .font(.system(size: 20, weight: .bold))
-                            .foregroundColor(.black)
-                    }
-                }
-                Spacer()
-                Text("اضافة طلب جديد")
-                    .font(.system(size: 22, weight: .bold))
-                    .padding(.trailing, 10)
-                Spacer()
-                if !cameFromMain { Spacer().frame(width: 30) }
-            }
-            .padding(.horizontal)
-            .padding(.vertical, 8)
-            .background(Color(hex: "#FFA300").opacity(0.97))
-
             ScrollView {
-                VStack(alignment: .trailing, spacing: 18) {
+                VStack(alignment: .leading, spacing: 18) {
                     // --- المعلومات الأساسية ---
                     Text("المعلومات الاساسية")
                         .font(.system(size: 18, weight: .bold))
                         .padding(.top, 16)
-                        .padding(.trailing)
+                        .padding(.leading)
 
                     // --- Main Category Dropdown ---
-                    VStack(alignment: .trailing, spacing: 4) {
+                    VStack(alignment: .leading, spacing: 4) {
                         Text("نوع الخدمة الاساسي")
                             .font(.system(size: 14, weight: .medium))
                         Picker(selection: $pickedCategory) {
                             Text("اضغط لاختيار نوع الخدمة").tag(Category?.none)
                             ForEach(viewModel.homeItems?.category ?? [], id: \.id) { category in
-                                Text(category.title).tag(Category?.some(category))
+                                Text(category.title ?? "").tag(Category?.some(category))
                             }
                         } label: { Text("") }
                         .pickerStyle(.menu)
@@ -80,29 +53,39 @@ struct AddOrderView: View {
                         .onChange(of: pickedCategory) { _ in
                             pickedSubCategory = nil
                         }
+                        // رسالة إذا فاضي
+                        if (viewModel.homeItems?.category ?? []).isEmpty {
+                            Text("لا توجد خدمات رئيسية متاحة حاليًا")
+                                .foregroundColor(.red)
+                                .font(.footnote)
+                        }
                     }
                     .padding(.horizontal)
-                    .disabled((viewModel.homeItems?.category ?? []).isEmpty)
 
                     // --- SubCategory Dropdown ---
-                    VStack(alignment: .trailing, spacing: 4) {
+                    VStack(alignment: .leading, spacing: 4) {
                         Text("الخدمات")
                             .font(.system(size: 14, weight: .medium))
                         Picker(selection: $pickedSubCategory) {
                             Text("اضغط لاختيار نوع الخدمة").tag(SubCategory?.none)
                             ForEach(subCategories, id: \.id) { sub in
-                                Text(sub.title).tag(SubCategory?.some(sub))
+                                Text(sub.title ?? "").tag(SubCategory?.some(sub))
                             }
                         } label: { Text("") }
                         .pickerStyle(.menu)
                         .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
+                        // رسالة إذا فاضي
+                        if pickedCategory != nil && subCategories.isEmpty {
+                            Text("لا توجد خدمات فرعية متاحة لهذا التصنيف")
+                                .foregroundColor(.red)
+                                .font(.footnote)
+                        }
                     }
                     .padding(.horizontal)
-                    .disabled(subCategories.isEmpty)
 
                     // --- Date & Time ---
                     HStack {
-                        VStack(alignment: .trailing, spacing: 2) {
+                        VStack(alignment: .leading, spacing: 2) {
                             Text("التاريخ")
                                 .font(.system(size: 14))
                             DatePicker("", selection: $date, displayedComponents: .date)
@@ -111,7 +94,7 @@ struct AddOrderView: View {
                                 .frame(maxWidth: .infinity)
                                 .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
                         }
-                        VStack(alignment: .trailing, spacing: 2) {
+                        VStack(alignment: .leading, spacing: 2) {
                             Text("الوقت")
                                 .font(.system(size: 14))
                             DatePicker("", selection: $time, displayedComponents: .hourAndMinute)
@@ -124,7 +107,7 @@ struct AddOrderView: View {
                     .padding(.horizontal)
 
                     // --- العنوان ---
-                    VStack(alignment: .trailing, spacing: 8) {
+                    VStack(alignment: .leading, spacing: 8) {
                         Text("العنوان")
                             .font(.system(size: 14, weight: .medium))
                         // ✅ موقعي الحالي
@@ -149,6 +132,11 @@ struct AddOrderView: View {
                         Divider()
                         // ✅ أول 3 عناوين
                         let addressList = userViewModel.addressBook ?? []
+                        if addressList.isEmpty {
+                            Text("لا يوجد عناوين محفوظة")
+                                .foregroundColor(.gray)
+                                .font(.footnote)
+                        }
                         ForEach(addressList.prefix(3), id: \.id) { address in
                             AddressItemView(address: address, isSelected: selectedAddress?.id == address.id)
                                 .onTapGesture {
@@ -168,8 +156,9 @@ struct AddOrderView: View {
                         }
                     }
                     .padding(.horizontal)
+                    
                     // ✅ MiniMap
-                    if isCurrentLocationSelected, let loc = locationManager.location?.coordinate {
+                    if isCurrentLocationSelected, let loc = locationManager.userLocation {
                         MiniMapView(coordinate: loc)
                             .frame(height: 120)
                             .padding(.horizontal)
@@ -184,7 +173,7 @@ struct AddOrderView: View {
                     // --- Extra Details ---
                     Text("تفاصيل إضافية")
                         .font(.system(size: 18, weight: .bold))
-                        .padding(.trailing)
+                        .padding(.leading)
                     TextEditor(text: $extraDetails)
                         .frame(height: 100)
                         .padding(8)
@@ -205,36 +194,261 @@ struct AddOrderView: View {
             }
             .padding()
         }
-        .onAppear {
-            pickedCategory = selectedCategory
-            pickedSubCategory = selectedSubCategory
-            // جلب بيانات العناوين إذا لم تكن موجودة (حسب مشروعك)
-            if userViewModel.addressBook == nil {
-                userViewModel.fetchAddresses()
+        .environment(\.layoutDirection, .rightToLeft)
+        .background(Color.background())
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden()
+        .sheet(isPresented: $isShowingAllAddresses) {
+            FullAddressListView(
+                selectedAddress: $selectedAddress,
+                isCurrentLocationSelected: $isCurrentLocationSelected
+            )
+            .environmentObject(userViewModel)
+        }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                HStack {
+                    if !cameFromMain {
+                        Button(action: {
+                            appRouter.navigateBack()
+                        }) {
+                            Image(systemName: "chevron.backward")
+                                .font(.system(size: 20, weight: .bold))
+                                .foregroundColor(.black)
+                        }
+                    }
+                    Text("اضافة طلب جديد")
+                        .font(.system(size: 20, weight: .bold))
+                        .padding(.leading, !cameFromMain ? 6 : 0)
+                }
             }
-            // جلب الكاتجوري إذا لم تكن موجودة
+        }
+        .alert(isPresented: $showValidationError) {
+            Alert(title: Text("تنبيه"), message: Text(validationMessage), dismissButton: .default(Text("حسنًا")))
+        }
+        .onAppear {
+            // تهيئة القيم الأولية عند الدخول للشاشة
+            if pickedCategory == nil { pickedCategory = selectedCategory }
+            if pickedSubCategory == nil { pickedSubCategory = selectedSubCategory }
+            if userViewModel.addressBook == nil {
+                userViewModel.getAddressList()
+            }
             if (viewModel.homeItems?.category ?? []).isEmpty {
                 viewModel.fetchHomeItems(q: nil, lat: 18.2418308, lng: 42.4660169)
             }
-        }
-        .background(Color(.systemGray6).ignoresSafeArea())
-        .sheet(isPresented: $isShowingAllAddresses) {
-            // شاشة كل العناوين (نفذها حسب مشروعك)
-            AddressBookView(selectedAddress: $selectedAddress, isCurrentLocationSelected: $isCurrentLocationSelected)
-                .environmentObject(userViewModel)
+            locationManager.startUpdatingLocation()
         }
     }
 
     func submitOrder() {
-        // ربط مع API هنا
+        guard let mainCat = pickedCategory else {
+            validationMessage = "يرجى اختيار نوع الخدمة الرئيسي"
+            showValidationError = true
+            return
+        }
+        guard let subCat = pickedSubCategory else {
+            validationMessage = "يرجى اختيار نوع الخدمة الفرعية"
+            showValidationError = true
+            return
+        }
+
+        var lat: Double?
+        var lng: Double?
+
+        if isCurrentLocationSelected, let loc = locationManager.userLocation {
+            lat = loc.latitude
+            lng = loc.longitude
+        } else if let address = selectedAddress {
+            lat = address.lat
+            lng = address.lng
+        }
+
+        guard let finalLat = lat, let finalLng = lng else {
+            validationMessage = "يرجى تحديد الموقع"
+            showValidationError = true
+            return
+        }
+
+        // بناء عنصر الخدمة المختار
+        let selectedService = SelectedServiceItem(
+            service: subCat,
+            quantity: 1, // عدل حسب اختيار المستخدم للكمية
+            categoryId: mainCat.id,
+            subCategoryId: subCat.id,
+            categoryTitle: mainCat.title ?? "",
+            subCategoryTitle: subCat.title ?? ""
+        )
+
+        // بناء OrderData
+        let orderData = OrderData(
+            services: [selectedService],
+            address: selectedAddress,
+            userLocation: isCurrentLocationSelected ? Location(lat: finalLat, lng: finalLng) : nil,
+            notes: extraDetails.isEmpty ? nil : extraDetails,
+            date: date.toDateString(),
+            time: time.toTimeString()
+        )
+
+        // التنقل إلى شاشة الدفع
+        appRouter.navigate(to: .checkout(orderData: orderData))
+    }
+}
+
+// --- Helpers لتنسيق التاريخ والوقت
+extension Date {
+    func toDateString() -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: self)
+    }
+    func toTimeString() -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        return formatter.string(from: self)
     }
 }
 
 #Preview {
     AddOrderView(
+        viewModel: InitialViewModel(errorHandling: ErrorHandling()),
+        userViewModel: UserViewModel(errorHandling: ErrorHandling()),
+        locationManager: LocationManager.shared,
         selectedCategory: nil,
         selectedSubCategory: nil,
-        viewModel: InitialViewModel(errorHandling: ErrorHandling())
+        cameFromMain: true
     )
 }
 
+struct MiniMapView: View {
+    let coordinate: CLLocationCoordinate2D
+
+    // مركز الخريطة
+    @State private var region: MKCoordinateRegion
+
+    // Initializer لتهيئة المنطقة تلقائيًا
+    init(coordinate: CLLocationCoordinate2D) {
+        self.coordinate = coordinate
+        // نقطة المركز والتقريب
+        _region = State(initialValue: MKCoordinateRegion(
+            center: coordinate,
+            span: MKCoordinateSpan(latitudeDelta: 0.004, longitudeDelta: 0.004)
+        ))
+    }
+
+    var body: some View {
+        Map(coordinateRegion: $region, annotationItems: [MapPin(coordinate: coordinate)]) { pin in
+            MapMarker(coordinate: pin.coordinate, tint: .orange)
+        }
+        .cornerRadius(12)
+        .disabled(true) // يمنع التكبير/التصغير إذا أردت أن تكون الخريطة فقط للعرض
+    }
+}
+
+// هيكل بسيط لتعريف الـ annotation
+struct MapPin: Identifiable {
+    let id = UUID()
+    let coordinate: CLLocationCoordinate2D
+}
+
+struct AddressItemView: View {
+    let address: AddressItem
+    let isSelected: Bool
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 10) {
+            // دائرة التحديد
+            Image(systemName: isSelected ? "largecircle.fill.circle" : "circle")
+                .font(.system(size: 22))
+                .foregroundColor(isSelected ? .orange : .gray)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text((address.title?.isEmpty ?? false) ? "عنوان بدون اسم" : address.title ?? "")
+                    .font(.system(size: 16, weight: .medium))
+                Text(address.address)
+                    .font(.footnote)
+                    .foregroundColor(.gray)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+            }
+            Spacer()
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(isSelected ? Color.orange.opacity(0.07) : Color(.systemGray6))
+        )
+    }
+}
+
+struct FullAddressListView: View {
+    @Binding var selectedAddress: AddressItem?
+    @Binding var isCurrentLocationSelected: Bool
+    @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var userViewModel: UserViewModel
+
+    var body: some View {
+        NavigationStack {
+            VStack(alignment: .leading, spacing: 0) {
+                // ✅ زر اختيار "موقعي الحالي"
+                Button(action: {
+                    selectedAddress = nil
+                    isCurrentLocationSelected = true
+                    dismiss()
+                }) {
+                    HStack(alignment: .top, spacing: 8) {
+                        Image(systemName: isCurrentLocationSelected ? "largecircle.fill.circle" : "circle")
+                            .foregroundColor(.primary)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("موقعي الحالي")
+                                .fontWeight(.medium)
+                            Text("استخدم الموقع الجغرافي الحالي")
+                                .font(.footnote)
+                                .foregroundColor(.gray)
+                        }
+                    }
+                    .padding(12)
+                }
+                .background(Color(.systemGray6))
+                .cornerRadius(10)
+                .padding(.horizontal)
+                .padding(.top, 8)
+
+                Divider().padding(.vertical, 2)
+
+                // ✅ قائمة جميع العناوين
+                ScrollView {
+                    VStack(spacing: 8) {
+                        let addressList = userViewModel.addressBook ?? []
+                        if addressList.isEmpty {
+                            Text("لا يوجد عناوين محفوظة")
+                                .foregroundColor(.gray)
+                                .font(.footnote)
+                                .padding()
+                        }
+                        ForEach(addressList, id: \.id) { address in
+                            AddressItemView(address: address, isSelected: selectedAddress?.id == address.id)
+                                .onTapGesture {
+                                    selectedAddress = address
+                                    isCurrentLocationSelected = false
+                                    dismiss()
+                                }
+                                .padding(.horizontal, 8)
+                        }
+                    }
+                    .padding(.top, 10)
+                }
+            }
+            .navigationTitle("كل العناوين")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: { dismiss() }) {
+                        Image(systemName: "chevron.backward")
+                            .foregroundColor(.black)
+                    }
+                }
+            }
+            .background(Color(.systemGray6).ignoresSafeArea())
+        }
+    }
+}

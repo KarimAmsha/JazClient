@@ -31,13 +31,14 @@ struct AddressDetailsView: View {
                     }
 
                     // Display Map using SwiftUI's Map
-                    Map(coordinateRegion: .constant(
-                        MKCoordinateRegion(
+                    Map(
+                        coordinateRegion: .constant(MKCoordinateRegion(
                             center: CLLocationCoordinate2D(latitude: addressItem.lat ?? 0.0, longitude: addressItem.lng ?? 0.0),
                             span: MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
-                        )
-                    ), showsUserLocation: true,  annotationItems: [addressItem]) { location in
-                        MapPin(coordinate: CLLocationCoordinate2D(latitude: location.lat ?? 0.0, longitude: location.lng ?? 0.0))
+                        )),
+                        annotationItems: [addressItem]
+                    ) { location in
+                        MapMarker(coordinate: CLLocationCoordinate2D(latitude: location.lat ?? 0.0, longitude: location.lng ?? 0.0), tint: .orange)
                     }
                     .frame(height: 200)
                     .cornerRadius(8)

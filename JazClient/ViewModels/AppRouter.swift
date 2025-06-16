@@ -56,6 +56,7 @@ final class AppRouter: ObservableObject {
         case chatDetail(String)
         case services(String?)
         case addOrder(selectedCategory: Category?, selectedSubCategory: SubCategory?)
+        case checkout(orderData: OrderData)
     }
     
     public enum Popup: Hashable {
