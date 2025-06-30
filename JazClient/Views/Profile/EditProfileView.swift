@@ -186,6 +186,7 @@ struct EditProfileView: View {
         ]
 
         viewModel.updateUserDataWithImage(imageData: imageData, additionalParams: params) { message in
+            ChatViewModel.setUser()
             showMessage(message: message)
         }
     }

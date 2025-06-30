@@ -264,6 +264,7 @@
 		52AEC8DF2DCBF27C00B4FC84 /* ServiceRatingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52AEC8DE2DCBF27B00B4FC84 /* ServiceRatingView.swift */; };
 		52AEC8E12DCBF47300B4FC84 /* RejectionReasonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52AEC8E02DCBF47100B4FC84 /* RejectionReasonView.swift */; };
 		52B2A64D2E1291DB00981534 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 52B2A64C2E1291DB00981534 /* GoogleService-Info.plist */; };
+		52B2A64F2E12C08500981534 /* SliderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52B2A64E2E12C07D00981534 /* SliderView.swift */; };
 		52C51D442DF97C34007E7D87 /* AddOrderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52C51D432DF97C33007E7D87 /* AddOrderView.swift */; };
 		52C6AD582DCA3DF900D0A672 /* MessageAlertObserverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52C6AD572DCA3DF700D0A672 /* MessageAlertObserverView.swift */; };
 		52C6AD5A2DCA3E4D00D0A672 /* GeneralAlertToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52C6AD592DCA3E4C00D0A672 /* GeneralAlertToastView.swift */; };
@@ -514,6 +515,7 @@
 		52AEC8DE2DCBF27B00B4FC84 /* ServiceRatingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceRatingView.swift; sourceTree = "<group>"; };
 		52AEC8E02DCBF47100B4FC84 /* RejectionReasonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RejectionReasonView.swift; sourceTree = "<group>"; };
 		52B2A64C2E1291DB00981534 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		52B2A64E2E12C07D00981534 /* SliderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderView.swift; sourceTree = "<group>"; };
 		52C51D432DF97C33007E7D87 /* AddOrderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddOrderView.swift; sourceTree = "<group>"; };
 		52C6AD572DCA3DF700D0A672 /* MessageAlertObserverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageAlertObserverView.swift; sourceTree = "<group>"; };
 		52C6AD592DCA3E4C00D0A672 /* GeneralAlertToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralAlertToastView.swift; sourceTree = "<group>"; };
@@ -938,6 +940,7 @@
 		1ECC95422BDDAC3C002BFE54 /* Home */ = {
 			isa = PBXGroup;
 			children = (
+				52B2A64E2E12C07D00981534 /* SliderView.swift */,
 				5235B1A62DCCE640009F75FA /* ServiceDetailsView.swift */,
 				5235B1A42DCCE431009F75FA /* FreelancerProfileView.swift */,
 				5235B1A22DCCE0D7009F75FA /* FreelancerListView.swift */,
@@ -1520,6 +1523,7 @@
 				1E1EDA7C2C1CDA27003047CA /* UserWishesView.swift in Sources */,
 				1EDEF67D2BE1930C00863C10 /* ProductsListView.swift in Sources */,
 				1E2804422C0634450021DFB0 /* Supplier.swift in Sources */,
+				52B2A64F2E12C08500981534 /* SliderView.swift in Sources */,
 				1EA740582BFBCDFE0028AAD0 /* Products.swift in Sources */,
 				1E479B312C4D881B006130E1 /* WhatsApp.swift in Sources */,
 				1ECC95182BDD17FA002BFE54 /* FloatingPickerView.swift in Sources */,

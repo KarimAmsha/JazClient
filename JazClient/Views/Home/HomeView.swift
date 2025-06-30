@@ -19,11 +19,13 @@ struct HomeView: View {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 16) {
                     
-                    // MARK: - Slider (صورة ثابتة حالياً)
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.orange.opacity(0.7))
-                        .frame(height: 120)
-                        .padding(.horizontal)
+                    TabView {
+                        ForEach(viewModel.homeItems?.slider ?? []) { slide in
+                            SliderView(slider: slide)
+                        }
+                    }
+                    .tabViewStyle(.page)
+                    .frame(height: 140)
 
                     // MARK: - Categories Grid
                     if let categories = viewModel.homeItems?.category, !categories.isEmpty {
@@ -111,8 +113,7 @@ struct HomeView: View {
                     viewModel.fetchHomeItems(q: nil, lat: 18.2418308, lng: 42.4660169)
 //                }
                 refreshFcmToken()
-                print("ttt \(UserSettings.shared.token)")
-                ChatViewModel.setUser()
+//                print("ttt \(UserSettings.shared.token)")
             }
         }
     }

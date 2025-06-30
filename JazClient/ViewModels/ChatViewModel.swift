@@ -23,6 +23,7 @@ class ChatViewModel: ObservableObject {
     private let pushService = PushNotificationService()
     private var typingTimer: Timer?
     @Published var users: [String: FirebaseUser] = [:]
+    private var userRef: DatabaseReference? = nil
 
     init(chatId: String, currentUserId: String) {
         self.chatId = chatId
@@ -47,6 +48,9 @@ class ChatViewModel: ObservableObject {
             dbRef.child("messages").child(chatId).child("messagesList").removeObserver(withHandle: handle)
         }
         dbRef.child("typingStatus").child(chatId).child(currentUserId).removeValue()
+        
+        // 🟢 الأهم: إيقاف الاستماع على بيانات المستخدم
+        stopUserListener()
     }
 
     private func observeMessages() {
@@ -208,6 +212,25 @@ extension ChatViewModel {
 }
 
 extension ChatViewModel {
+    /// بدء مراقبة بيانات المستخدم (مثلاً حالة الاتصال)
+    func startUserListener(userId: String, onUpdate: @escaping (DataSnapshot) -> Void) {
+        let ref = Database.database().reference().child("user").child(userId)
+        self.userRef = ref
+        listenerHandle = ref.observe(.value) { snapshot in
+            onUpdate(snapshot)
+        }
+    }
+    
+    /// إيقاف المراقبة/إلغاء الليسنر
+    func stopUserListener() {
+        if let ref = userRef, let handle = listenerHandle {
+            ref.removeObserver(withHandle: handle)
+            print("🔕 تم إلغاء الاستماع للمستخدم")
+        }
+        listenerHandle = nil
+        userRef = nil
+    }
+
     static func setUser(completion: ((Error?) -> Void)? = nil) {
         guard let userId = UserSettings.shared.id else {
             completion?(NSError(domain: "Missing UserID", code: 0))

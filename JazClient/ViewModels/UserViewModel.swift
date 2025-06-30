@@ -8,6 +8,7 @@
 import SwiftUI
 import Combine
 import Firebase
+import FirebaseDatabase
 
 class UserViewModel: ObservableObject {
     @Published var user: User?
@@ -25,9 +26,9 @@ class UserViewModel: ObservableObject {
     @Published var totalPages = 1
     @Published var isFetchingMoreData = false
     @Published var pagination: Pagination?
-//    @Published var users: [FBUser] = []
-//    @Published var fbUser: FBUser?
-//    @Published var checkPoint: CheckPoint?
+    private var userListenerHandle: DatabaseHandle?
+    private var userRef: DatabaseReference?
+    @Published var users: [String: FirebaseUser] = [:]
 
     init(errorHandling: ErrorHandling) {
         self.errorHandling = errorHandling
@@ -634,5 +635,61 @@ extension UserViewModel {
                 self?.isLoading = false
             })
             .store(in: &cancellables)
+    }
+}
+
+extension UserViewModel{
+    func setUser(completion: ((Error?) -> Void)? = nil) {
+        guard let userId = UserSettings.shared.id else {
+            completion?(NSError(domain: "Missing UserID", code: 0))
+            return
+        }
+        
+        Messaging.messaging().token { token, error in
+            if let error = error {
+                print("فشل في الحصول على FCM Token: \(error.localizedDescription)")
+            }
+            let fcmToken = token ?? UserSettings.shared.fcmToken ?? ""
+            UserSettings.shared.fcmToken = fcmToken
+            
+            let ref = Database.database().reference().child("user").child(userId)
+            let userData: [String: Any] = [
+                "id": userId,
+                "name": UserSettings.shared.user?.full_name ?? "",
+                "image": UserSettings.shared.user?.image ?? "",
+                "fcmToken": fcmToken,
+                "lastOnline": Int(Date().timeIntervalSince1970),
+                "online": true
+            ]
+            
+            ref.setValue(userData) { error, _ in
+                if let error = error {
+                    print("فشل تحديث بيانات المستخدم: \(error.localizedDescription)")
+                } else {
+                    print("✅ تم تحديث بيانات المستخدم بنجاح")
+                }
+                completion?(error)
+            }
+        }
+    }
+
+    /// بدء الاستماع لبيانات مستخدم محدد
+    
+    func startUserListener(userId: String, onUpdate: @escaping (DataSnapshot) -> Void) {
+        let ref = Database.database().reference().child("user").child(userId)
+        userRef = ref
+        userListenerHandle = ref.observe(.value) { snapshot in
+            onUpdate(snapshot)
+        }
+    }
+
+    /// إيقاف الاستماع على بيانات المستخدم
+    func stopUserListener() {
+        if let ref = userRef, let handle = userListenerHandle {
+            ref.removeObserver(withHandle: handle)
+            print("🛑 تم إيقاف مراقبة بيانات المستخدم")
+        }
+        userListenerHandle = nil
+        userRef = nil
     }
 }

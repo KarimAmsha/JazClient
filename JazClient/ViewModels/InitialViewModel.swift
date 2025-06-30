@@ -166,7 +166,7 @@ class InitialViewModel: ObservableObject {
                     self.handleAPIError(error)
                 }
             }, receiveValue: { [weak self] (response: SingleAPIResponse<HomeItems>) in
-                print("ssss \(response)")
+//                print("ssss \(response)")
                 if response.status {
                     self?.homeItems = response.items
                     self?.errorMessage = nil
