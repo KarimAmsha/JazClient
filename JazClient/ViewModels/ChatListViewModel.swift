@@ -15,7 +15,7 @@ class ChatListViewModel: ObservableObject {
     @Published var users: [String: FirebaseUser] = [:] // userId -> FirebaseUser
 
     private var dbRef = Database.database().reference()
-    private var userId: String
+    var userId: String
     private var listenerHandle: DatabaseHandle?
     private let userService = FirebaseUserService()
 
@@ -134,4 +134,30 @@ class MockChatListViewModel: ChatListViewModel {
             "user2": FirebaseUser(id: "user2", fcmToken: nil, image: nil, lastOnline: nil, name: "سارة", online: true)
         ]
     }
+}
+
+extension ChatListViewModel {
+    func getUser(for userId: String) -> FirebaseUser? {
+        guard !userId.isEmpty, userId.rangeOfCharacter(from: CharacterSet(charactersIn: ".$#[]")) == nil else { return nil }
+
+        if let user = users[userId] {
+            return user
+        }
+        // جلب من الداتابيز إذا لم يكن موجود
+        let ref = Database.database().reference().child("user").child(userId)
+        ref.observeSingleEvent(of: .value) { snapshot in
+            guard let value = snapshot.value as? [String: Any] else { return }
+            do {
+                let jsonData = try JSONSerialization.data(withJSONObject: value)
+                let user = try JSONDecoder().decode(FirebaseUser.self, from: jsonData)
+                DispatchQueue.main.async {
+                    self.users[userId] = user
+                }
+            } catch {
+                print("Decoding error: \(error)")
+            }
+        }
+        return nil // أول مرة، البيانات ليست جاهزة
+    }
+
 }

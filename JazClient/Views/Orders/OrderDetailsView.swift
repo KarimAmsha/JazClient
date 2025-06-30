@@ -1,550 +1,500 @@
-//
-//  OrderDetailsView.swift
-//  Wishy
-//
-//  Created by Karim Amsha on 30.04.2024.
-//
-
 import SwiftUI
 import MapKit
 
 struct OrderDetailsView: View {
-    let items = Array(1...5)
-    @State private var quantities: [Int] = Array(repeating: 1, count: 10)
-    @State private var quantity: Int = 1
-    @State var selectedItems: [String] = Array(repeating: "", count: 10)
     @EnvironmentObject var appRouter: AppRouter
-    @State private var orderStatus: OrderStatus = .accepted
-    let orderID: String
     @StateObject private var viewModel = OrderViewModel(errorHandling: ErrorHandling())
+    let orderID: String
 
-    var isSelected: Bool {
-        selectedItems.contains { $0 == "" }
-    }
-    
+    @State private var showCancelSheet = false
+    @State private var showRateSheet = false
+    @State private var cancelNote: String = ""
+
     var body: some View {
-        GeometryReader { geometry in
-            VStack(spacing: 20) {
-                if viewModel.isLoading {
-                    LoadingView()
-                }
-
+        VStack(spacing: 0) {
+            if let order = viewModel.orderBody {
                 ScrollView(showsIndicators: false) {
-                    if let items = viewModel.orderDetailsItem?.items?.items {
-                        ForEach(items.indices, id: \.self) { index in
-                            let item = items[index]
-                            
-                            HStack {
-                                AsyncImageView(
-                                    width: 60,
-                                    height: 60,
-                                    cornerRadius: 10,
-                                    imageURL: item.image?.toURL(),
-                                    placeholder: Image(systemName: "photo"),
-                                    contentMode: .fill
-                                )
-                                
+                    VStack(spacing: 18) {
+                        // عنوان الشاشة
+                        VStack(alignment: .center, spacing: 6) {
+                            Text("تفاصيل الطلب")
+                                .font(.system(size: 24, weight: .bold))
+                            Text("استعرض تفاصيل طلبك وحالته")
+                                .font(.system(size: 15))
+                                .foregroundColor(.gray)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 8)
 
-                                VStack(alignment: .leading) {
-                                    Text(item.name ?? "")
-                                    
-                                    if let variationName = item.variation_name, !variationName.isEmpty {
-                                        Text("النوع: \(variationName)")
-                                            .customFont(weight: .regular, size: 14)
+                        // سير حالة الطلب (timeline)
+                        OrderStatusStepperView(status: OrderStatus(order.status ?? "new"))
+
+                        // معلومات الطلب الأساسية
+                        VStack(spacing: 6) {
+                            HStack(alignment: .center) {
+                                VStack(alignment: .leading, spacing: 5) {
+                                    Text(order.title ?? "خدمة")
+                                        .font(.title3.bold())
+                                        .foregroundColor(.blue)
+                                    if let date = order.dt_date {
+                                        Text(date)
+                                            .font(.footnote)
                                             .foregroundColor(.gray)
                                     }
-
-                                    HStack {
-                                        Text(LocalizedStringKey.quantity)
-                                        Text(item.qty?.toString() ?? "")
+                                    if let id = order.id {
+                                        Text("رقم الطلب: #\(id)").font(.caption).foregroundColor(.gray)
                                     }
                                 }
-                                
                                 Spacer()
-                                VStack(alignment: .leading) {
-                                    HStack {
-                                        Text(String(format: "%.2f", item.sale_price ?? 0))
-                                        Text(LocalizedStringKey.sar)
-                                    }
-                                }
+                                Image(systemName: "wrench.and.screwdriver.fill")
+                                    .resizable()
+                                    .frame(width: 38, height: 38)
+                                    .foregroundColor(.gray.opacity(0.6))
+                                    .background(Color(.systemGray6))
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
                             }
-                            .customFont(weight: .bold, size: 14)
-                            .foregroundColor(.primaryBlack())
+                            .padding(.vertical, 8)
+                        }
+                        .background(Color.white)
+                        .cornerRadius(12)
+
+                        // تفاصيل إضافية
+                        if let notes = order.notes, !notes.isEmpty {
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack(spacing: 5) {
+                                    Image(systemName: "doc.text")
+                                    Text("تفاصيل إضافية للطلب")
+                                        .font(.headline)
+                                }
+                                Text(notes)
+                                    .font(.body)
+                                    .foregroundColor(.black)
+                                    .padding(.vertical, 4)
+                            }
+                            .padding(12)
+                            .background(Color.white)
+                            .cornerRadius(10)
+                        }
+
+                        // الموقع الجغرافي (الخريطة الصغيرة + الزر)
+                        if let address = order.address, let lat = order.lat, let lng = order.lng {
+                            OrderLocationSection(address: address, lat: lat, lng: lng)
+                        }
+
+                        // تفاصيل أخرى (أرقام/كود/الخ)
+                        VStack(alignment: .leading, spacing: 10) {
+                            HStack {
+                                infoBox(icon: "clock", title: "وقت التنفيذ", value: order.dt_date ?? "--")
+                                infoBox(icon: "number", title: "كود الطلب", value: order.orderNo ?? "--")
+                            }
+                        }
+                        .padding(10)
+                        .background(Color.white)
+                        .cornerRadius(10)
+
+                        // زر المحادثة مع مزود الخدمة
+                        if let provider = order.provider, let providerId = provider.id {
+                            Button(action: {
+                                let myId = UserSettings.shared.id ?? ""
+                                let chatId = Utilities.makeChatId(currentUserId: myId, otherUserId: providerId)
+                                appRouter.navigate(to: .chat(chatId: chatId, currentUserId: myId))
+                            }) {
+                                HStack {
+                                    Image(systemName: "bubble.left.and.bubble.right.fill")
+                                    Text("محادثة مع مزود الخدمة")
+                                        .fontWeight(.bold)
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .foregroundColor(.blue)
+                                .background(Color.blue.opacity(0.09))
+                                .cornerRadius(14)
+                            }
+                            .padding(.top, 10)
+                        }
+
+                        // ضمن OrderDetailsView أو في قسم الإجراءات (مثلاً مع زر التقييم/المحادثة)
+                        if OrderStatus(order.status ?? "new") == .accepted {
+                            Button(action: {
+                                showCancelSheet = true
+                            }) {
+                                Text("إلغاء الطلب")
+                                    .fontWeight(.bold)
+                                    .frame(maxWidth: .infinity)
+                                    .padding()
+                                    .foregroundColor(.red)
+                                    .background(Color.red.opacity(0.08))
+                                    .cornerRadius(14)
+                            }
+                            .padding(.top, 5)
+                        }
+
+                        // زر تقييم الخدمة
+                        if OrderStatus(order.status ?? "new") == .finished {
+                            Button(action: { showRateSheet = true }) {
+                                Text("تقييم الخدمة")
+                                    .fontWeight(.bold)
+                                    .frame(maxWidth: .infinity)
+                                    .padding()
+                                    .foregroundColor(.green)
+                                    .background(Color.green.opacity(0.09))
+                                    .cornerRadius(14)
+                            }
+                            .padding(.top, 5)
                         }
                     }
-                    
-                    CustomDivider()
-                    
-                    VStack(alignment: .leading, spacing: 8) {
-                        HStack {
-                            Text(viewModel.orderDetailsItem?.items?.formattedCreateDate ?? "")
-                                .customFont(weight: .regular, size: 12)
-                                .foregroundColor(.primaryBlack())
-                            
-                            Spacer()
-                            
-                            Text(viewModel.orderDetailsItem?.items?.orderStatus?.value ?? "")
-                                .customFont(weight: .regular, size: 12)
-                                .foregroundColor(.orangeF7941D())
-                                .padding(.vertical, 4)
-                                .padding(.horizontal, 8)
-                                .background(Color.orangeF7941D().opacity(0.2).clipShape(Capsule()))
-                        }
-                    }
-                    
-                    CustomDivider()
-                    
-                    if let orderStatus = viewModel.orderDetailsItem?.items?.orderStatus {
-                        OrderTimelineView(
-                            orderStatus: orderStatus,
-                            formattedCreateDate: viewModel.orderDetailsItem?.items?.formattedCreateDate ?? ""
-                        )
-                    }
-                    
-                    CustomDivider()
-
-                    if let orderDetailsItem = viewModel.orderDetailsItem {
-                        OrderDetailsSummarySection(item: orderDetailsItem)
-                    }
-                    
-                    CustomDivider()
-
-                    if let orderDetails = viewModel.orderDetailsItem?.items {
-                        OrderDetailsLocationSection(orderDetails: orderDetails)
-                    }
-
-                    CustomDivider()
-
-                    if let orderType = viewModel.orderDetailsItem?.items?.orderType {
-                        OrderDetailsTypeSection(orderType: orderType)
-                    }
-
-                    Spacer()
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 18)
                 }
-                
-                VStack {
-                    CustomDivider()
-                    HStack {
-                        HStack(spacing: 16) {
-                            if viewModel.orderDetailsItem?.items?.orderStatus == .new || viewModel.orderDetailsItem?.items?.orderStatus == .accepted {
-                                // Cancel Order Button
-                                Button(action: {
-                                    presentCancellationReasonPopup(status: .canceled)
-                                }) {
-                                    Text(LocalizedStringKey.cancelOrder)
-                                }
-                                .buttonStyle(PrimaryButton(fontSize: 16, fontWeight: .regular, background: .orangeFCE5E5(), foreground: .redE50000(), height: 48, radius: 8))
-                            }
-
-                            if viewModel.orderDetailsItem?.items?.orderStatus == .finished {
-                                // Review Order Button
-                                Button(action: {
-                                    if let orderId = viewModel.orderDetailsItem?.items?.id {
-                                        appRouter.navigate(to: .addReview(orderId))
-                                    }
-                                }) {
-                                    Text(LocalizedStringKey.addReview)
-                                }
-                                .buttonStyle(PrimaryButton(fontSize: 16, fontWeight: .bold, background: .green0C9D61(), foreground: .white, height: 48, radius: 8))
-                            }
-//                            
-//                            if viewModel.order?.orderStatus == .updated {
-//                                // Update Order Button
-//                                Button(action: {
-//                                    isShowingPaymentMethods.toggle()
-//                                }) {
-//                                    Text(LocalizedStringKey.payNow)
-//                                }
-//                                .buttonStyle(PrimaryButton(fontSize: 16, fontWeight: .bold, background: .green0C9D61(), foreground: .white, height: 48, radius: 8))
-//                            }
-                        }
-                        .customFont(weight: .bold, size: 14)
-                    }
-                    .padding(24)
-                    .background(Color.white)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .shadow(color: .black.opacity(0.07), radius: 12, x: 0, y: -3)
-                    )
-                }
-                .opacity(viewModel.orderDetailsItem?.items?.orderStatus == .new || viewModel.orderDetailsItem?.items?.orderStatus == .accepted || viewModel.orderDetailsItem?.items?.orderStatus == .updated || viewModel.orderDetailsItem?.items?.orderStatus == .finished ? 1 : 0)
+            } else if viewModel.isLoading {
+                ProgressView("جاري التحميل ...")
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                DefaultEmptyView(title: "لا يوجد بيانات")
             }
         }
-        .padding(16)
+        .background(Color(.systemGray6).ignoresSafeArea())
         .navigationBarBackButtonHidden()
-        .background(Color.background())
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 HStack {
                     Button {
                         appRouter.navigateBack()
                     } label: {
-                        Image("ic_back")
+                        Image(systemName: "chevron.backward")
                     }
-
-                    Text(LocalizedStringKey.orderDetails)
-                        .customFont(weight: .bold, size: 20)
-                        .foregroundColor(Color.primaryBlack())
+                    Text("تفاصيل الطلب")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.primary)
                 }
             }
         }
         .onAppear {
-            getOrderDetails()
+            viewModel.getOrderDetails(orderId: orderID) { }
         }
-        .overlay(
-            MessageAlertObserverView(
-                message: $viewModel.errorMessage,
-                alertType: .constant(.error)
+        .sheet(isPresented: $showCancelSheet) {
+            CancelOrderSheet(
+                note: $cancelNote,
+                onConfirm: {
+                    viewModel.updateOrderStatus(
+                        orderId: orderID,
+                        params: [
+                            "status": "canceled",
+                            "canceled_note": cancelNote
+                        ]
+                    ) {
+                        viewModel.getOrderDetails(orderId: orderID) {}
+                        showCancelSheet = false
+                        cancelNote = ""
+                    }
+                },
+                onCancel: {
+                    showCancelSheet = false
+                    cancelNote = ""
+                }
             )
-        )
-    }
-    
-    func color(forOrderStatuses targetStatuses: [OrderStatus], currentStatus: OrderStatus) -> Color {
-        return targetStatuses.contains(currentStatus) ? .orangeD67200() : .grayD2D2D2()
-    }
-    
-    func imageColor(forOrderStatuses targetStatuses: [OrderStatus], currentStatus: OrderStatus) -> Color {
-        return targetStatuses.contains(currentStatus) ? .orangeD67200() : .grayA5A5A5()
-    }
-
-    func colorText(forOrderStatuses targetStatuses: [OrderStatus], currentStatus: OrderStatus) -> Color {
-        return targetStatuses.contains(currentStatus) ? .black1C1C28() : .grayA5A5A5()
-    }
-}
-
-#Preview {
-    OrderDetailsView(orderID: "")
-}
-
-extension OrderDetailsView {
-    func getOrderDetails() {
-        viewModel.getOrderDetails(orderId: orderID) {
+        }
+        .sheet(isPresented: $showRateSheet) {
+            RateOrderSheet(
+                orderId: orderID,
+                onRate: { rating, comment in
+                    let params: [String: Any] = [
+                        "rate_from_user": "\(rating)",
+                        "note_from_user": comment
+                    ]
+                    viewModel.addReview(orderID: orderID, params: params) { _ in
+                        viewModel.getOrderDetails(orderId: orderID) {}
+                        showRateSheet = false
+                    }
+                },
+                onCancel: { showRateSheet = false }
+            )
         }
     }
 
-    private func canelOrder() {
-        let alertModel = AlertModel(
-            icon: "ic_failed",
-            title: LocalizedStringKey.cancelationTitle,
-            message: LocalizedStringKey.cancelationMessage,
-            hasItem: false,
-            item: "",
-            okTitle: LocalizedStringKey.wantCompleteOrder,
-            cancelTitle: LocalizedStringKey.iWantCancel,
-            hidesIcon: false,
-            hidesCancel: false,
-            onOKAction: {
-                DispatchQueue.main.asyncAfter(deadline: .now()+0.5) {
-                    presentCancellationReasonPopup(status: .canceled)
-                }
-            },
-            onCancelAction: {
-                withAnimation {
-                    appRouter.togglePopup(nil)
-                }
+    func infoBox(icon: String, title: String, value: String) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 4) {
+                Image(systemName: icon)
+                    .frame(width: 16, height: 16)
+                Text(title)
+                    .font(.caption)
+                    .foregroundColor(.gray)
             }
-        )
-
-        appRouter.togglePopup(.cancelOrder(alertModel)) // Present the cancellation popup
+            Text(value)
+                .font(.subheadline)
+                .fontWeight(.semibold)
+        }
+        .frame(maxWidth: .infinity)
     }
-    
-    private func updateOrderStatus(status: OrderStatus, canceledNote: String = "") {
-        let params: [String: Any] = [
-            "status": status.rawValue,
-            "canceled_note": canceledNote,
+}
+
+// MARK: - سير حالة الطلب
+struct OrderStatusStepperView: View {
+    let status: OrderStatus
+    var steps: [(icon: String, label: String, isActive: Bool, color: Color, emoji: String?)] {
+        [
+            (
+                "handshake", "تعيين الفني", status == .accepted, .orange, "🤝"
+            ),
+            (
+                "car", "في الطريق", status == .way || status == .started || status == .finished, .gray, "🚗"
+            ),
+            (
+                "hammer", "قيد التنفيذ", status == .started || status == .finished, .gray, "🛠️"
+            ),
+            (
+                "checkmark.seal", "تم التنفيذ بنجاح!", status == .finished, .green, "✅"
+            ),
         ]
-        
-        viewModel.updateOrderStatus(orderId: orderID, params: params, onsuccess: {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2, execute: {
-                getOrderDetails()
-            })
-        })
     }
-
-    private func presentCancellationReasonPopup(status: OrderStatus) {
-        let alertModel = AlertModelWithInput(
-            title: LocalizedStringKey.logout,
-            content: LocalizedStringKey.description,
-            hideCancelButton: false,
-            onOKAction: { content in
-                updateOrderStatus(status: status, canceledNote: content)
-                appRouter.dismissPopup()
-            },
-            onCancelAction: {
-                appRouter.dismissPopup()
+    var body: some View {
+        VStack(alignment: .trailing, spacing: 0) {
+            Text("حالة الطلب")
+                .font(.headline)
+                .frame(maxWidth: .infinity, alignment: .trailing)
+            ForEach(steps.indices, id: \.self) { i in
+                let step = steps[i]
+                HStack(spacing: 8) {
+                    if let emoji = step.emoji, step.isActive {
+                        Text(emoji)
+                            .font(.system(size: 18))
+                    }
+                    Text(step.label)
+                        .fontWeight(step.isActive ? .bold : .regular)
+                        .foregroundColor(step.isActive ? step.color : .gray.opacity(0.7))
+                    Image(systemName: step.icon)
+                        .foregroundColor(step.isActive ? step.color : .gray.opacity(0.6))
+                    Spacer()
+                    VStack {
+                        Circle()
+                            .fill(step.isActive ? step.color : Color.gray.opacity(0.35))
+                            .frame(width: 12, height: 12)
+                        if i < steps.count-1 {
+                            Rectangle()
+                                .fill(Color.gray.opacity(0.19))
+                                .frame(width: 2, height: 32)
+                        }
+                    }
+                }
+                .padding(.vertical, 2)
             }
-        )
-        
-        appRouter.togglePopup(.inputAlert(alertModel))
+        }
+        .padding(.vertical, 12)
+        .background(Color.white)
+        .cornerRadius(12)
     }
 }
 
-struct OrderDetailsSummarySection: View {
-    let item: OrderDetailsItem
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(LocalizedStringKey.orderSummary)
-                .customFont(weight: .bold, size: 15)
-                .foregroundColor(.black121212())
+struct OrderLocationSection: View {
+    let address: String
+    let lat: Double
+    let lng: Double
+    @State private var region: MKCoordinateRegion
+    @State private var showFullMap = false
 
-            if let tax = item.tax {
-                orderSummaryRow(title: LocalizedStringKey.tax, amount: tax)
-            }
-            
-//            if let deliveryCost = cartTotal.deliveryCost {
-//                orderSummaryRow(title: LocalizedStringKey.cartTotalDeliveryCost, amount: deliveryCost)
-//            }
-            
-//            if let expressCost = cartTotal.expressCost {
-//                orderSummaryRow(title: LocalizedStringKey.cartTotalExpressCost, amount: expressCost)
-//            }
-            
-            if let totalPrice = item.totalPrice {
-                orderSummaryRow(title: LocalizedStringKey.price, amount: totalPrice)
-            }
-            
-//            if let totalDiscount = cartTotal.total_discount {
-//                orderSummaryRow(title: LocalizedStringKey.cartTotalTotalDiscount, amount: totalDiscount)
-//            }
-            
-            if let finalTotal = item.finalTotal {
-                orderSummaryRow(title: LocalizedStringKey.total, amount: finalTotal)
-            }
-        }
-        .padding()
-        .background(Color.white.opacity(0.1))
-        .cornerRadius(10)
+    init(address: String, lat: Double, lng: Double) {
+        self.address = address
+        self.lat = lat
+        self.lng = lng
+        _region = State(initialValue: MKCoordinateRegion(
+            center: CLLocationCoordinate2D(latitude: lat, longitude: lng),
+            span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+        ))
     }
-    
-    private func orderSummaryRow(title: String, amount: Double) -> some View {
-        HStack {
-            Text(title)
-            Spacer()
-            Text("\(LocalizedStringKey.sar) \(amount, specifier: "%.2f")")
-                .environment(\.locale, .init(identifier: "en_US"))
-        }
-        .customFont(weight: title == LocalizedStringKey.total ? .bold : .regular, size: 15)
-        .foregroundColor(.black121212())
-    }
-}
-
-struct OrderDetailsLocationSection: View {
-    @State private var isShowingMap = false
-    @State private var region = MKCoordinateRegion(
-        center: CLLocationCoordinate2D(latitude: 24.7136, longitude: 46.6753),
-        span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
-    )
-
-    let orderDetails: OrderDetails
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Text(LocalizedStringKey.geographicalLocation)
-                    .customFont(weight: .bold, size: 16)
-                    .foregroundColor(.black222020())
-
+            HStack(alignment: .center) {
+                Image(systemName: "mappin.and.ellipse")
+                    .foregroundColor(.blue)
+                Text("الموقع الجغرافي")
+                    .font(.headline)
                 Spacer()
+                Button(action: { showFullMap = true }) {
+                    HStack(spacing: 3) {
+                        Image(systemName: "map")
+                        Text("عرض على الخريطة")
+                    }
+                    .font(.system(size: 13, weight: .semibold))
+                }
+                .buttonStyle(.plain)
             }
 
-            VStack(alignment: .leading, spacing: 8) {
-                Text(orderDetails.address ?? "")
-                    .customFont(weight: .regular, size: 14)
-                    .foregroundColor(.black222020())
+            Text(address)
+                .font(.subheadline)
+                .foregroundColor(.gray)
+                .lineLimit(2)
+                .padding(.bottom, 4)
 
-                ZStack {
-                    Map(coordinateRegion: $region, showsUserLocation: true, annotationItems: [orderAnnotation]) { location in
-                        MapAnnotation(
-                            coordinate: location.coordinate,
-                            anchorPoint: CGPoint(x: 0.5, y: 0.7)
-                        ) {
-                            VStack {
-                                Text("موقع الطلب")
-                                    .customFont(weight: .bold, size: 14)
-                                    .foregroundColor(.black131313())
-                                Image("ic_pin")
-                                    .resizable()
-                                    .frame(width: 32, height: 32)
-                                    .clipShape(Circle())
+            // خريطة صغيرة
+            Map(coordinateRegion: $region, annotationItems: [OrderMapPin(coordinate: CLLocationCoordinate2D(latitude: lat, longitude: lng))]) { pin in
+                MapMarker(coordinate: pin.coordinate, tint: .red)
+            }
+            .frame(height: 100)
+            .cornerRadius(10)
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(Color.gray.opacity(0.18), lineWidth: 1)
+            )
+        }
+        .padding(12)
+        .background(Color.white)
+        .cornerRadius(12)
+        .sheet(isPresented: $showFullMap) {
+            FullScreenMapView(address: address, lat: lat, lng: lng)
+        }
+    }
+
+    struct OrderMapPin: Identifiable {
+        let id = UUID()
+        let coordinate: CLLocationCoordinate2D
+    }
+}
+
+// شاشة الخريطة الكاملة
+struct FullScreenMapView: View {
+    let address: String
+    let lat: Double
+    let lng: Double
+    @Environment(\.dismiss) var dismiss
+
+    @State private var region: MKCoordinateRegion
+
+    init(address: String, lat: Double, lng: Double) {
+        self.address = address
+        self.lat = lat
+        self.lng = lng
+        _region = State(initialValue: MKCoordinateRegion(
+            center: CLLocationCoordinate2D(latitude: lat, longitude: lng),
+            span: MKCoordinateSpan(latitudeDelta: 0.004, longitudeDelta: 0.004)
+        ))
+    }
+
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 0) {
+                Map(coordinateRegion: $region, annotationItems: [
+                    OrderLocationSection.OrderMapPin(coordinate: CLLocationCoordinate2D(latitude: lat, longitude: lng))
+                ]) { pin in
+                    MapMarker(coordinate: pin.coordinate, tint: .red)
+                }
+                .edgesIgnoringSafeArea(.all)
+                .overlay(
+                    VStack {
+                        HStack {
+                            VStack(alignment: .leading) {
+                                Text("العنوان:")
+                                    .font(.headline)
+                                Text(address)
+                                    .font(.subheadline)
+                                    .foregroundColor(.gray)
+                                    .lineLimit(2)
+                            }
+                            Spacer()
+                            Button(action: { dismiss() }) {
+                                Image(systemName: "xmark.circle.fill")
+                                    .font(.title2)
+                                    .foregroundColor(.gray)
                             }
                         }
-                    }
-                    .disabled(true)
-
-                    VStack {
+                        .padding()
+                        .background(.ultraThinMaterial)
+                        .cornerRadius(12)
+                        .shadow(radius: 2)
                         Spacer()
-                        HStack {
-                            Spacer()
-                            Image(systemName: "square.arrowtriangle.4.outward")
-                                .resizable()
-                                .frame(width: 32, height: 32)
-                                .foregroundColor(.gray)
-                                .onTapGesture {
-                                    isShowingMap = true
-                                }
-                        }
                     }
-                    .padding(10)
-                }
-                .frame(height: 94)
-                .cornerRadius(8)
+                    .padding(.top, 40)
+                    .padding(.horizontal, 14)
+                )
             }
+            .navigationBarHidden(true)
         }
-        .padding()
-        .sheet(isPresented: $isShowingMap) {
-            ShowOrderOnMapView(region: $region, latitude: orderDetails.lat ?? 0.0, longitude: orderDetails.lng ?? 0.0, isShowingMap: $isShowingMap)
-        }
-        .onAppear {
-            updateRegion()
-        }
-    }
-
-    private var orderAnnotation: OrderLocationAnnotation {
-        let coordinate = CLLocationCoordinate2D(latitude: orderDetails.lat ?? 0.0, longitude: orderDetails.lng ?? 0.0)
-        return OrderLocationAnnotation(title: "موقع الطلب", coordinate: coordinate)
-    }
-    
-    private func updateRegion() {
-        let latitude = orderDetails.lat ?? 24.7136 // default to Riyadh if not available
-        let longitude = orderDetails.lng ?? 46.6753 // default to Riyadh if not available
-        let coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
-        
-        region = MKCoordinateRegion(
-            center: coordinate,
-            span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
-        )
     }
 }
 
-struct OrderLocationAnnotation: Identifiable {
-    let id = UUID()
-    let title: String
-    let coordinate: CLLocationCoordinate2D
-}
+struct RateOrderSheet: View {
+    let orderId: String
+    var onRate: (Int, String) -> Void
+    var onCancel: () -> Void
 
-struct OrderDetailsTypeSection: View {
-    let orderType: Int?
+    @State private var rating: Int = 5
+    @State private var comment: String = ""
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(LocalizedStringKey.orderType)
-                .customFont(weight: .bold, size: 16)
-                .foregroundColor(.black222020())
-            
-            HStack {
-                if let orderType = orderType {
-                    switch orderType {
-                    case 1:
-                        Text("امنية لي")
-                            .customFont(weight: .regular, size: 14)
-                            .foregroundColor(.black222020())
-                    case 2:
-                        Text("هدية لصديقي")
-                            .customFont(weight: .regular, size: 14)
-                            .foregroundColor(.black222020())
-                    case 3:
-                        Text("هدية نظام قطة من اصدقائي")
-                            .customFont(weight: .regular, size: 14)
-                            .foregroundColor(.black222020())
-                    default:
-                        Text("نوع غير معروف")
-                            .customFont(weight: .regular, size: 14)
-                            .foregroundColor(.black222020())
+        NavigationView {
+            VStack(spacing: 20) {
+                Text("قيّم الطلب")
+                    .font(.headline)
+                    .padding(.top, 12)
+                // نجوم التقييم
+                HStack(spacing: 8) {
+                    ForEach(1...5, id: \.self) { star in
+                        Image(systemName: star <= rating ? "star.fill" : "star")
+                            .foregroundColor(.yellow)
+                            .font(.system(size: 30))
+                            .onTapGesture { rating = star }
                     }
-                } else {
-                    Text("نوع غير معروف")
-                        .customFont(weight: .regular, size: 14)
-                        .foregroundColor(.black222020())
                 }
-
-                Spacer()
+                // حقل التعليق
+                TextField("أضف تعليقًا (اختياري)", text: $comment)
+                    .textFieldStyle(.roundedBorder)
+                    .padding(.horizontal, 4)
+                HStack {
+                    Button("إلغاء", action: onCancel)
+                        .foregroundColor(.gray)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color(.systemGray5))
+                        .cornerRadius(8)
+                    Button("إرسال التقييم") {
+                        onRate(rating, comment)
+                    }
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.green)
+                    .cornerRadius(8)
+                }
             }
+            .padding()
+            .navigationBarHidden(true)
         }
-        .padding()
     }
 }
 
-struct OrderTimelineView: View {
-    let orderStatus: OrderStatus
-    let formattedCreateDate: String
-
+struct CancelOrderSheet: View {
+    @Binding var note: String
+    var onConfirm: () -> Void
+    var onCancel: () -> Void
     var body: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: -4) {
-                createTimelineStep(
-                    status: .accepted,
-                    title: "تم استلام الطلب",
-                    description: "لقد تم استلام طلبك بتاريخ \(formattedCreateDate)"
-                )
-                
-                createTimelineLine(isActive: isStepActive(for: .started))
-                
-                createTimelineStep(
-                    status: .started,
-                    title: "تم تأكيد طلبك",
-                    description: "لقد تم بتأكيد طلبك ---"
-                )
-                
-                createTimelineLine(isActive: isStepActive(for: .way))
-                
-                createTimelineStep(
-                    status: .way,
-                    title: "خرج للتوصيل",
-                    description: "لقد خرج طلبك للتوصيل ---"
-                )
-                
-                createTimelineLine(isActive: isStepActive(for: .progress))
-                
-                createTimelineStep(
-                    status: .progress,
-                    title: "تم التسليم بنجاح!",
-                    description: "لقد تم تسليم طلبك بنجاح ---"
-                )
+        NavigationView {
+            VStack(spacing: 22) {
+                Text("سبب إلغاء الطلب")
+                    .font(.headline)
+                    .padding(.top, 12)
+                TextField("اكتب سبب الإلغاء هنا...", text: $note)
+                    .textFieldStyle(.roundedBorder)
+                    .padding(.horizontal, 4)
+                HStack {
+                    Button("إلغاء", action: onCancel)
+                        .foregroundColor(.gray)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color(.systemGray5))
+                        .cornerRadius(8)
+                    Button("تأكيد الإلغاء", action: onConfirm)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.red)
+                        .cornerRadius(8)
+                        .disabled(note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                }
             }
-            
-            Spacer()
+            .padding()
+            .navigationBarHidden(true)
         }
-    }
-
-    private func createTimelineStep(status: OrderStatus, title: String, description: String) -> some View {
-        HStack {
-            Image(getImageName(for: status))
-                .resizable()
-                .frame(width: 20, height: 20)
-                .foregroundColor(isStepActive(for: status) ? .primary() : .gray)
-            VStack(alignment: .leading) {
-                Text(title)
-                Text(description)
-            }
-            .customFont(weight: .bold, size: 12)
-            .foregroundColor(isStepActive(for: status) ? .black1C1C28() : .grayA5A5A5())
-        }
-        .padding(.leading, 13)
-    }
-
-    private func createTimelineLine(isActive: Bool) -> some View {
-        Rectangle()
-            .fill(isActive ? Color.orangeCA5D08() : Color.orangeF6E5D0())
-            .frame(width: 5, height: 40)
-            .cornerRadius(2)
-            .padding(.leading, 20)
-    }
-
-    private func getImageName(for status: OrderStatus) -> String {
-        return isStepActive(for: status) ? "ic_circle_fill" : "ic_circle"
-    }
-
-    private func isStepActive(for status: OrderStatus) -> Bool {
-        let statusSequence: [OrderStatus] = [
-            .accepted, .started, .way, .progress, .updated, .prefinished, .finished
-        ]
-        
-        guard let currentIndex = statusSequence.firstIndex(of: orderStatus),
-              let stepIndex = statusSequence.firstIndex(of: status) else {
-            return false
-        }
-        
-        return currentIndex >= stepIndex
     }
 }

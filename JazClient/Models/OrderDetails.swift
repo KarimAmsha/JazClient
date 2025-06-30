@@ -45,18 +45,44 @@ struct OrderDetails: Codable, Identifiable {
     }
 }
 
-// MARK: - Order Response Model
-struct OrderDetailsItem: Codable {
-    let items: OrderDetails?
-    let tax: Double?
-    let deliveryCost: Double?
-    let totalPrice: Double?
-    let totalDiscount: Double?
-    let finalTotal: Double?
-    let isRate: Bool?
-    
-    private enum CodingKeys: String, CodingKey {
-        case items, tax, deliveryCost, totalPrice = "total_price", totalDiscount = "total_discount", finalTotal = "final_total", isRate
-    }
+struct OrderBody: Codable {
+    var couponCode: String?
+    var dt_date: String?
+    var dt_time: String?
+    var title: String?
+    var address: String?
+    var streetName: String?
+    var buildingNo: String?
+    var floorNo: String?
+    var flatNo: String?
+    var notes: String?
+    var category_id: String?
+    var sub_category_id: String?
+    var paymentType: String?
+    var payment_id: String?
+    var lat: Double?
+    var lng: Double?
+    var id: String?
+    var status: String?
+    var canceled_note: String?
+    var update_code: String?
+    var rate_from_user: String?
+    var note_from_user: String?
+    var coupon: String?
+    var extra: String?     // إذا أردته Array: [Category]? (حسب الداتا من السيرفر)
+    // الحقول الجديدة من Order:
+    var price: Double?
+    var netTotal: Double?
+    var total: Double?
+    var totalDiscount: Double?
+    var newTotal: Double?
+    var newTax: Double?
+    var orderNo: String?
+    var createAt: String?
+    var user: User?
+    var employee: User?
+    var provider: User?
+    // يمكنك هنا دعم category/subCategory كـ موديلات مباشرة:
+    var subCategory: Category?
+    var category: Category?
 }
-

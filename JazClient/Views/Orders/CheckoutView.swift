@@ -2,6 +2,7 @@ import SwiftUI
 import CoreLocation
 import PopupView
 import MoyasarSdk
+import PassKit
 
 struct CheckoutView: View {
     let orderData: OrderData
@@ -14,6 +15,12 @@ struct CheckoutView: View {
     @State private var isLoading = false
     @State private var loadingMessage: String? = nil
     @State private var showPaymentError = false
+
+    // لحالة النجاح
+    @State private var showPaymentSuccess = false
+
+    // لمفتاح ميسرة
+    let apiKey = "pk_test_vcFUHJDBwiyRu4Bd3hFuPpTnRPY4gp2ssYdNJMY3" // غيّر للمفتاح الحقيقي/الاختباري الخاص بك
 
     var service: SelectedServiceItem { orderData.services.first! }
     var address: AddressItem? { orderData.address }
@@ -34,6 +41,7 @@ struct CheckoutView: View {
     var totalAmount: Double {
         orderViewModel.coupon?.final_total ?? max(0, totalBeforeDiscount - discountValue + taxAmount)
     }
+    @State private var showCardSheet = false
 
     var body: some View {
         ScrollView {
@@ -61,7 +69,6 @@ struct CheckoutView: View {
                             .font(.system(size: 20, weight: .bold))
                             .foregroundColor(.black)
                     }
-
                     VStack(alignment: .leading) {
                         Text("الدفع")
                             .font(.title2.bold())
@@ -106,9 +113,115 @@ struct CheckoutView: View {
                 .isOpaque(true)
                 .useKeyboardSafeArea(true)
         }
+        .sheet(isPresented: $showCardSheet) {
+            ZStack(alignment: .topTrailing) {
+                Color(.systemBackground) // أو Color.white
+                    .ignoresSafeArea()
+                VStack(spacing: 0) {
+                    HStack {
+                        Spacer()
+                        Button(action: { showCardSheet = false }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(.gray)
+                                .font(.title)
+                                .padding()
+                        }
+                    }
+                    .frame(height: 24)
+                    CreditCardView(request: createPaymentRequest()) { result in
+                        handleMoyasarResult(result)
+                        showCardSheet = false
+                    }
+                    .padding(.horizontal, 18)
+                    .padding(.top, 16)
+                    Spacer()
+                }
+            }
+        }
+        // نافذة نجاح الدفع (لو أردت استخدامها بدل تنقل لصفحة النجاح)
+        .popup(isPresented: $showPaymentSuccess) {
+            VStack(spacing: 20) {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 54))
+                    .foregroundColor(.green)
+                Text("تم الدفع بنجاح!")
+                    .font(.title2.bold())
+                Button("حسناً") {
+                    showPaymentSuccess = false
+                    appRouter.navigate(to: .paymentSuccess)
+                }
+                .font(.headline)
+                .padding(.vertical, 8)
+            }
+            .padding()
+            .background(RoundedRectangle(cornerRadius: 20).fill(Color.white))
+            .shadow(radius: 18)
+            .frame(maxWidth: 320)
+        }
     }
 
-    // MARK: - Coupon Section
+    // MARK: - Moyasar Integration
+
+    func createPaymentRequest() -> PaymentRequest {
+        do {
+            return try PaymentRequest(
+                apiKey: apiKey,
+                amount: Int(totalAmount * 100), // بالهللات
+                currency: "SAR",
+                description: "طلب خدمة",
+                metadata: [:]
+            )
+        } catch {
+            fatalError("فشل في إنشاء PaymentRequest: \(error.localizedDescription)")
+        }
+    }
+
+    func handleMoyasarResult(_ result: PaymentResult) {
+        switch result {
+        case let .completed(payment):
+            if payment.status == .paid {
+                // نجح الدفع بالبطاقة
+                addOrder(paymentType: .moyasarCard)
+            } else {
+                // 🔥 هنا التصحيح
+                var errorMsg = "فشل الدفع"
+                switch payment.source {
+                case .creditCard(let source):
+                    errorMsg = source.message ?? "فشل الدفع"
+                case .applePay(let source):
+                    errorMsg = source.message ?? "فشل الدفع"
+                case .stcPay(let source):
+                    errorMsg = "فشل الدفع عبر STC Pay"
+                default:
+                    break
+                }
+                orderViewModel.errorMessage = errorMsg
+                showPaymentError = true
+            }
+        case .failed(let error):
+            orderViewModel.errorMessage = "فشل الدفع: \(error.localizedDescription)"
+            showPaymentError = true
+        case .canceled:
+            orderViewModel.errorMessage = "تم إلغاء عملية الدفع"
+            showPaymentError = true
+        default:
+            break
+        }
+    }
+
+    func startApplePay() {
+        let handler = ApplePayPaymentHandler(paymentRequest: createPaymentRequest())
+        handler.onSuccess = {
+            // نجح الدفع عبر أبل باي
+            addOrder(paymentType: .moyasarApplePay)
+        }
+        handler.onFailure = { errorMsg in
+            orderViewModel.errorMessage = errorMsg
+            showPaymentError = true
+        }
+        handler.present()
+    }
+
     private var couponSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 10) {
@@ -143,7 +256,7 @@ struct CheckoutView: View {
             }
         }
     }
-
+    
     private var summarySection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("البيانات المالية")
@@ -154,12 +267,49 @@ struct CheckoutView: View {
             financialRow(title: "المبلغ الاجمالي", value: totalAmount, isBold: true)
         }
     }
+    
+    func financialRow(title: String, value: Double, isBold: Bool = false) -> some View {
+        HStack {
+            Text(title)
+                .foregroundColor(.gray)
+                .font(.subheadline)
+            Spacer()
+            Text("\(value, specifier: "%.2f") SAR")
+                .font(.subheadline)
+                .fontWeight(isBold ? .bold : .regular)
+                .foregroundColor(isBold ? .black : .primary)
+        }
+        .padding(.vertical, 4)
+    }
+    
+    private var payBar: some View {
+        VStack(spacing: 12) {
+            HStack {
+                Text("المجموع")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+                Spacer()
+                Text("\(totalAmount, specifier: "%.2f") SAR")
+                    .fontWeight(.bold)
+            }
+            Button(action: payNow) {
+                Text("ادفع الآن")
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(selectedPaymentType == nil ? Color.gray : Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(12)
+            }
+            .disabled(selectedPaymentType == nil || isLoading)
+        }
+        .padding(.top)
+    }
 
     var paymentSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("طريقة الدفع").font(.headline)
             LazyVStack(spacing: 14) {
-                ForEach(PaymentType.allCases) { method in
+                ForEach([PaymentType.cash, PaymentType.moyasarCard, PaymentType.moyasarApplePay], id: \.self) { method in
                     paymentCard(method: method)
                 }
             }
@@ -191,15 +341,11 @@ struct CheckoutView: View {
                         .foregroundColor(.gray)
                 }
                 Spacer()
-                ZStack {
-                    if isSelected {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundColor(.accentColor)
-                            .transition(.scale)
-                            .font(.system(size: 28))
-                    }
+                if isSelected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundColor(.accentColor)
+                        .font(.system(size: 28))
                 }
-                .frame(width: 32, height: 32)
             }
             .padding(.vertical, 14)
             .padding(.horizontal, 14)
@@ -216,43 +362,6 @@ struct CheckoutView: View {
             .animation(.spring(response: 0.22, dampingFraction: 0.7), value: isSelected)
         }
         .buttonStyle(PlainButtonStyle())
-    }
-
-    private var payBar: some View {
-        VStack(spacing: 12) {
-            HStack {
-                Text("المجموع")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-                Spacer()
-                Text("\(totalAmount, specifier: "%.2f") SAR")
-                    .fontWeight(.bold)
-            }
-            Button(action: payNow) {
-                Text("ادفع الآن")
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(selectedPaymentType == nil ? Color.gray : Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(12)
-            }
-            .disabled(selectedPaymentType == nil || isLoading)
-        }
-        .padding(.top)
-    }
-
-    func financialRow(title: String, value: Double, isBold: Bool = false) -> some View {
-        HStack {
-            Text(title)
-                .foregroundColor(.gray)
-                .font(.subheadline)
-            Spacer()
-            Text("\(value, specifier: "%.2f") SAR")
-                .font(.subheadline)
-                .fontWeight(isBold ? .bold : .regular)
-                .foregroundColor(isBold ? .black : .primary)
-        }
-        .padding(.vertical, 4)
     }
 
     func checkCoupon() {
@@ -281,21 +390,11 @@ struct CheckoutView: View {
         switch paymentMethod {
         case .cash:
             addOrder(paymentType: .cash)
-        case .moyasar:
-            startMoyasarPayment(amount: totalAmount)
+        case .moyasarCard:
+            showCardSheet = true
+        case .moyasarApplePay:
+            startApplePay()
         }
-    }
-
-    func startMoyasarPayment(amount: Double) {
-        // ضع هنا كود تكامل Moyasar المناسب حسب الـ SDK أو WebView الخاص بك
-        loadingMessage = "جاري معالجة الدفع..."
-        isLoading = true
-        // عند النجاح:
-        // addOrder(paymentType: .moyasar)
-        // عند الفشل:
-        // showPaymentError = true
-        // orderViewModel.errorMessage = "تعذر معالجة الدفع"
-        // isLoading = false
     }
 
     func addOrder(paymentType: PaymentType) {
@@ -308,54 +407,147 @@ struct CheckoutView: View {
                 orderViewModel.errorMessage = msg
                 showPaymentError = true
             } else {
-                appRouter.navigate(to: .paymentSuccess)
+                showPaymentSuccess = true // أو التنقل مباشرة لصفحة النجاح
             }
         }
     }
 }
 
-#Preview {
-    // خدمة واحدة فقط حسب الجيسون
-    let subCategory = SubCategory(
-        id: "6594394a616885647682c071",
-        price: 100,
-        title: "خدمة التنظيف",
-        description: "تنظيف عميق",
-        image: nil
-    )
-    let selectedService = SelectedServiceItem(
-        service: subCategory,
-        quantity: 2,
-        categoryId: "64a9938c49c9b40021aa8126",
-        subCategoryId: "6594394a616885647682c071",
-        categoryTitle: "خدمات عامة",
-        subCategoryTitle: "تنظيف"
-    )
-    let address = AddressItem(
-        streetName: "te",
-        floorNo: "1",
-        buildingNo: "2",
-        flatNo: "3",
-        type: "home",
-        createAt: nil,
-        id: "addr1",
-        title: "title",
-        lat: 18.2418308,
-        lng: 42.4660169,
-        address: "العنوان هنا",
-        userId: "user1",
-        discount: nil
-    )
-    let orderData = OrderData(
-        services: [selectedService],
-        address: address,
-        userLocation: nil, // أو Location(lat: 18.2418308, lng: 42.4660169) لو بدك "موقعي الحالي"
-        notes: "notes",
-        date: "2023-01-01",
-        time: "10:00"
-    )
-    return CheckoutView(orderData: orderData)
-        .environmentObject(AppRouter())
+// زر أبل باي جاهز
+struct ApplePayButton: UIViewRepresentable {
+    var action: UIAction
+    func makeUIView(context: Context) -> PKPaymentButton {
+        let button = PKPaymentButton(paymentButtonType: .checkout, paymentButtonStyle: .black)
+        button.addAction(action, for: .touchUpInside)
+        return button
+    }
+    func updateUIView(_ uiView: PKPaymentButton, context: Context) {}
+}
+
+public enum ApiResult<Value> {
+    case success(Value)
+    case error(Error)
+}
+
+class ApplePayPaymentHandler: NSObject, PKPaymentAuthorizationControllerDelegate {
+    var applePayService: ApplePayService?
+    var paymentRequest: PaymentRequest
+    var onSuccess: (() -> Void)?
+    var onFailure: ((String) -> Void)?
+
+    init(paymentRequest: PaymentRequest) {
+        self.paymentRequest = paymentRequest
+        do {
+            applePayService = try ApplePayService(apiKey: paymentRequest.apiKey)
+        } catch {
+            print("ApplePayService init error: \(error)")
+        }
+    }
+    
+    func present() {
+        let items = [
+            PKPaymentSummaryItem(label: "Moyasar", amount: NSDecimalNumber(value: Double(paymentRequest.amount) / 100), type: .final)
+        ]
+        let request = PKPaymentRequest()
+        request.paymentSummaryItems = items
+        request.merchantIdentifier = "merchant.com.mysr.apple" // غير هذا بالمعرف الخاص بك
+        request.countryCode = "SA"
+        request.currencyCode = "SAR"
+        request.supportedNetworks = [.amex, .mada, .masterCard, .visa]
+        request.merchantCapabilities = [.capability3DS, .capabilityCredit, .capabilityDebit]
+
+        let controller = PKPaymentAuthorizationController(paymentRequest: request)
+        controller.delegate = self
+        controller.present(completion: nil)
+    }
+
+    func paymentAuthorizationController(
+        _ controller: PKPaymentAuthorizationController,
+        didAuthorizePayment payment: PKPayment,
+        handler completion: @escaping (PKPaymentAuthorizationResult) -> Void
+    ) {
+        guard let service = applePayService else {
+            completion(.init(status: .failure, errors: nil))
+            self.onFailure?("Apple Pay Service غير متوفر")
+            return
+        }
+        // إذا كانت مكتبتك Moyasar لا تدعم async/await، استخدم handler/closure:
+        do {
+            try service.authorizePayment(request: paymentRequest, token: payment.token) { result in
+                switch result {
+                case .success(let paymentResult):
+                    switch paymentResult.status {
+                    case .paid:
+                        completion(.init(status: .success, errors: nil))
+                        self.onSuccess?()
+                    default:
+                        completion(.init(status: .failure, errors: nil))
+                        // قد يكون الـ source نوعه مختلف حسب حالة الدفع
+                        var msg = "فشل الدفع"
+                        switch paymentResult.source {
+                        case .creditCard(let src):
+                            msg = src.message ?? "فشل الدفع"
+                        case .applePay(let src):
+                            msg = src.message ?? "فشل الدفع"
+                        case .stcPay:
+                            msg = "فشل الدفع عبر STC Pay"
+                        default:
+                            break
+                        }
+                        self.onFailure?(msg)
+                    }
+                case .error(let error):
+                    completion(.init(status: .failure, errors: [error]))
+                    self.onFailure?(error.localizedDescription)
+                }
+            }
+        } catch {
+            completion(.init(status: .failure, errors: [error]))
+            self.onFailure?(error.localizedDescription)
+        }
+    }
+
+    func paymentAuthorizationControllerDidFinish(_ controller: PKPaymentAuthorizationController) {
+        controller.dismiss(completion: nil)
+    }
+}
+
+// عدّل Enum PaymentType حسب مشروعك:
+enum PaymentType: String, CaseIterable, Identifiable {
+    case cash = "كاش"
+    case moyasarCard = "بطاقة بنكية"
+    case moyasarApplePay = "Apple Pay"
+    var id: String { rawValue }
+
+    // للـ UI
+    var iconName: String {
+        switch self {
+        case .cash: return "banknote"
+        case .moyasarCard: return "creditcard.fill"
+        case .moyasarApplePay: return "apple.logo"
+        }
+    }
+    var displayName: String {
+        switch self {
+        case .cash: return "الدفع كاش"
+        case .moyasarCard: return "بطاقة بنكية (مدى/فيزا/ماستر)"
+        case .moyasarApplePay: return "Apple Pay"
+        }
+    }
+    var subtitle: String {
+        switch self {
+        case .cash: return "ادفع عند الاستلام"
+        case .moyasarCard: return "كل البطاقات البنكية"
+        case .moyasarApplePay: return "ادفع مباشرة عبر Apple Pay"
+        }
+    }
+    var cardColor: Color {
+        switch self {
+        case .cash: return .gray.opacity(0.12)
+        case .moyasarCard: return .blue.opacity(0.11)
+        case .moyasarApplePay: return .black.opacity(0.10)
+        }
+    }
 }
 
 struct PaymentErrorPopup: View {

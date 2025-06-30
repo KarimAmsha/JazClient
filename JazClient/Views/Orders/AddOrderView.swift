@@ -223,9 +223,12 @@ struct AddOrderView: View {
                 }
             }
         }
-        .alert(isPresented: $showValidationError) {
-            Alert(title: Text("تنبيه"), message: Text(validationMessage), dismissButton: .default(Text("حسنًا")))
-        }
+        .overlay(
+            MessageAlertObserverView(
+                message: .constant(validationMessage),
+                alertType: .constant(.error)
+            )
+        )
         .onAppear {
             // تهيئة القيم الأولية عند الدخول للشاشة
             if pickedCategory == nil { pickedCategory = selectedCategory }

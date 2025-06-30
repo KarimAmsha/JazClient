@@ -10,6 +10,11 @@ import MapKit
 import SwiftUI
 
 class Utilities: NSObject {
+    static func makeChatId(currentUserId: String, otherUserId: String) -> String {
+        // دايمًا نفس الترتيب حتى ما يتكرر
+        return [currentUserId, otherUserId].sorted().joined(separator: "_")
+    }
+
     static func convertDateStringToDate(stringDate: String, outputFormat: String) -> String? {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'" // Input format

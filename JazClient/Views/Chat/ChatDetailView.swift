@@ -15,16 +15,23 @@ struct ChatDetailView: View {
         _viewModel = StateObject(wrappedValue: ChatViewModel(chatId: chatId, currentUserId: currentUserId))
     }
     
-    init(viewModel: ChatViewModel) {
-        _viewModel = StateObject(wrappedValue: viewModel)
-    }
+//    init(viewModel: ChatViewModel) {
+//        _viewModel = StateObject(wrappedValue: viewModel)
+//    }
 
     var body: some View {
         VStack(spacing: 0) {
             ScrollView {
                 VStack(spacing: 12) {
                     ForEach(viewModel.messages, id: \.id) { msg in
-                        ChatBubble(text: msg.message ?? "", isSender: msg.senderId == viewModel.currentUserId)
+                        let isSender = msg.senderId == viewModel.currentUserId
+                        let receiverUser = !isSender ? viewModel.getUser(for: msg.senderId ?? "") : nil
+
+                        ChatBubble(
+                            text: msg.message ?? "",
+                            isSender: isSender,
+                            receiverImageURL: receiverUser?.profileImageURL
+                        )
                     }
 
                     if viewModel.isOtherUserTyping {
@@ -47,6 +54,7 @@ struct ChatDetailView: View {
                 viewModel.startTyping()
             }
         }
+        .environment(\.layoutDirection, .rightToLeft)
         .background(Color.background())
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden()
@@ -72,25 +80,54 @@ struct ChatDetailView: View {
                 Image(systemName: "chevron.backward")
                     .foregroundColor(.black)
             }
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(viewModel.chat?.senderId == viewModel.currentUserId ? "العميل" : "مقدم الخدمة")
+            
+            if let otherId = getOtherUserId(),
+               let otherUser = viewModel.getUser(for: otherId) {
+                if let url = otherUser.profileImageURL {
+                    AsyncImage(url: url) { image in
+                        image.resizable()
+                    } placeholder: {
+                        Image(systemName: "person.crop.circle.fill")
+                            .resizable()
+                            .foregroundColor(.gray)
+                    }
+                    .frame(width: 36, height: 36)
+                    .clipShape(Circle())
+                }
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(otherUser.displayName)
+                        .customFont(weight: .bold, size: 16)
+                    Text(viewModel.isOtherUserTyping ? "يكتب الآن..." : "متاح الآن")
+                        .font(.caption)
+                        .foregroundColor(viewModel.isOtherUserTyping ? .orange : .green)
+                }
+            } else {
+                // Loader أو Placeholder حتى تجيب البيانات
+                ProgressView()
+                    .frame(width: 36, height: 36)
+                    .padding(.trailing, 4)
+                Text("جاري التحميل ...")
                     .customFont(weight: .bold, size: 16)
-                Text(viewModel.isOtherUserTyping ? "يكتب الآن..." : "متاح الآن")
-                    .font(.caption)
-                    .foregroundColor(viewModel.isOtherUserTyping ? .orange : .green)
             }
         }
     }
+    
+    // Helper to get the other user's id
+    private func getOtherUserId() -> String? {
+        guard let chat = viewModel.chat else { return nil }
+        let id = (chat.senderId == viewModel.currentUserId ? chat.receiverId : chat.senderId)
+        return (id?.isEmpty ?? true) ? nil : id
+    }
+}
+
+#Preview {
+    ChatDetailView(chatId: "", currentUserId: "")
+        .environmentObject(AppState())
 }
 
 //#Preview {
-//    ChatDetailView(chatId: "", currentUserId: "")
-//        .environmentObject(AppState())
+//    ChatDetailView(viewModel: MockChatViewModel())
+//        .environmentObject(AppRouter())
+//        .environmentObject(UserSettings())
 //}
-
-#Preview {
-    ChatDetailView(viewModel: MockChatViewModel())
-        .environmentObject(AppRouter())
-        .environmentObject(UserSettings())
-}

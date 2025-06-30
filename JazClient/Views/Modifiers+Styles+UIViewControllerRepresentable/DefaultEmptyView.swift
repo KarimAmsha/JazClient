@@ -1,10 +1,3 @@
-//
-//  DefaultEmptyView.swift
-//  Fazaa
-//
-//  Created by Karim Amsha on 13.02.2024.
-//
-
 import SwiftUI
 
 struct DefaultEmptyView: View {
@@ -14,11 +7,12 @@ struct DefaultEmptyView: View {
         VStack(alignment: .center, spacing: 10) {
             Spacer()
             
-            Image("ic_logo")
-                .renderingMode(.template)
+            // صورة من النظام
+            Image(systemName: "tray")
                 .resizable()
-                .frame(width: 85, height: 81)
-                .foregroundColor(.gray)
+                .scaledToFit()
+                .frame(width: 80, height: 80)
+                .foregroundColor(.gray.opacity(0.3))
             
             Text(title)
                 .customFont(weight: .bold, size: 14)
@@ -30,5 +24,5 @@ struct DefaultEmptyView: View {
 }
 
 #Preview {
-    DefaultEmptyView(title: LocalizedStringKey.noOrdersFound)
+    DefaultEmptyView(title: "لا يوجد طلبات")
 }

@@ -16,7 +16,7 @@ class OrderViewModel: ObservableObject {
     @Published var pagination: Pagination?
     @Published var orders: [OrderModel] = []
     @Published var order: OrderModel?
-    @Published var orderDetailsItem: OrderDetailsItem?
+    @Published var orderBody: OrderBody?
     private let errorHandling: ErrorHandling
     private let dataProvider = DataProvider.shared
     @Published var errorMessage: String?
@@ -127,13 +127,13 @@ class OrderViewModel: ObservableObject {
         errorMessage = nil
         let endpoint = DataProvider.Endpoint.getOrderDetails(orderId: orderId, token: token)
         
-        dataProvider.request(endpoint: endpoint, responseType: SingleAPIResponse<OrderDetailsItem>.self) { [weak self] result in
+        dataProvider.request(endpoint: endpoint, responseType: SingleAPIResponse<OrderBody>.self) { [weak self] result in
             guard let self = self else { return }
             self.isLoading = false
             switch result {
             case .success(let response):
                 if response.status {
-                    self.orderDetailsItem = response.items
+                    self.orderBody = response.items
                     self.errorMessage = nil
                     onsuccess()
                 } else {

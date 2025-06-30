@@ -376,37 +376,6 @@ enum NOTIFICATION_TYPE: Int {
     case GENERAL = 3
 }
 
-enum PaymentType: String, CaseIterable, Identifiable {
-    case cash
-    case moyasar
-    
-    var id: String { rawValue }
-    var iconName: String {
-        switch self {
-        case .cash: return "banknote" // يمكنك استخدام صورة محلية أو system image
-        case .moyasar: return "creditcard" // اسم صورة طريقة الدفع في الأصول
-        }
-    }
-    var displayName: String {
-        switch self {
-        case .cash: return "الدفع كاش"
-        case .moyasar: return "بطاقة - Moyasar"
-        }
-    }
-    var subtitle: String {
-        switch self {
-        case .cash: return "ادفع نقداً عند الاستلام"
-        case .moyasar: return "ادفع بالبطاقة من خلال Moyasar"
-        }
-    }
-    var cardColor: Color {
-        switch self {
-        case .cash: return Color.green.opacity(0.10)
-        case .moyasar: return Color.blue.opacity(0.11)
-        }
-    }
-}
-
 enum PaymentMethod: String, CaseIterable {
     case goSell = "ic_gosell"
     case wallet = "ic_w"

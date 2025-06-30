@@ -109,6 +109,8 @@ struct HomeView: View {
                     viewModel.fetchHomeItems(q: nil, lat: 18.2418308, lng: 42.4660169)
 //                }
                 refreshFcmToken()
+                print("ttt \(UserSettings.shared.token)")
+                ChatViewModel.setUser()
             }
         }
     }
