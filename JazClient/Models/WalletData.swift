@@ -10,7 +10,7 @@ import Foundation
 struct WalletData: Identifiable, Codable, Hashable  {
     let id: String?
     let orderNo: String?
-    let user: String?
+    let user: User?
     let details: String?
     let total: Double?
     let type: TransactionType?

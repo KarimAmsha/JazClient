@@ -1,11 +1,5 @@
-//
-//  ProfileView.swift
-//  Wishy
-//
-//  Created by Karim Amsha on 30.04.2024.
-//
-
 import SwiftUI
+import PopupView
 
 struct ProfileView: View {
     @EnvironmentObject var appRouter: AppRouter
@@ -13,86 +7,172 @@ struct ProfileView: View {
     @StateObject private var authViewModel = AuthViewModel(errorHandling: ErrorHandling())
     @EnvironmentObject var appState: AppState
 
+    // بيانات المستخدم
+    @State private var name: String = UserSettings.shared.user?.full_name ?? "اسم المستخدم"
+    @State private var phone: String = UserSettings.shared.user?.phone_number ?? "--"
+    @State private var imageUrl: String = UserSettings.shared.user?.image ?? ""
+
+    @State private var showLogoutAlert = false
+    @State private var showDeleteAlert = false
+
     var body: some View {
-        GeometryReader { geometry in
-            ScrollView(.vertical, showsIndicators: false) {
-                VStack(spacing: 20) {
-                    // Profile Card
-                    ZStack(alignment: .topLeading) {
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.primary())
-                            .frame(height: 80)
-                        HStack {
-                            VStack(alignment: .trailing, spacing: 4) {
-                                Text("قد سعيد")
-                                    .foregroundColor(.white)
-                                    .bold()
-                                Text("100 مشروع مكتمل")
-                                    .foregroundColor(.white)
-                                    .font(.caption)
+        VStack(spacing: 16) {
+            // --- كارت معلومات المستخدم وزر التعديل ---
+            HStack(alignment: .center, spacing: 10) {
+                ZStack {
+                    if !imageUrl.isEmpty, let url = URL(string: imageUrl) {
+                        AsyncImage(url: url) { phase in
+                            switch phase {
+                            case .empty:
+                                // أثناء التحميل
+                                ProgressView()
+                                    .frame(width: 54, height: 54)
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 54, height: 54)
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                            case .failure(_):
+                                Image(systemName: "photo.on.rectangle.angled")
+                                    .resizable()
+                                    .foregroundColor(.gray)
+                                    .frame(width: 54, height: 54)
+                                    .background(Color(.systemGray5))
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                            @unknown default:
+                                EmptyView()
                             }
-                            Spacer()
-                            Image("profile")
-                                .resizable()
-                                .frame(width: 48, height: 48)
-                                .clipShape(Circle())
                         }
-                        .padding(.horizontal)
-
-                        Button(action: {}) {
-                            Image(systemName: "pencil")
-                                .padding(8)
-                                .background(Color.white.opacity(0.2))
-                                .clipShape(Circle())
-                                .foregroundColor(.white)
-                        }
-                        .padding(8)
+                    } else {
+                        Image(systemName: "photo.on.rectangle.angled")
+                            .resizable()
+                            .foregroundColor(.gray)
+                            .frame(width: 54, height: 54)
+                            .background(Color(.systemGray5))
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
-                    .padding(.horizontal)
-
-                    // Settings List
-                    VStack(spacing: 0) {
-                        settingsRow(title: "أرباحي", icon: "bag") {
-                            appRouter.navigate(to: .earningsView)
-                        }
-
-                        settingsRow(title: "الإشعارات", icon: "bell") {
-                            appRouter.navigate(to: .notificationsSettings)
-                        }
-
-                        settingsRow(title: "إعدادات الحساب", icon: "gearshape") {
-                            appRouter.navigate(to: .accountSettings)
-                        }
-
-                        settingsRow(title: "المساعدة", icon: "questionmark.bubble") {
-                            appRouter.navigate(to: .editProfile)
-                        }
-                        settingsRow(title: "تسجيل الخروج", icon: "rectangle.portrait.and.arrow.right") {
-                            appRouter.navigate(to: .editProfile)
-                        }
-                    }
-                    .background(Color.white)
-                    .cornerRadius(12)
-                    .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
-                    .padding(.horizontal)
-
-                    Spacer()
                 }
-                .padding()
+                
+                Spacer()
+                Text(phone)
+                    .font(.system(size: 16, weight: .medium))
+                Spacer()
+
+                Button(action: {
+                    appRouter.navigate(to: .editProfile)
+                }) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "pencil")
+                        Text("تعديل الملف")
+                            .font(.system(size: 14, weight: .medium))
+                    }
+                    .foregroundColor(Color.blue)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 6)
+                    .background(Color.blue.opacity(0.10))
+                    .cornerRadius(18)
+                }
             }
+            .padding(.horizontal)
+            .padding(.vertical, 6)
+            .background(Color.white)
+            .cornerRadius(14)
+            .shadow(color: .black.opacity(0.03), radius: 3, x: 0, y: 2)
+            .padding(.horizontal, 8)
+
+            // --- القائمة الرئيسية ---
+            VStack(spacing: 0) {
+                profileItem(title: "نبذة عن تطبيق جاز") {
+                    if let item = initialViewModel.constantsItems?.first(where: { $0.constantType == .about }) {
+                        appRouter.navigate(to: .constant(item))
+                    }
+                }
+                Divider().padding(.leading)
+                profileItem(title: "عناويني") { appRouter.navigate(to: .addressBook) }
+                Divider().padding(.leading)
+                profileItem(title: "تواصل معنا") { appRouter.navigate(to: .contactUs) }
+                Divider().padding(.leading)
+                profileItem(title: "سياسة الاستخدام") {
+                    if let item = initialViewModel.constantsItems?.first(where: { $0.constantType == .using }) {
+                        appRouter.navigate(to: .constant(item))
+                    }
+                }
+                Divider().padding(.leading)
+                profileItem(title: "المحفظة") { appRouter.navigate(to: .walletView) }
+                Divider().padding(.leading)
+                profileItem(title: "سياسة الخصوصية") {
+                    if let item = initialViewModel.constantsItems?.first(where: { $0.constantType == .privacy }) {
+                        appRouter.navigate(to: .constant(item))
+                    }
+                }
+//                Divider().padding(.leading)
+//                profileItem(title: "اللغة", icon: "globe") {
+//                }
+            }
+            .background(Color.white)
+            .cornerRadius(12)
+            .shadow(color: .black.opacity(0.02), radius: 3, x: 0, y: 1)
+            .padding(.horizontal, 8)
+            .padding(.top, 6)
+
+            // --- زر حذف الحساب في الأسفل باللون الأحمر ---
+            Button(action: {
+                showDeleteAlert = true
+            }) {
+                HStack {
+                    Image(systemName: "exclamationmark.circle.fill")
+                        .foregroundColor(.red)
+                        .font(.system(size: 20))
+                    Text("حذف الحساب نهائيًا")
+                        .foregroundColor(.red)
+                        .fontWeight(.bold)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .background(Color.red.opacity(0.08))
+                .cornerRadius(12)
+                .padding(.horizontal, 8)
+            }
+            .padding(.top, 14)
+
+            // --- زر تسجيل الخروج ---
+            Button(action: {
+                showLogoutAlert = true
+            }) {
+                HStack {
+                    Image(systemName: "rectangle.portrait.and.arrow.right")
+                        .foregroundColor(.red)
+                        .font(.system(size: 20))
+                    Text("تسجيل الخروج!")
+                        .foregroundColor(.red)
+                        .fontWeight(.bold)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+                .background(Color.red.opacity(0.07))
+                .cornerRadius(12)
+                .padding(.horizontal, 8)
+            }
+
+            // --- رقم النسخة ---
+            Text("VERSION \(Bundle.main.shortVersion)")
+                .font(.caption)
+                .foregroundColor(.gray)
+                .padding(.top, 14)
+                .padding(.bottom, 10)
+
+            Spacer(minLength: 16)
         }
         .navigationBarBackButtonHidden()
         .background(Color.background())
-//        .tabBar()
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
-                VStack(alignment: .leading) {
-                    Text("الزيد 🚗")
-                        .customFont(weight: .bold, size: 20)
-                    Text("الإعدادات والتحكم بتفاصيل الحساب!")
-                        .customFont(weight: .regular, size: 10)
+                HStack {
+                    Text("الصفحة الشخصية")
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundColor(.black)
                 }
-                .foregroundColor(Color.black222020())
             }
             
             ToolbarItem(placement: .navigationBarTrailing) {
@@ -104,106 +184,123 @@ struct ProfileView: View {
         }
         .onAppear {
             getConstants()
+            name = UserSettings.shared.user?.full_name ?? "اسم المستخدم"
+            phone = UserSettings.shared.user?.phone_number ?? "--"
+            imageUrl = UserSettings.shared.user?.image ?? "--"
+        }
+        // بوب أب لتسجيل الخروج
+        .popup(isPresented: $showLogoutAlert) {
+            ConfirmPopup(
+                title: "تسجيل الخروج",
+                message: "هل أنت متأكد أنك تريد تسجيل الخروج؟",
+                okTitle: "تسجيل الخروج",
+                cancelTitle: "رجوع",
+                okAction: logout,
+                cancelAction: { showLogoutAlert = false }
+            )
+        }
+        // بوب أب حذف الحساب
+        .popup(isPresented: $showDeleteAlert) {
+            ConfirmPopup(
+                title: "حذف الحساب",
+                message: "هل أنت متأكد أنك تريد حذف الحساب نهائيًا؟",
+                okTitle: "حذف الحساب",
+                cancelTitle: "رجوع",
+                okAction: deleteAccount,
+                cancelAction: { showDeleteAlert = false }
+            )
         }
     }
-    
+
+    // ---- صف إعداد فردي ----
     @ViewBuilder
-    func settingsRow(title: String, icon: String, action: @escaping () -> Void) -> some View {
+    func profileItem(title: String, icon: String? = nil, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack {
-                Image(systemName: icon)
+                if let icon = icon {
+                    Image(systemName: icon)
+                        .font(.system(size: 18))
+                        .foregroundColor(.blue)
+                }
                 Text(title)
+                    .foregroundColor(.black)
+                    .font(.system(size: 16))
                 Spacer()
-                Image(systemName: "chevron.left")
             }
-            .foregroundColor(.black)
-            .padding()
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.vertical, 14)
+            .padding(.horizontal)
             .background(Color.white)
-            .contentShape(Rectangle())
         }
-        .buttonStyle(PlainButtonStyle()) // لإزالة تأثير الزر الأزرق
+        .buttonStyle(PlainButtonStyle())
     }
-}
 
-//// Dummy tab bar extension
-//extension View {
-//    func tabBar() -> some View {
-//        VStack(spacing: 0) {
-//            self
-//            Divider()
-//            HStack {
-//                tabItem(title: "الرئيسية", systemImage: "house")
-//                tabItem(title: "الرسائل", systemImage: "bubble.left")
-//                tabItem(title: "إضافة خدمة", systemImage: "plus")
-//                tabItem(title: "المشاريع", systemImage: "briefcase")
-//                tabItem(title: "الزيد", systemImage: "ellipsis")
-//            }
-//            .padding(.vertical, 8)
-//            .background(Color.white)
-//        }
-//    }
-//
-//    func tabItem(title: String, systemImage: String) -> some View {
-//        VStack(spacing: 4) {
-//            Image(systemName: systemImage)
-//            Text(title).font(.caption2)
-//        }
-//        .frame(maxWidth: .infinity)
-//        .foregroundColor(.black)
-//    }
-//}
-//
-#Preview {
-    ProfileView()
-        .environmentObject(AppRouter())
-}
-
-extension ProfileView {
     private func getConstants() {
         initialViewModel.fetchConstantsItems()
     }
 
     private func logout() {
-        let alertModel = AlertModel(icon: "",
-                                    title: LocalizedStringKey.logout,
-                                    message: LocalizedStringKey.logoutMessage,
-                                    hasItem: false,
-                                    item: nil,
-                                    okTitle: LocalizedStringKey.logout,
-                                    cancelTitle: LocalizedStringKey.back,
-                                    hidesIcon: true,
-                                    hidesCancel: true) {
-            authViewModel.logoutUser {
-                appState.currentPage = .home
-            }
-            appRouter.dismissPopup()
-        } onCancelAction: {
-            appRouter.dismissPopup()
+        authViewModel.logoutUser {
+            appState.currentPage = .home
         }
-        
-        appRouter.togglePopup(.alert(alertModel))
+        showLogoutAlert = false
     }
-    
+
     private func deleteAccount() {
-        let alertModel = AlertModel(icon: "",
-                                    title: LocalizedStringKey.deleteAccount,
-                                    message: LocalizedStringKey.deleteAccountMessage,
-                                    hasItem: false,
-                                    item: nil,
-                                    okTitle: LocalizedStringKey.deleteAccount,
-                                    cancelTitle: LocalizedStringKey.back,
-                                    hidesIcon: true,
-                                    hidesCancel: true) {
-            authViewModel.deleteAccount {
-                appState.currentPage = .home
-            }
-            appRouter.dismissPopup()
-        } onCancelAction: {
-            appRouter.dismissPopup()
+        authViewModel.deleteAccount {
+            appState.currentPage = .home
         }
-        
-        appRouter.togglePopup(.alert(alertModel))
+        showDeleteAlert = false
     }
 }
 
+// --- PopUp تأكيد عام ---
+struct ConfirmPopup: View {
+    let title: String
+    let message: String
+    let okTitle: String
+    let cancelTitle: String
+    let okAction: () -> Void
+    let cancelAction: () -> Void
+
+    var body: some View {
+        VStack(spacing: 20) {
+            Text(title)
+                .font(.title2.bold())
+            Text(message)
+                .font(.body)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 10)
+            HStack {
+                Button(cancelTitle, action: cancelAction)
+                    .foregroundColor(.gray)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color(.systemGray5))
+                    .cornerRadius(10)
+                Button(okTitle, action: okAction)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(okTitle.contains("حذف") ? Color.red : Color.blue)
+                    .cornerRadius(10)
+            }
+        }
+        .padding()
+        .background(RoundedRectangle(cornerRadius: 18).fill(Color.white))
+        .shadow(radius: 18)
+        .frame(maxWidth: 330)
+    }
+}
+
+// لجلب رقم النسخة تلقائيًا (مثال: 1.5.7)
+extension Bundle {
+    var shortVersion: String {
+        return infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
+    }
+}
+
+#Preview {
+    ProfileView()
+        .environmentObject(AppRouter())
+        .environmentObject(AppState())
+}

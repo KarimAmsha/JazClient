@@ -97,7 +97,7 @@ class UserSettings: ObservableObject {
         UserDefaults.standard.set(token, forKey:  Keys.token)
     }
 
-    private func clearUserStorage() {
+    func clearUserStorage() {
         UserDefaults.standard.removeObject(forKey: Keys.userData)
         UserDefaults.standard.removeObject(forKey:  Keys.id)
         UserDefaults.standard.removeObject(forKey:  Keys.token)

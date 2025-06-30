@@ -84,6 +84,39 @@ struct ContactUsView: View {
 
                         Spacer()
 
+                        if !initialViewModel.appContactItem.isEmpty {
+                            VStack(alignment: .leading, spacing: 16) {
+                                Text("طرق التواصل:")
+                                    .customFont(weight: .bold, size: 16)
+                                    .foregroundColor(.black1F1F1F())
+
+                                LazyVGrid(columns: columns, spacing: 12) {
+                                    ForEach(initialViewModel.appContactItem, id: \.self) { contact in
+                                        VStack(alignment: .center, spacing: 8) {
+                                            Image(systemName: iconName(for: contact.Name ?? ""))
+                                                .resizable()
+                                                .scaledToFit()
+                                                .frame(width: 24, height: 24)
+                                                .foregroundColor(.primary())
+
+                                            Button(action: {
+                                                openContactAction(contact)
+                                            }) {
+                                                Text(contact.Name ?? "")
+                                                    .customFont(weight: .regular, size: 14)
+                                                    .foregroundColor(.primary())
+                                            }
+                                        }
+                                        .padding()
+                                        .frame(maxWidth: .infinity)
+                                        .background(Color.white)
+                                        .cornerRadius(10)
+                                        .shadow(color: .black.opacity(0.05), radius: 3, x: 0, y: 1)
+                                    }
+                                }
+                            }
+                        }
+
                         if viewModel.isLoading {
                             LoadingView()
                         }
@@ -92,25 +125,6 @@ struct ContactUsView: View {
                     .frame(minHeight: geometry.size.height)
                 }
                 
-//                VStack(spacing: 10) {
-//                    LazyVGrid(columns: columns, spacing: 10) {
-//                        ForEach(0..<initialViewModel.appContactItem.count, id: \.self) { index in
-//                            Button(action: {
-//                                initialViewModel.handleButtonTapped(index: index)
-//                            }) {
-//                                Text(initialViewModel.appContactItem[index].Name)
-//                                    .customFont(weight: .medium, size: 15)
-//                                    .padding()
-//                                    .background(Color.primary())
-//                                    .foregroundColor(.white)
-//                                    .cornerRadius(8)
-//                            }
-//                            .frame(maxWidth: .infinity)
-//                        }
-//                    }
-//                }
-//                .padding()
-
                 Button {
                     addComplain()
                 } label: {
@@ -158,6 +172,49 @@ struct ContactUsView: View {
         )
         .onAppear {
             initialViewModel.fetchContactItems()
+        }
+    }
+    
+    func iconName(for name: String) -> String {
+        switch name.lowercased() {
+        case "فيس بوك", "facebook":
+            return "f.square.fill"
+        case "تويتر", "twitter":
+            return "xmark.circle.fill"
+        case "انستجرام", "instagram":
+            return "camera.circle.fill"
+        case "الايميل", "email":
+            return "envelope.fill"
+        case "رقم التواصل", "phone":
+            return "phone.fill"
+        case "واتساب", "whatsapp":
+            return "message.fill"
+        default:
+            return "questionmark.circle.fill"
+        }
+    }
+    
+    func openContactAction(_ contact: Contact) {
+        guard let data = contact.Data else { return }
+
+        let name = contact.Name?.lowercased() ?? ""
+
+        if name.contains("واتس") || name.contains("whatsapp") {
+            let phone = data.filter("0123456789".contains)
+            if let url = URL(string: "https://wa.me/\(phone)"), UIApplication.shared.canOpenURL(url) {
+                UIApplication.shared.open(url)
+            }
+        } else if name.contains("ايميل") || name.contains("email") {
+            if let url = URL(string: "mailto:\(data)"), UIApplication.shared.canOpenURL(url) {
+                UIApplication.shared.open(url)
+            }
+        } else if name.contains("رقم") || name.contains("phone") || data.allSatisfy("0123456789+".contains) {
+            let phone = data.filter("0123456789".contains)
+            if let url = URL(string: "tel://\(phone)"), UIApplication.shared.canOpenURL(url) {
+                UIApplication.shared.open(url)
+            }
+        } else if data.contains("http"), let url = URL(string: data) {
+            UIApplication.shared.open(url)
         }
     }
 }

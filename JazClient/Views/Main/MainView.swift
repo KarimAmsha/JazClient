@@ -79,7 +79,7 @@ extension MainView {
     var mainTabContent: some View {
         switch selectedTab {
         case .home:
-            HomeView()
+            HomeView(selectedTab: $selectedTab)
         case .services:
             ServicesView(viewModel: viewModel, selectedCategoryId: nil)
         case .jaz:
@@ -113,6 +113,8 @@ extension MainView {
         // More Section
         case .contactUs: ContactUsView()
         case .rewards: EmptyView()
+        case .notifications: NotificationsView()
+        case .walletView: WalletView()
         // Orders
         case .myOrders: MyOrdersView()
         case .orderDetails(let orderID): OrderDetailsView(orderID: orderID)
@@ -137,6 +139,8 @@ extension MainView {
             )
         case .checkout(let orderData):
             CheckoutView(orderData: orderData)
+        case .addressBook:
+            AddAddressView()
         default: EmptyView()
         }
     }

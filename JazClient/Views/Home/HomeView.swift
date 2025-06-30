@@ -3,9 +3,11 @@ import FirebaseMessaging
 
 struct HomeView: View {
     @EnvironmentObject var appRouter: AppRouter
+    @EnvironmentObject var appState: AppState
     @StateObject var viewModel = InitialViewModel(errorHandling: ErrorHandling())
     @StateObject var userViewModel = UserViewModel(errorHandling: ErrorHandling())
     @StateObject var locationManager = LocationManager.shared
+    @Binding var selectedTab: TabItem2
 
     let columns = [
         GridItem(.flexible()),
@@ -88,13 +90,13 @@ struct HomeView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     HStack(spacing: 16) {
                         Button(action: {
-                            // إشعارات
+                            appRouter.navigate(to: .notifications)
                         }) {
                             Image(systemName: "bell")
                                 .foregroundColor(.black)
                         }
                         Button(action: {
-                            appRouter.navigate(to: .productsSearchView)
+                            selectedTab = .services
                         }) {
                             Image(systemName: "magnifyingglass")
                                 .foregroundColor(.black)
@@ -129,5 +131,5 @@ struct HomeView: View {
 }
 
 #Preview {
-    HomeView()
+    HomeView(selectedTab: .constant(.home))
 }
