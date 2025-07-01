@@ -255,6 +255,7 @@
 		5267FAC92DCD42650063AF67 /* ChatListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5267FAC82DCD42640063AF67 /* ChatListViewModel.swift */; };
 		5267FACB2DCD42F20063AF67 /* FirebaseUserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5267FACA2DCD42F10063AF67 /* FirebaseUserService.swift */; };
 		5267FACD2DCD44850063AF67 /* PushNotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5267FACC2DCD44840063AF67 /* PushNotificationService.swift */; };
+		526CBCDF2E13C34C00B1324C /* OrderRealTime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 526CBCDE2E13C32E00B1324C /* OrderRealTime.swift */; };
 		528541502E00268700ED92D1 /* MoyasarSdk in Frameworks */ = {isa = PBXBuildFile; productRef = 5285414F2E00268700ED92D1 /* MoyasarSdk */; };
 		528541522E002A2300ED92D1 /* OrderData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 528541512E002A1E00ED92D1 /* OrderData.swift */; };
 		5291E9E02DED968D0019BB66 /* AccountCreatedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5291E9DF2DED968C0019BB66 /* AccountCreatedView.swift */; };
@@ -507,6 +508,7 @@
 		5267FAC82DCD42640063AF67 /* ChatListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatListViewModel.swift; sourceTree = "<group>"; };
 		5267FACA2DCD42F10063AF67 /* FirebaseUserService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseUserService.swift; sourceTree = "<group>"; };
 		5267FACC2DCD44840063AF67 /* PushNotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationService.swift; sourceTree = "<group>"; };
+		526CBCDE2E13C32E00B1324C /* OrderRealTime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderRealTime.swift; sourceTree = "<group>"; };
 		528541512E002A1E00ED92D1 /* OrderData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderData.swift; sourceTree = "<group>"; };
 		5291E9DF2DED968C0019BB66 /* AccountCreatedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreatedView.swift; sourceTree = "<group>"; };
 		5291E9E32DEDE9630019BB66 /* ServicesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServicesView.swift; sourceTree = "<group>"; };
@@ -743,6 +745,7 @@
 		1ECC944D2BDC56EE002BFE54 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				526CBCDE2E13C32E00B1324C /* OrderRealTime.swift */,
 				528541512E002A1E00ED92D1 /* OrderData.swift */,
 				5267FAB82DCD3D980063AF67 /* Chat */,
 				52AEC8D62DCBE61A00B4FC84 /* ServiceModel.swift */,
@@ -1495,6 +1498,7 @@
 				1EDEF66B2BE167F200863C10 /* ProfileView.swift in Sources */,
 				1ECC94D32BDC5E49002BFE54 /* WithPopover.swift in Sources */,
 				1E28043A2C04FC650021DFB0 /* OrderStatusButton.swift in Sources */,
+				526CBCDF2E13C34C00B1324C /* OrderRealTime.swift in Sources */,
 				1EFB9B272C1B98CC00C15CE4 /* ReminderViewModel.swift in Sources */,
 				1ECC94F42BDD1254002BFE54 /* Monitor.swift in Sources */,
 				1ECC94752BDC5B68002BFE54 /* URL+Extensions.swift in Sources */,

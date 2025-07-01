@@ -4,6 +4,19 @@ import PopupView
 import MoyasarSdk
 import PassKit
 
+enum MoyasarEnvironment {
+    case test, production
+
+    var apiKey: String {
+        switch self {
+        case .test:
+            return "pk_test_vcFUHJDBwiyRu4Bd3hFuPpTnRPY4gp2ssYdNJMY3"
+        case .production:
+            return "pk_live_..."   // ضع هنا المفتاح الفعلي
+        }
+    }
+}
+
 struct CheckoutView: View {
     let orderData: OrderData
 
@@ -20,7 +33,7 @@ struct CheckoutView: View {
     @State private var showPaymentSuccess = false
 
     // لمفتاح ميسرة
-    let apiKey = "pk_test_vcFUHJDBwiyRu4Bd3hFuPpTnRPY4gp2ssYdNJMY3" // غيّر للمفتاح الحقيقي/الاختباري الخاص بك
+    let apiKey = MoyasarEnvironment.test.apiKey   // أو .production حسب البيئة
 
     var service: SelectedServiceItem { orderData.services.first! }
     var address: AddressItem? { orderData.address }

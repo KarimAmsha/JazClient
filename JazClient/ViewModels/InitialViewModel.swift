@@ -30,6 +30,7 @@ class InitialViewModel: ObservableObject {
     @Published var favoriteItem: FavoriteItem?
     @Published var favoriteItems: [FavoriteItems] = []
     @Published var whatsAppContactItem: Contact?
+    @Published var appConstants: [AppConstantItem] = []
 
     init(errorHandling: ErrorHandling) {
         self.errorHandling = errorHandling
@@ -70,6 +71,35 @@ class InitialViewModel: ObservableObject {
             .store(in: &cancellables)
     }
     
+    /// جلب بيانات constants
+    func fetchAppConstantsItems(completion: @escaping ([AppConstantItem]) -> Void) {
+        isLoading = true
+        errorMessage = nil
+
+        let endpoint = DataProvider.Endpoint.getAppConstants
+        
+        DataProvider.shared.request(endpoint: endpoint, responseType: SingleAPIResponse<[AppConstantItem]>.self)
+            .sink(receiveCompletion: { [weak self] completionStatus in
+                self?.isLoading = false
+                switch completionStatus {
+                case .finished:
+                    break
+                case .failure(let error):
+                    self?.errorMessage = error.localizedDescription
+                    completion([])
+                }
+            }, receiveValue: { [weak self] response in
+                if response.status, let items = response.items {
+                    self?.appConstants = items
+                    completion(items)
+                } else {
+                    self?.errorMessage = response.message
+                    completion([])
+                }
+            })
+            .store(in: &cancellables)
+    }
+
     func fetchConstantsItems() {
         isLoading = true
         errorMessage = nil

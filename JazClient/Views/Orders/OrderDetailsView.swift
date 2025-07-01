@@ -93,24 +93,30 @@ struct OrderDetailsView: View {
                         .cornerRadius(10)
 
                         // زر المحادثة مع مزود الخدمة
-                        if let provider = order.provider, let providerId = provider.id {
-                            Button(action: {
-                                let myId = UserSettings.shared.id ?? ""
-                                let chatId = Utilities.makeChatId(currentUserId: myId, otherUserId: providerId)
-                                appRouter.navigate(to: .chat(chatId: chatId, currentUserId: myId))
-                            }) {
-                                HStack {
-                                    Image(systemName: "bubble.left.and.bubble.right.fill")
-                                    Text("محادثة مع مزود الخدمة")
-                                        .fontWeight(.bold)
+                        if let provider = order.provider,
+                           let providerId = provider.id,
+                           providerId != UserSettings.shared.id {
+                            ProviderCardWithChatButtonView(
+                                provider: provider,
+                                orderStatus: OrderStatus(order.status ?? "new"),
+                                onChat: {
+                                    let myId = UserSettings.shared.id ?? ""
+                                    let chatId = Utilities.makeChatId(currentUserId: myId, otherUserId: providerId)
+                                    appRouter.navigate(to: .chat(chatId: chatId, currentUserId: myId))
                                 }
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .foregroundColor(.blue)
-                                .background(Color.blue.opacity(0.09))
-                                .cornerRadius(14)
-                            }
-                            .padding(.top, 10)
+                            )
+                        }
+
+                        // جدول الأسعار
+                        OrderPriceTableView(order: order)
+
+                        if order.newTotal != nil || order.newTax != nil {
+                            OrderNewTotalsTableView(order: order)
+                        }
+
+                        // جدول الخدمات المضافة (extra)
+                        if let extraServices = order.extra, !extraServices.isEmpty {
+                            ExtraServicesSection(extraServices: extraServices)
                         }
 
                         // ضمن OrderDetailsView أو في قسم الإجراءات (مثلاً مع زر التقييم/المحادثة)
@@ -171,7 +177,12 @@ struct OrderDetailsView: View {
             }
         }
         .onAppear {
-            viewModel.getOrderDetails(orderId: orderID) { }
+            viewModel.getOrderDetails(orderId: orderID) {
+                viewModel.startListeningOrderRealtime(orderId: orderID)
+            }
+        }
+        .onDisappear {
+            viewModel.stopListeningOrderRealtime()
         }
         .sheet(isPresented: $showCancelSheet) {
             CancelOrderSheet(
@@ -227,6 +238,13 @@ struct OrderDetailsView: View {
                 .fontWeight(.semibold)
         }
         .frame(maxWidth: .infinity)
+    }
+
+    func canChat(status: String?) -> Bool {
+        guard let status = status else { return false }
+        // عدّل الحالات حسب المنظومة لديك
+        let allowed: [OrderStatus] = [.accepted, .way, .started, .finished]
+        return allowed.contains(OrderStatus(status))
     }
 }
 
@@ -497,4 +515,205 @@ struct CancelOrderSheet: View {
             .navigationBarHidden(true)
         }
     }
+}
+
+struct ProviderCardWithChatButtonView: View {
+    let provider: User // موديل المزود
+    let orderStatus: OrderStatus
+    let onChat: () -> Void
+
+    var body: some View {
+        VStack(spacing: 10) {
+            // --- كارد بيانات المزود ---
+            HStack(spacing: 14) {
+                // صورة المزود
+                if let urlString = provider.image, let url = URL(string: urlString) {
+                    AsyncImage(url: url) { img in
+                        img.resizable()
+                    } placeholder: {
+                        Image(systemName: "person.crop.circle.fill")
+                            .resizable()
+                            .foregroundColor(.gray.opacity(0.7))
+                    }
+                    .frame(width: 54, height: 54)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                } else {
+                    Image(systemName: "person.crop.circle.fill")
+                        .resizable()
+                        .foregroundColor(.gray.opacity(0.7))
+                        .frame(width: 54, height: 54)
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                }
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(provider.full_name ?? "مزود الخدمة")
+                        .font(.headline)
+                    if let phone = provider.phone_number {
+                        Text(phone)
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                    }
+                    if let rate = provider.rate {
+                        HStack(spacing: 3) {
+                            Image(systemName: "star.fill")
+                                .foregroundColor(.yellow)
+                                .font(.system(size: 13))
+                            Text(String(format: "%.1f", rate))
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                        }
+                    }
+                }
+                Spacer()
+            }
+            .padding()
+            .background(Color.white)
+            .cornerRadius(16)
+            .shadow(color: Color.black.opacity(0.04), radius: 2, x: 0, y: 1)
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color.blue.opacity(0.09), lineWidth: 1)
+            )
+
+            // --- زر المحادثة ---
+            if orderStatus == .accepted || orderStatus == .way || orderStatus == .started || orderStatus == .finished {
+                Button(action: onChat) {
+                    HStack {
+                        Image(systemName: "bubble.left.and.bubble.right.fill")
+                        Text("محادثة مع مزود الخدمة")
+                            .fontWeight(.bold)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .foregroundColor(.blue)
+                    .background(Color.blue.opacity(0.09))
+                    .cornerRadius(14)
+                }
+                .padding(.top, 6)
+            }
+        }
+        .padding(.vertical, 6)
+        .transition(.opacity)
+    }
+}
+
+struct OrderPriceTableView: View {
+    let order: OrderBody
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("تفاصيل الأسعار")
+                .font(.headline)
+                .padding(.bottom, 4)
+            if let price = order.price {
+                row("السعر الأساسي:", String(format: "%.2f ر.س", price))
+            }
+            if let tax = order.tax {
+                row("الضريبة:", String(format: "%.2f ر.س", tax))
+            }
+            if let discount = order.totalDiscount, discount > 0 {
+                row("الخصم:", String(format: "-%.2f ر.س", discount), .green)
+            }
+            Divider()
+            row(
+                "الإجمالي النهائي:",
+                String(format: "%.2f ر.س", order.netTotal ?? order.total ?? order.price ?? 0),
+                .blue,
+                true
+            )
+        }
+        .padding()
+        .background(Color.white)
+        .cornerRadius(12)
+        .padding(.top, 12)
+    }
+
+    private func row(_ title: String, _ value: String, _ color: Color = .primary, _ bold: Bool = false) -> some View {
+        HStack {
+            Text(title)
+            Spacer()
+            Text(value)
+                .foregroundColor(color)
+                .fontWeight(bold ? .bold : .regular)
+        }
+        .font(.body)
+    }
+}
+
+struct OrderNewTotalsTableView: View {
+    let order: OrderBody
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("المجاميع الجديدة (بعد التحديث/التعديل)")
+                .font(.headline)
+                .foregroundColor(.purple)
+                .padding(.bottom, 4)
+            if let newTax = order.newTax {
+                row("الضريبة الجديدة:", String(format: "%.2f ر.س", newTax))
+            }
+            if let newTotal = order.newTotal {
+                row("الإجمالي الجديد:", String(format: "%.2f ر.س", newTotal), .purple, true)
+            }
+        }
+        .padding()
+        .background(Color.white)
+        .cornerRadius(12)
+        .padding(.top, 12)
+    }
+
+    private func row(_ title: String, _ value: String, _ color: Color = .primary, _ bold: Bool = false) -> some View {
+        HStack {
+            Text(title)
+            Spacer()
+            Text(value)
+                .foregroundColor(color)
+                .fontWeight(bold ? .bold : .regular)
+        }
+        .font(.body)
+    }
+}
+
+struct ExtraServicesSection: View {
+    let extraServices: [SubCategory]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("الخدمات المضافة")
+                .font(.headline)
+                .padding(.bottom, 4)
+            ForEach(extraServices) { service in
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack {
+                        Text(service.title ?? "خدمة إضافية")
+                            .fontWeight(.medium)
+                        Spacer()
+                    }
+                    if let price = service.price {
+                        Text("سعر الخدمة: \(String(format: "%.2f", price)) ر.س")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    Divider()
+                }
+            }
+        }
+        .padding()
+        .background(Color.white)
+        .cornerRadius(12)
+        .padding(.top, 8)
+    }
+}
+
+#Preview {
+    // مثال بيانات تجريبية
+    ExtraServicesSection(extraServices: [
+        SubCategory(id: "1", price: 25.0, title: "تنظيف مكيف", description: "تنظيف وتعقيم", image: nil),
+        SubCategory(id: "2", price: 40.0, title: "صيانة كهرباء", description: nil, image: nil)
+    ])
+}
+
+// MARK: - Preview
+#Preview {
+    OrderDetailsView(orderID: "order-xyz")
+        .environmentObject(AppRouter())
 }

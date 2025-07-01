@@ -14,3 +14,23 @@ struct AppConstants: Codable {
     let event: [Event]?
 }
 
+struct AppConstantItem: Codable {
+    let id: String?
+    let name: String?
+    let max: String?
+    let min: String?
+    let value: String?
+    let code: String?
+
+    enum CodingKeys: String, CodingKey {
+        case id = "_id"
+        case name, max, min, value, code
+    }
+}
+
+struct AppConstantsResponse: Codable {
+    let status: Bool?
+    let code: Int?
+    let message: String?
+    let items: [AppConstantItem]?
+}

@@ -107,6 +107,20 @@ struct MyOrdersView: View {
         .onAppear {
             loadData()
         }
+        .onDisappear {
+            viewModel.stopRealtimeListeners()
+        }
+        .onReceive(viewModel.$orders) { _ in
+            viewModel.startRealtimeListeners()
+        }
+        .onReceive(viewModel.$orders) { orders in
+            // إذا أي طلب خرج من التاب الحالي (حالة تغيرت)، انتقل للتاب الصحيح تلقائي
+            if let changedOrder = orders.first(where: { $0.status != orderType.rawValue }) {
+                if let newStatus = OrderStatus(rawValue: changedOrder.status ?? "") {
+                    orderType = newStatus
+                }
+            }
+        }
     }
 }
 

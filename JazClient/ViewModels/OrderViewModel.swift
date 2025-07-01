@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Combine
+import FirebaseDatabase
 
 class OrderViewModel: ObservableObject {
     
@@ -25,6 +26,10 @@ class OrderViewModel: ObservableObject {
     @Published var coupon: Coupon?
     private var cancellables = Set<AnyCancellable>()
     @Published var tamaraCheckout: TamaraCheckoutData?
+    private var orderListenerHandle: DatabaseHandle?
+    private var orderRealtimeRef: DatabaseReference?
+    var orderListeners: [String: DatabaseHandle] = [:]
+    var orderRefs: [String: DatabaseReference] = [:]
 
     init(errorHandling: ErrorHandling) {
         self.errorHandling = errorHandling
@@ -282,5 +287,73 @@ extension OrderViewModel {
     private func handleAPIError(_ error: APIClient.APIError) {
         let errorDescription = errorHandling.handleAPIError(error)
         errorMessage = errorDescription
+    }
+}
+
+extension OrderViewModel {
+    func startListeningOrderRealtime(orderId: String) {
+        let ref = Database.database().reference().child("orders").child(orderId)
+        self.orderRealtimeRef = ref
+        self.orderListenerHandle = ref.observe(.value, with: { [weak self] snapshot in
+            guard let dict = snapshot.value as? [String: Any] else { return }
+            if let jsonData = try? JSONSerialization.data(withJSONObject: dict),
+               let realtimeOrder = try? JSONDecoder().decode(OrderRealTime.self, from: jsonData) {
+                DispatchQueue.main.async {
+                    if var order = self?.orderBody {
+                        order.status = realtimeOrder.status
+                        // ... إذا فيه حقول ثانية ضيفها هنا
+                        self?.orderBody = order
+                    }
+                }
+            }
+        })
+    }
+
+    func stopListeningOrderRealtime() {
+        if let ref = orderRealtimeRef, let handle = orderListenerHandle {
+            ref.removeObserver(withHandle: handle)
+        }
+        orderListenerHandle = nil
+        orderRealtimeRef = nil
+    }
+}
+
+extension OrderViewModel {
+    func startRealtimeListeners() {
+        // أوقف جميع الليسنرز القديمة أولاً
+        stopRealtimeListeners()
+        // أضف Listener لكل طلب جديد
+        for order in orders {
+            listenForOrderChange(orderId: order.id ?? "")
+        }
+    }
+
+    func stopRealtimeListeners() {
+        for (orderId, handle) in orderListeners {
+            orderRefs[orderId]?.removeObserver(withHandle: handle)
+        }
+        orderListeners.removeAll()
+        orderRefs.removeAll()
+    }
+
+    func listenForOrderChange(orderId: String) {
+        guard !orderId.isEmpty else { return }
+        let ref = Database.database().reference().child("orders").child(orderId)
+        let handle = ref.observe(.value) { [weak self] snapshot in
+            guard let dict = snapshot.value as? [String: Any],
+                  let jsonData = try? JSONSerialization.data(withJSONObject: dict),
+                  let realtimeOrder = try? JSONDecoder().decode(OrderRealTime.self, from: jsonData)
+            else { return }
+
+            if let index = self?.orders.firstIndex(where: { $0.id == orderId }) {
+                // فقط إذا تغيرت الحالة فعليًا
+                if self?.orders[index].status != realtimeOrder.status {
+                    self?.orders[index].status = realtimeOrder.status
+                    // لو عندك خصائص أخرى ممكن تحدثها هنا...
+                }
+            }
+        }
+        orderListeners[orderId] = handle
+        orderRefs[orderId] = ref
     }
 }

@@ -69,7 +69,7 @@ struct OrderBody: Codable {
     var rate_from_user: String?
     var note_from_user: String?
     var coupon: String?
-    var extra: String?     // إذا أردته Array: [Category]? (حسب الداتا من السيرفر)
+    var extra: [SubCategory]?        // <-- هنا Array بدل String
     // الحقول الجديدة من Order:
     var price: Double?
     var netTotal: Double?
@@ -77,6 +77,7 @@ struct OrderBody: Codable {
     var totalDiscount: Double?
     var newTotal: Double?
     var newTax: Double?
+    var tax: Double?
     var orderNo: String?
     var createAt: String?
     var user: User?

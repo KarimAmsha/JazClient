@@ -32,7 +32,7 @@ struct OrderModel: Codable, Identifiable {
     let orderType: Int?
     let orderNo: String?
     let total: Double?
-    let status: String?
+    var status: String?
     let dtDate: String?
     let dtTime: String?
     let address: String?
