@@ -26,7 +26,7 @@ class PaymentViewModel: NSObject, ObservableObject {
 
     var applePayMerchantID: String
     {
-        return "merchant.wishy.sa.com"
+        return "merchant.jaz.com.jazclient"
     }
     
 //    var merchantID: String?

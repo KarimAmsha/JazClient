@@ -10,9 +10,9 @@ enum MoyasarEnvironment {
     var apiKey: String {
         switch self {
         case .test:
-            return "pk_test_vcFUHJDBwiyRu4Bd3hFuPpTnRPY4gp2ssYdNJMY3"
+            return "pk_test_jgJzVgzn4VX3W1bCkdGMr3hosY68uqykTc4DyTvw"
         case .production:
-            return "pk_live_..."   // ضع هنا المفتاح الفعلي
+            return "pk_live_UdFp95AdrJMXDixLqnUKWAa3AfD4QJBv6aT6Zfw2"
         }
     }
 }
@@ -463,7 +463,7 @@ class ApplePayPaymentHandler: NSObject, PKPaymentAuthorizationControllerDelegate
         ]
         let request = PKPaymentRequest()
         request.paymentSummaryItems = items
-        request.merchantIdentifier = "merchant.com.mysr.apple" // غير هذا بالمعرف الخاص بك
+        request.merchantIdentifier = "merchant.jaz.com.jazclient" // غير هذا بالمعرف الخاص بك
         request.countryCode = "SA"
         request.currencyCode = "SAR"
         request.supportedNetworks = [.amex, .mada, .masterCard, .visa]
