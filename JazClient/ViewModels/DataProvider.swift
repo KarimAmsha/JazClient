@@ -264,16 +264,58 @@ class DataProvider {
         }
     }
     
+    func sendRawJsonRequest(
+        urlString: String,
+        token: String,
+        body: [String: Any],
+        completion: @escaping (String?, Error?) -> Void
+    ) {
+        guard let url = URL(string: urlString) else {
+            completion(nil, NSError(domain: "Invalid URL", code: -1000, userInfo: nil))
+            return
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.addValue("ar", forHTTPHeaderField: "Accept-Language")
+        request.addValue(token, forHTTPHeaderField: "token")
+
+        // حول الـ Dictionary إلى JSON Data
+        do {
+            let jsonData = try JSONSerialization.data(withJSONObject: body, options: [])
+            request.httpBody = jsonData
+        } catch {
+            completion(nil, error)
+            return
+        }
+
+        // أرسل الطلب
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                completion(nil, error)
+                return
+            }
+            if let data = data, let str = String(data: data, encoding: .utf8) {
+                print("Response String:", str)
+                completion(str, nil)
+            } else {
+                completion(nil, NSError(domain: "No Data", code: -1001, userInfo: nil))
+            }
+        }.resume()
+    }
+
     func sendDataToAPI<T: Decodable>(
         endpoint: Endpoint,
         responseType: T.Type,
         completion: @escaping (Result<T, APIClient.APIError>) -> Void
     ) {
+        print("sendDataToAPI CALLED")
         let apiEndpoint = endpoint.toAPIEndpoint()
-        
         apiClient.sendData(endpoint: apiEndpoint) { (result: Result<Any, AFError>) in
+            print("apiClient.sendData CALLBACK", result)
             switch result {
             case .success(let value):
+
                 do {
                     let jsonData = try JSONSerialization.data(withJSONObject: value, options: [])
                     let decodedObject = try JSONDecoder().decode(T.self, from: jsonData)
@@ -285,6 +327,7 @@ class DataProvider {
                     completion(.failure(.unknownError))
                 }
             case .failure(let error):
+                print("AFError: \(error)")
                 completion(.failure(.networkError(error)))
             }
         }

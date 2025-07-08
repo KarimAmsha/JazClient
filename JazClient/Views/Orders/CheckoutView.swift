@@ -254,7 +254,7 @@ struct CheckoutView: View {
                         .font(.system(size: 16, weight: .semibold))
                 }
                 .frame(width: 80, height: 48)
-                .background(Color.blue)
+                .background(Color.primary())
                 .foregroundColor(.white)
                 .cornerRadius(10)
                 .shadow(color: Color.blue.opacity(0.1), radius: 1, x: 0, y: 1)
@@ -309,7 +309,7 @@ struct CheckoutView: View {
                 Text("ادفع الآن")
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(selectedPaymentType == nil ? Color.gray : Color.blue)
+                    .background(selectedPaymentType == nil ? Color.gray : Color.primary())
                     .foregroundColor(.white)
                     .cornerRadius(12)
             }
@@ -356,7 +356,7 @@ struct CheckoutView: View {
                 Spacer()
                 if isSelected {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.accentColor)
+                        .foregroundColor(.primary())
                         .font(.system(size: 28))
                 }
             }
@@ -409,20 +409,52 @@ struct CheckoutView: View {
             startApplePay()
         }
     }
-
+    
     func addOrder(paymentType: PaymentType) {
+        print("addOrder CALLED")
         let params = orderData.toJson(
             couponCode: couponCode,
-            paymentType: paymentType.rawValue
+            paymentType: paymentType.apiValue
         )
-        orderViewModel.addOrder(params: params) { id, msg in
-            if id.isEmpty {
-                orderViewModel.errorMessage = msg
+        print("params ready:", params)
+        let url = "https://jazapp-63bc0a074b4f.herokuapp.com/api/mobile/order/add"
+        let token = UserSettings.shared.token ?? ""
+        print("token token:", token)
+//        let body: [String: Any] = [
+//            "couponCode": "",
+//            "paymentType": 1,
+//            "lat": 18.2418308,
+//            "lng": 42.4660169,
+//            "title": "title",
+//            "streetName": "",
+//            "sub_category_id": "679784cfd196680022b8fb9a",
+//            "category_id": "678e3a75ab46c9002284c7fe",
+//            "notes": "",
+//            "dt_time": "10:00",
+//            "dt_date": "2023-01-01"
+//        ]
+//
+        
+        DataProvider.shared.sendRawJsonRequest(urlString: url, token: token, body: params) { responseString, error in
+            if let error = error {
+                print("خطأ في الطلب:", error)
+                orderViewModel.errorMessage = error.localizedDescription
                 showPaymentError = true
-            } else {
-                showPaymentSuccess = true // أو التنقل مباشرة لصفحة النجاح
+            } else if let response = responseString {
+                print("استجابة السيرفر:", response)
+                showPaymentSuccess = true
             }
         }
+//
+//        orderViewModel.addOrder(params: params) { id, msg in
+//            print("addOrder callback CALLED with id=\(id), msg=\(msg)")
+//            if id.isEmpty {
+//                orderViewModel.errorMessage = msg
+//                showPaymentError = true
+//            } else {
+//                showPaymentSuccess = true
+//            }
+//        }
     }
 }
 
@@ -532,6 +564,16 @@ enum PaymentType: String, CaseIterable, Identifiable {
     case moyasarApplePay = "Apple Pay"
     var id: String { rawValue }
 
+    // للـ API: 1 كاش، 2 أونلاين
+    var apiValue: Int {
+        switch self {
+        case .cash:
+            return 1
+        case .moyasarCard, .moyasarApplePay:
+            return 2
+        }
+    }
+
     // للـ UI
     var iconName: String {
         switch self {
@@ -557,7 +599,7 @@ enum PaymentType: String, CaseIterable, Identifiable {
     var cardColor: Color {
         switch self {
         case .cash: return .gray.opacity(0.12)
-        case .moyasarCard: return .blue.opacity(0.11)
+        case .moyasarCard: return .primary().opacity(0.11)
         case .moyasarApplePay: return .black.opacity(0.10)
         }
     }

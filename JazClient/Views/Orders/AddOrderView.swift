@@ -286,7 +286,7 @@ struct AddOrderView: View {
         let orderData = OrderData(
             services: [selectedService],
             address: selectedAddress,
-            userLocation: isCurrentLocationSelected ? Location(lat: finalLat, lng: finalLng) : nil,
+            userLocation: Location(lat: Constants.defaultLocation.latitude, lng: Constants.defaultLocation.longitude),//isCurrentLocationSelected ? Location(lat: finalLat, lng: finalLng) : nil,
             notes: extraDetails.isEmpty ? nil : extraDetails,
             date: date.toDateString(),
             time: time.toTimeString()

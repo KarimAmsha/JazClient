@@ -71,10 +71,33 @@ extension APIClient {
         endpoint: APIEndpoint,
         completion: @escaping (Result<Any, AFError>) -> Void
     ) {
-        AF.request(endpoint.fullURL, method: .post, parameters: endpoint.parameters, encoding: JSONEncoding.default, headers: endpoint.headers)
-            .validate()
-            .responseJSON { response in
-                completion(response.result)
+        print("sendData CALLED")
+
+        print("ENDPOINT URL:", endpoint.fullURL)
+        print("PARAMETERS:", endpoint.parameters ?? [:])
+        print("HEADERS:", endpoint.headers ?? [:])
+
+        AF.request(endpoint.fullURL,
+                   method: .post,
+                   parameters: endpoint.parameters,
+                   encoding: JSONEncoding.default,
+                   headers: endpoint.headers)
+        .response { response in
+            print("AF RESPONSE:", response)
+                if let data = response.data {
+                    do {
+                        let json = try JSONSerialization.jsonObject(with: data, options: [])
+                        completion(.success(json))
+                    } catch {
+                        completion(.failure(AFError.responseSerializationFailed(reason: .jsonSerializationFailed(error: error))))
+                    }
+                } else if let error = response.error {
+                    completion(.failure(error))
+                } else {
+                    // إذا لم يكن هناك بيانات ولا خطأ، أرسل خطأ مخصص واضح
+                    let nsError = NSError(domain: "com.yourapp.error", code: -1, userInfo: [NSLocalizedDescriptionKey: "No data received from server"])
+                    completion(.failure(AFError.responseSerializationFailed(reason: .jsonSerializationFailed(error: nsError))))
+                }
             }
     }
 

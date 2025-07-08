@@ -107,3 +107,18 @@ enum AddressType: String, Codable {
     case work
     case other
 }
+
+struct AddOrderResponse: Codable {
+    let status: Bool
+    let code: Int
+    let message: String
+    let items: AddOrderItem?
+}
+
+struct AddOrderItem: Codable {
+    let id: String
+
+    enum CodingKeys: String, CodingKey {
+        case id = "_id"
+    }
+}

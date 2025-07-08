@@ -8,6 +8,7 @@
 import Foundation
 import Alamofire
 import Firebase
+import MapKit
 
 struct Constants {
     static let baseURL = "https://jazapp-63bc0a074b4f.herokuapp.com/api"
@@ -29,4 +30,9 @@ struct Constants {
     static let id                   = "id"
     static let orderId              = "orderId"
     static let distance             = 50.0
+    
+    // 🟠 الموقع الافتراضي: lat و lng
+    static let defaultLat: Double = 18.2418308
+    static let defaultLng: Double = 42.4660169
+    static let defaultLocation = CLLocationCoordinate2D(latitude: 18.2418308, longitude: 42.4660169)
 }

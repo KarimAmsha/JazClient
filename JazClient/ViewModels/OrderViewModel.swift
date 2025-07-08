@@ -17,6 +17,7 @@ class OrderViewModel: ObservableObject {
     @Published var pagination: Pagination?
     @Published var orders: [OrderModel] = []
     @Published var order: OrderModel?
+    @Published var orderId: AddOrderItem?
     @Published var orderBody: OrderBody?
     private let errorHandling: ErrorHandling
     private let dataProvider = DataProvider.shared
@@ -44,7 +45,9 @@ class OrderViewModel: ObservableObject {
     }
 
     func addOrder(params: [String: Any], onsuccess: @escaping (String, String) -> Void) {
+        print("addOrder(params:) CALLED")
         guard let token = userSettings.token else {
+            print("Token MISSING")
             self.handleAPIError(.customError(message: LocalizedStringKey.tokenError))
             return
         }
@@ -52,23 +55,25 @@ class OrderViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
         let endpoint = DataProvider.Endpoint.addOrder(params: params, token: token)
+        print("endpoint ready:", endpoint)
 
-        dataProvider.request(endpoint: endpoint, responseType: SingleAPIResponse<OrderModel>.self) { [weak self] result in
+        dataProvider.sendDataToAPI(
+            endpoint: endpoint,
+            responseType: AddOrderResponse.self
+        ) { [weak self] result in
+            print("sendDataToAPI CALLBACK", result)
             self?.isLoading = false
-            print("ssssss \(result)")
             switch result {
             case .success(let response):
-                if response.status {
-                    self?.order = response.items
+                print("response:", response)
+                if response.status, let item = response.items {
+                    self?.orderId = item
                     self?.errorMessage = nil
-                    onsuccess(response.items?.id ?? "", response.message)
+                    onsuccess(item.id, response.message)
                 } else {
-                    // Use the centralized error handling component
                     self?.handleAPIError(.customError(message: response.message))
                 }
-                self?.isLoading = false
             case .failure(let error):
-                // Use the centralized error handling component
                 self?.handleAPIError(error)
             }
         }

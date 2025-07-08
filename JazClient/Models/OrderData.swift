@@ -16,33 +16,38 @@ struct OrderData: Codable, Equatable, Hashable {
     let date: String?       // مثال: "2023-01-01"
     let time: String?       // مثال: "10:00"
 
-    func toJson(couponCode: String? = nil, paymentType: String? = nil) -> [String: Any] {
-        var service = services.first!
+    func toJson(couponCode: String? = nil, paymentType: Int? = nil) -> [String: Any] {
+        let service = services.first!
         var dict: [String: Any] = [
             "category_id": service.categoryId,
             "sub_category_id": service.subCategoryId,
             "title": service.categoryTitle,
-            "streetName": service.subCategoryTitle,
+            "streetName": "",
             "notes": notes ?? "",
             "dt_date": date ?? "",
             "dt_time": time ?? "",
-            "qty": service.quantity,
+            // الكمية لو تحتاجها أضفها هنا:
+            // "qty": service.quantity,
         ]
+
+        // الموقع الجغرافي دائمًا لازم يكون lat/lng، من العنوان أو من userLocation
         if let address = address {
-            dict["address_id"] = address.id
-            dict["address"] = address.address
             dict["lat"] = address.lat
             dict["lng"] = address.lng
         } else if let loc = userLocation {
             dict["lat"] = loc.lat
             dict["lng"] = loc.lng
+        } else {
+            dict["lat"] = Constants.defaultLat // أو قيمة افتراضية لو تحب
+            dict["lng"] = Constants.defaultLng
         }
-        if let coupon = couponCode, !coupon.isEmpty {
-            dict["couponCode"] = coupon
-        }
-        if let payType = paymentType {
-            dict["paymentType"] = payType
-        }
+
+        // الكوبون دائمًا حتى لو فاضي
+        dict["couponCode"] = couponCode ?? ""
+
+        // نوع الدفع دائمًا لازم يكون Int
+        dict["paymentType"] = paymentType ?? 1 // أو القيمة الافتراضية المناسبة لك
+
         return dict
     }
 }
