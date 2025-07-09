@@ -15,17 +15,6 @@ struct OrderDetailsView: View {
             if let order = viewModel.orderBody {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 18) {
-                        // عنوان الشاشة
-                        VStack(alignment: .center, spacing: 6) {
-                            Text("تفاصيل الطلب")
-                                .font(.system(size: 24, weight: .bold))
-                            Text("استعرض تفاصيل طلبك وحالته")
-                                .font(.system(size: 15))
-                                .foregroundColor(.gray)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.top, 8)
-
                         // سير حالة الطلب (timeline)
                         OrderStatusStepperView(status: OrderStatus(order.status ?? "new"))
 
@@ -77,7 +66,7 @@ struct OrderDetailsView: View {
                         }
 
                         // الموقع الجغرافي (الخريطة الصغيرة + الزر)
-                        if let address = order.address, let lat = order.lat, let lng = order.lng {
+                        if let address = order.address?.streetName, let lat = order.lat, let lng = order.lng {
                             OrderLocationSection(address: address, lat: lat, lng: lng)
                         }
 
@@ -85,7 +74,7 @@ struct OrderDetailsView: View {
                         VStack(alignment: .leading, spacing: 10) {
                             HStack {
                                 infoBox(icon: "clock", title: "وقت التنفيذ", value: order.dt_date ?? "--")
-                                infoBox(icon: "number", title: "كود الطلب", value: order.orderNo ?? "--")
+                                infoBox(icon: "number", title: "كود الطلب", value: order.order_no ?? "--")
                             }
                         }
                         .padding(10)
@@ -110,7 +99,7 @@ struct OrderDetailsView: View {
                         // جدول الأسعار
                         OrderPriceTableView(order: order)
 
-                        if order.newTotal != nil || order.newTax != nil {
+                        if order.new_total != nil || order.new_tax != nil {
                             OrderNewTotalsTableView(order: order)
                         }
 
@@ -177,7 +166,9 @@ struct OrderDetailsView: View {
             }
         }
         .onAppear {
+            print("nnnn \(orderID)")
             viewModel.getOrderDetails(orderId: orderID) {
+                print("viewModel \(viewModel.orderBody)")
                 viewModel.startListeningOrderRealtime(orderId: orderID)
             }
         }
@@ -268,23 +259,13 @@ struct OrderStatusStepperView: View {
         ]
     }
     var body: some View {
-        VStack(alignment: .trailing, spacing: 0) {
+        VStack(alignment: .leading, spacing: 0) {
             Text("حالة الطلب")
                 .font(.headline)
-                .frame(maxWidth: .infinity, alignment: .trailing)
+                .frame(maxWidth: .infinity, alignment: .leading)
             ForEach(steps.indices, id: \.self) { i in
                 let step = steps[i]
                 HStack(spacing: 8) {
-                    if let emoji = step.emoji, step.isActive {
-                        Text(emoji)
-                            .font(.system(size: 18))
-                    }
-                    Text(step.label)
-                        .fontWeight(step.isActive ? .bold : .regular)
-                        .foregroundColor(step.isActive ? step.color : .gray.opacity(0.7))
-                    Image(systemName: step.icon)
-                        .foregroundColor(step.isActive ? step.color : .gray.opacity(0.6))
-                    Spacer()
                     VStack {
                         Circle()
                             .fill(step.isActive ? step.color : Color.gray.opacity(0.35))
@@ -295,6 +276,18 @@ struct OrderStatusStepperView: View {
                                 .frame(width: 2, height: 32)
                         }
                     }
+
+                    Image(systemName: step.icon)
+                        .foregroundColor(step.isActive ? step.color : .gray.opacity(0.6))
+
+                    if let emoji = step.emoji, step.isActive {
+                        Text(emoji)
+                            .font(.system(size: 18))
+                    }
+                    Text(step.label)
+                        .fontWeight(step.isActive ? .bold : .regular)
+                        .foregroundColor(step.isActive ? step.color : .gray.opacity(0.7))
+                    Spacer()
                 }
                 .padding(.vertical, 2)
             }
@@ -648,10 +641,10 @@ struct OrderNewTotalsTableView: View {
                 .font(.headline)
                 .foregroundColor(.purple)
                 .padding(.bottom, 4)
-            if let newTax = order.newTax {
+            if let newTax = order.new_tax {
                 row("الضريبة الجديدة:", String(format: "%.2f ر.س", newTax))
             }
-            if let newTotal = order.newTotal {
+            if let newTotal = order.new_total {
                 row("الإجمالي الجديد:", String(format: "%.2f ر.س", newTotal), .purple, true)
             }
         }

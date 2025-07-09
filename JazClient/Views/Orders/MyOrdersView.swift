@@ -12,7 +12,7 @@ struct MyOrdersView: View {
         }
         return viewModel.orders.filter { order in
             // عدّل هنا للبحث في أي خاصية تريدها داخل OrderModel
-            order.orderNo?.localizedCaseInsensitiveContains(searchText) == true
+            order.order_no?.localizedCaseInsensitiveContains(searchText) == true
             || order.id?.localizedCaseInsensitiveContains(searchText) == true
             // أو أضف خصائص مثل اسم العميل أو رقم الطلب ...
         }
@@ -106,6 +106,7 @@ struct MyOrdersView: View {
         )
         .onAppear {
             loadData()
+            print("tttt \(UserSettings.shared.token)")
         }
         .onDisappear {
             viewModel.stopRealtimeListeners()

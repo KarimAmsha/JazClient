@@ -409,7 +409,7 @@ extension OrderViewModel {
     func listenForOrderChange(orderId: String) {
         guard !orderId.isEmpty else { return }
         let ref = Database.database().reference().child("orders").child(orderId)
-        let handle = ref.observe(.value) { [weak self] snapshot in
+        let handle = ref.observe(.value, with: { [weak self] snapshot in
             guard let dict = snapshot.value as? [String: Any],
                   let jsonData = try? JSONSerialization.data(withJSONObject: dict),
                   let realtimeOrder = try? JSONDecoder().decode(OrderRealTime.self, from: jsonData)
@@ -422,7 +422,7 @@ extension OrderViewModel {
                     // لو عندك خصائص أخرى ممكن تحدثها هنا...
                 }
             }
-        }
+        })
         orderListeners[orderId] = handle
         orderRefs[orderId] = ref
     }

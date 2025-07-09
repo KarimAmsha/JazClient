@@ -1,10 +1,3 @@
-//
-//  OrderItemView.swift
-//  Wishy
-//
-//  Created by Karim Amsha on 26.05.2024.
-//
-
 import SwiftUI
 
 struct OrderItemView: View {
@@ -12,42 +5,102 @@ struct OrderItemView: View {
     let onSelect: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            HStack {
-                AsyncImageView(
-                    width: 60,
-                    height: 60,
-                    cornerRadius: 5,
-                    imageURL: item.items?.first?.image?.toURL(),
-                    placeholder: Image(systemName: "photo"),
-                    contentMode: .fill
+        Button(action: { onSelect() }) {
+            HStack(alignment: .top, spacing: 16) {
+                // صورة المزود أو الخدمة (اختياري حسب الداتا المتوفرة)
+                AsyncImage(
+                    url: item.provider?.image?.toURL() ?? item.sub_category_id?.image?.toURL(),
+                    content: { image in
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    },
+                    placeholder: {
+                        Image(systemName: "photo")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .foregroundColor(.gray.opacity(0.2))
+                    }
                 )
-                
+                .frame(width: 54, height: 54)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+
+                // تفاصيل الطلب
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(item.orderNo ?? "")
-                        .customFont(weight: .bold, size: 14)
-                        .foregroundColor(.primaryBlack())
-                    
                     HStack {
-                        Text(item.formattedCreateDate ?? "")
-                            .customFont(weight: .regular, size: 12)
-                            .foregroundColor(.primaryBlack())
-                        
+                        Text(item.order_no ?? "-")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundColor(.primary)
+
                         Spacer()
-                        
-                        Text(item.orderStatus?.value ?? "")
-                            .customFont(weight: .regular, size: 12)
-                            .foregroundColor(.orangeF7941D())
-                            .padding(.vertical, 4)
-                            .padding(.horizontal, 8)
-                            .background(Color.orangeF7941D().opacity(0.2).clipShape(Capsule()))
+
+                        // حالة الطلب بشكل كبسولة
+                        if let statusText = item.orderStatus?.value {
+                            Text(statusText)
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundColor(.orange)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 4)
+                                .background(Color.orange.opacity(0.13))
+                                .clipShape(Capsule())
+                        }
+                    }
+
+                    // اسم الخدمة أو التصنيف
+                    Text(item.sub_category_id?.title ?? item.category_id?.title ?? "-")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.secondary)
+
+                    // العنوان مختصر
+                    if let address = item.address?.streetName, !address.isEmpty {
+                        HStack(spacing: 4) {
+                            Image(systemName: "mappin.and.ellipse")
+                                .font(.system(size: 13))
+                                .foregroundColor(.gray)
+                            Text(address)
+                                .font(.system(size: 13))
+                                .foregroundColor(.gray)
+                                .lineLimit(1)
+                        }
+                    }
+
+                    // التاريخ والوقت والسعر
+                    HStack(spacing: 16) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "calendar")
+                            Text(item.formattedCreateDate ?? "-")
+                        }
+                        .font(.system(size: 12))
+                        .foregroundColor(.gray)
+
+                        if let time = item.dt_time {
+                            HStack(spacing: 4) {
+                                Image(systemName: "clock")
+                                Text(time)
+                            }
+                            .font(.system(size: 12))
+                            .foregroundColor(.gray)
+                        }
+
+                        Spacer()
+
+                        // السعر
+                        if let price = item.price {
+                            Text("\(Int(price)) ريال")
+                                .font(.system(size: 15, weight: .bold))
+                                .foregroundColor(.green)
+                        }
                     }
                 }
             }
-            .padding(.vertical, 8)
-            .onTapGesture {
-                onSelect()
-            }
+            .padding(12)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color(.systemGray6))
+                    .shadow(color: .black.opacity(0.06), radius: 3, y: 1)
+            )
+            .padding(.horizontal, 2)
         }
+        .buttonStyle(PlainButtonStyle())
     }
 }
