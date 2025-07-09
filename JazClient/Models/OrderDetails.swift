@@ -107,4 +107,18 @@ struct OrderBody: Codable, Identifiable {
              payment_id, title, streetName, buildingNo, floorNo, flatNo, rate_from_user, note_from_user, coupon,
              subCategory, category
     }
+    
+    var orderStatus: OrderStatus? {
+        return OrderStatus(rawValue: status ?? "")
+    }
+    
+    var formattedCreateDate: String? {
+        guard let dtDate = createAt else { return nil }
+        return Utilities.convertDateStringToDate(stringDate: dtDate, outputFormat: "yyyy-MM-dd")
+    }
+    
+    var formattedOrderDate: String? {
+        guard let dtDate = dt_date else { return nil }
+        return Utilities.convertDateStringToDate(stringDate: dtDate, outputFormat: "yyyy-MM-dd")
+    }
 }
