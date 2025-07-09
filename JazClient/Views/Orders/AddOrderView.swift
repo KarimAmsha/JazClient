@@ -23,6 +23,8 @@ struct AddOrderView: View {
     @State private var isShowingAllAddresses = false
     @State private var showValidationError = false
     @State private var validationMessage = ""
+    @State private var pickedCategoryId: String? = nil
+    @State private var pickedSubCategoryId: String? = nil
 
     var subCategories: [SubCategory] {
         pickedCategory?.sub ?? []
@@ -42,16 +44,22 @@ struct AddOrderView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("نوع الخدمة الاساسي")
                             .font(.system(size: 14, weight: .medium))
-                        Picker(selection: $pickedCategory) {
-                            Text("اضغط لاختيار نوع الخدمة").tag(Category?.none)
+                        Picker(selection: $pickedCategoryId) {
+                            Text("اضغط لاختيار نوع الخدمة").tag(String?.none)
                             ForEach(viewModel.homeItems?.category ?? [], id: \.id) { category in
-                                Text(category.title ?? "").tag(Category?.some(category))
+                                Text(category.title ?? "").tag(String?.some(category.id))
                             }
-                        } label: { Text("") }
+                        } label: { EmptyView() }
                         .pickerStyle(.menu)
                         .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
-                        .onChange(of: pickedCategory) { _ in
-                            pickedSubCategory = nil
+                        .onChange(of: pickedCategoryId) { newValue in
+                            if let id = newValue,
+                               let found = viewModel.homeItems?.category?.first(where: { $0.id == id }) {
+                                pickedCategory = found
+                                // عند تغيير الخدمة الأساسية، صفّر الفرعية
+                                pickedSubCategoryId = nil
+                                pickedSubCategory = nil
+                            }
                         }
                         // رسالة إذا فاضي
                         if (viewModel.homeItems?.category ?? []).isEmpty {
@@ -66,14 +74,20 @@ struct AddOrderView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("الخدمات")
                             .font(.system(size: 14, weight: .medium))
-                        Picker(selection: $pickedSubCategory) {
-                            Text("اضغط لاختيار نوع الخدمة").tag(SubCategory?.none)
+                        Picker(selection: $pickedSubCategoryId) {
+                            Text("اضغط لاختيار نوع الخدمة").tag(String?.none)
                             ForEach(subCategories, id: \.id) { sub in
-                                Text(sub.title ?? "").tag(SubCategory?.some(sub))
+                                Text(sub.title ?? "").tag(String?.some(sub.id))
                             }
-                        } label: { Text("") }
+                        } label: { EmptyView() }
                         .pickerStyle(.menu)
                         .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
+                        .onChange(of: pickedSubCategoryId) { newValue in
+                            if let id = newValue,
+                               let found = subCategories.first(where: { $0.id == id }) {
+                                pickedSubCategory = found
+                            }
+                        }
                         // رسالة إذا فاضي
                         if pickedCategory != nil && subCategories.isEmpty {
                             Text("لا توجد خدمات فرعية متاحة لهذا التصنيف")
@@ -231,15 +245,24 @@ struct AddOrderView: View {
         )
         .onAppear {
             // تهيئة القيم الأولية عند الدخول للشاشة
-            if pickedCategory == nil { pickedCategory = selectedCategory }
-            if pickedSubCategory == nil { pickedSubCategory = selectedSubCategory }
+            if let selectedCategory = selectedCategory {
+                pickedCategory = selectedCategory
+                pickedCategoryId = selectedCategory.id
+            }
+            if let selectedSubCategory = selectedSubCategory {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    pickedSubCategory = selectedSubCategory
+                    pickedSubCategoryId = selectedSubCategory.id
+                }
+            }
+
             if userViewModel.addressBook == nil {
                 userViewModel.getAddressList()
             }
             if (viewModel.homeItems?.category ?? []).isEmpty {
                 viewModel.fetchHomeItems(q: nil, lat: 18.2418308, lng: 42.4660169)
             }
-            locationManager.startUpdatingLocation()
+            locationManager.requestLocationIfNeeded()
         }
     }
 

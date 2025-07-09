@@ -140,7 +140,13 @@ extension MainView {
         case .checkout(let orderData):
             CheckoutView(orderData: orderData)
         case .addressBook:
+            AddressBookView()
+        case .addAddressBook:
             AddAddressView()
+        case .editAddressBook(let item):
+            EditAddressView(addressItem: item)
+        case .addressBookDetails(let item):
+            AddressDetailsView(addressItem: item)
         default: EmptyView()
         }
     }

@@ -44,6 +44,71 @@ class OrderViewModel: ObservableObject {
         return currentPage < totalPages
     }
 
+    func sendRawJsonRequest(
+        urlString: String,
+        body: [String: Any],
+        onsuccess: @escaping (String) -> Void,
+        onerror: ((String) -> Void)? = nil
+    ) {
+        guard let token = userSettings.token else {
+            let msg = LocalizedStringKey.tokenError
+            errorMessage = msg
+            onerror?(msg)
+            return
+        }
+
+        isLoading = true
+        errorMessage = nil
+
+        guard let url = URL(string: urlString) else {
+            let msg = "Invalid URL"
+            errorMessage = msg
+            isLoading = false
+            onerror?(msg)
+            return
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.addValue("ar", forHTTPHeaderField: "Accept-Language")
+        request.addValue(token, forHTTPHeaderField: "token")
+
+        do {
+            let jsonData = try JSONSerialization.data(withJSONObject: body, options: [])
+            request.httpBody = jsonData
+        } catch {
+            let msg = "فشل في تجهيز بيانات الطلب"
+            errorMessage = msg
+            isLoading = false
+            onerror?(msg)
+            return
+        }
+
+        URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+            DispatchQueue.main.async {
+                self?.isLoading = false
+
+                if let error = error {
+                    self?.errorMessage = error.localizedDescription
+                    onerror?(error.localizedDescription)
+                    return
+                }
+
+                guard let data = data else {
+                    let msg = "لا يوجد استجابة من السيرفر"
+                    self?.errorMessage = msg
+                    onerror?(msg)
+                    return
+                }
+
+                let str = String(data: data, encoding: .utf8) ?? ""
+                print("Response String:", str)
+                onsuccess(str)
+            }
+        }.resume()
+    }
+
     func addOrder(params: [String: Any], onsuccess: @escaping (String, String) -> Void) {
         print("addOrder(params:) CALLED")
         guard let token = userSettings.token else {

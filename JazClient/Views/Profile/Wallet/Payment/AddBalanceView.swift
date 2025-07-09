@@ -7,6 +7,7 @@
 
 import SwiftUI
 import goSellSDK
+import MoyasarSdk
 
 struct AddBalanceView: View {
     @State private var coupon = ""
@@ -15,10 +16,12 @@ struct AddBalanceView: View {
     @State private var alertMessage = ""
     @Binding var showAddBalanceView: Bool
     var onsuccess: () -> Void
-    @StateObject private var paymentState = PaymentState(errorHandling: ErrorHandling())
     @StateObject private var viewModel = PaymentViewModel()
     @EnvironmentObject var appRouter: AppRouter
     @StateObject private var orderViewModel = OrderViewModel(errorHandling: ErrorHandling())
+    @State private var showCardSheet = false
+    @State private var lastAmount: Double = 0.0
+    @StateObject private var paymentState = PaymentState(errorHandling: ErrorHandling())
 
     init(showAddBalanceView: Binding<Bool>, onsuccess: @escaping () -> Void) {
         _showAddBalanceView = showAddBalanceView
@@ -41,19 +44,6 @@ struct AddBalanceView: View {
                 LoadingView()
             }
 
-//            VStack {
-//                Button("Start Payment") {
-//                    viewModel.startPayment()
-//                }
-//                .padding()
-//                .foregroundColor(.white)
-//                .background(Color.blue)
-//                .cornerRadius(10)
-//
-//                Spacer()
-//            }
-//            .padding()
-
             Button {
                 checkCoupon()
             } label: {
@@ -65,12 +55,32 @@ struct AddBalanceView: View {
             Spacer()
         }
         .padding()
-        .navigationTitle(LocalizedStringKey.addAccount)
+        .navigationBarBackButtonHidden()
+        .background(Color.background())
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                HStack {
+                    Button {
+                        withAnimation {
+                            appRouter.navigateBack()
+                        }
+                    } label: {
+                        Image(systemName: "arrow.backward")
+                            .resizable()
+                            .frame(width: 20, height: 15)
+                            .foregroundColor(.black)
+                            .padding(12)
+                            .background(Color.white.clipShape(Circle()))
+                    }
+                    
+                    Text(LocalizedStringKey.addAccount)
+                        .customFont(weight: .bold, size: 20)
+                        .foregroundColor(Color.black222020())
+                }
+            }
+        }
         .alert(isPresented: $showAlert) {
             Alert(title: Text(LocalizedStringKey.error), message: Text(alertMessage), dismissButton: .default(Text(LocalizedStringKey.ok)))
-        }
-        .onAppear {
-            GoSellSDK.mode = .production
         }
         .overlay(
             MessageAlertObserverView(
@@ -78,56 +88,111 @@ struct AddBalanceView: View {
                 alertType: .constant(.error)
             )
         )
-        .onChange(of: viewModel.paymentStatus) { status in
-            guard let status = status else { return }
+        .sheet(isPresented: $showCardSheet) {
+            ZStack(alignment: .top) {
+                Color(.systemBackground).ignoresSafeArea()
+                VStack(spacing: 0) {
+                    HStack {
+                        Text("إدخال بيانات البطاقة")
+                            .font(.title3.bold())
+                        Spacer()
+                        Button(action: { showCardSheet = false }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(.secondary)
+                                .font(.system(size: 28, weight: .semibold))
+                                .padding(4)
+                        }
+                    }
+                    .padding(.horizontal, 18)
+                    .padding(.vertical, 16)
+                    .background(
+                        Color(.systemGray6)
+                            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+                            .shadow(color: .black.opacity(0.07), radius: 5, y: 2)
+                    )
 
-            paymentState.isLoading = false
+                    Divider().padding(.horizontal, 12)
 
-            switch status {
-            case .success:
-                addBalance()
-            case .failed(let message):
-                viewModel.errorMessage = message
-            case .cancelled:
-                viewModel.errorMessage = "تم إلغاء عملية الدفع"
+                    VStack(spacing: 0) {
+                        CreditCardView(request: createPaymentRequest()) { result in
+                            handleMoyasarResult(result)
+                            showCardSheet = false
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.top, 28)
+                        Spacer()
+                    }
+                }
+                .background(Color(.systemGroupedBackground).ignoresSafeArea())
             }
+            .presentationDetents([.fraction(0.65), .large])
         }
     }
 }
 
 extension AddBalanceView {
     private func checkCoupon() {
+        paymentState.errorMessage = nil
 
-        if coupon.isEmpty {
-            guard !amount.isEmpty else {
-                paymentState.errorMessage = LocalizedStringKey.addAccount
-                return
-            }
-            startPayment(amount: amount.toDouble() ?? 0.0)
-        } else {
-            orderViewModel.checkCoupon(params: [:]) { [self] in
-                if let finalTotal = orderViewModel.coupon?.final_total {
-                    startPayment(amount: finalTotal)
-                }
-            }
+        guard !amount.isEmpty, let doubleAmount = Double(amount), doubleAmount > 0 else {
+            paymentState.errorMessage = "يرجى إدخال المبلغ بشكل صحيح"
+            return
         }
+        lastAmount = doubleAmount
+        showCardSheet = true
     }
-    
-    func startPayment(amount: Double) {
-        paymentState.isLoading = true
-        viewModel.updateAmount(amount.toString())
-        viewModel.startPayment()
-    }
-    
+       
     func addBalance() {
         let params: [String: Any] = [
-            "amount": coupon.isEmpty ? amount.toDouble() ?? 0.0 : paymentState.coupon?.final_total ?? 0.0,
-            "coupon": coupon,
+            "amount": lastAmount,
+            "coupon": coupon
         ]
-        
         paymentState.addBalanceToWallet(params: params) { message in
             showAddBalanceView = false
             self.onsuccess()
+        }
+    }
+    
+    func createPaymentRequest() -> PaymentRequest {
+        do {
+            return try PaymentRequest(
+                apiKey: MoyasarEnvironment.production.apiKey, // أو .test حسب البيئة
+                amount: Int(lastAmount * 100), // هللات
+                currency: "SAR",
+                description: "شحن رصيد المحفظة",
+                metadata: [:]
+            )
+        } catch {
+            fatalError("فشل في إنشاء PaymentRequest: \(error.localizedDescription)")
+        }
+    }
+    
+    func handleMoyasarResult(_ result: PaymentResult) {
+        switch result {
+        case let .completed(payment):
+            if payment.status == .paid {
+                // إذا نجح الدفع، أضف الرصيد
+                addBalance()
+            } else {
+                var errorMsg = "فشل الدفع"
+                switch payment.source {
+                case .creditCard(let source):
+                    errorMsg = source.message ?? "فشل الدفع"
+                case .applePay(let source):
+                    errorMsg = source.message ?? "فشل الدفع"
+                case .stcPay(let source):
+                    errorMsg = "فشل الدفع عبر STC Pay"
+                default:
+                    break
+                }
+                paymentState.errorMessage = errorMsg
+            }
+        case .failed(let error):
+            paymentState.errorMessage = "فشل الدفع: \(error.localizedDescription)"
+        case .canceled:
+            paymentState.errorMessage = "تم إلغاء عملية الدفع"
+        default:
+            break
         }
     }
 }

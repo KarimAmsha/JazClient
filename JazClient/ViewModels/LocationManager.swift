@@ -16,11 +16,19 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         setupLocationManager()
     }
 
+    // هذه الدالة يستدعيها الفيو لمرة واحدة فقط
+    func requestLocationIfNeeded() {
+        if userLocation == nil {
+            locationManager.requestWhenInUseAuthorization()
+            locationManager.requestLocation()
+        }
+    }
+
     private func setupLocationManager() {
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         locationManager.requestWhenInUseAuthorization()
-        locationManager.startUpdatingLocation()
+//        locationManager.startUpdatingLocation()
     }
 
     func getCurrentLocation(completion: @escaping (CLLocationCoordinate2D?) -> Void) {

@@ -25,12 +25,8 @@ struct CheckoutView: View {
     @State private var couponCode: String = ""
     @State private var selectedPaymentType: PaymentType? = nil
     @State private var couponMessage: String? = nil
-    @State private var isLoading = false
     @State private var loadingMessage: String? = nil
     @State private var showPaymentError = false
-
-    // لحالة النجاح
-    @State private var showPaymentSuccess = false
 
     // لمفتاح ميسرة
     let apiKey = MoyasarEnvironment.test.apiKey   // أو .production حسب البيئة
@@ -65,6 +61,9 @@ struct CheckoutView: View {
                 Divider().padding(.vertical, 4)
                 paymentSection
                 Divider().padding(.vertical, 4)
+                if orderViewModel.isLoading {
+                    LoadingView()
+                }
                 payBar
             }
             .padding()
@@ -99,7 +98,7 @@ struct CheckoutView: View {
             )
         )
         .overlay(
-            isLoading ? AnyView(
+            orderViewModel.isLoading ? AnyView(
                 ZStack {
                     Color.black.opacity(0.15).ignoresSafeArea()
                     ProgressView(loadingMessage ?? "جاري التحميل...")
@@ -127,49 +126,55 @@ struct CheckoutView: View {
                 .useKeyboardSafeArea(true)
         }
         .sheet(isPresented: $showCardSheet) {
-            ZStack(alignment: .topTrailing) {
-                Color(.systemBackground) // أو Color.white
+            ZStack(alignment: .top) {
+                // الخلفية مع ظل خفيف
+                Color(.systemBackground)
                     .ignoresSafeArea()
+
                 VStack(spacing: 0) {
+                    // شريط علوي احترافي
                     HStack {
+                        Text("إدخال بيانات البطاقة")
+                            .font(.title3.bold())
+                            .foregroundColor(.primary)
                         Spacer()
                         Button(action: { showCardSheet = false }) {
                             Image(systemName: "xmark.circle.fill")
-                                .foregroundColor(.gray)
-                                .font(.title)
-                                .padding()
+                                .foregroundColor(.secondary)
+                                .font(.system(size: 28, weight: .semibold))
+                                .padding(4)
                         }
                     }
-                    .frame(height: 24)
-                    CreditCardView(request: createPaymentRequest()) { result in
-                        handleMoyasarResult(result)
-                        showCardSheet = false
-                    }
                     .padding(.horizontal, 18)
-                    .padding(.top, 16)
-                    Spacer()
+                    .padding(.vertical, 16)
+                    .background(
+                        Color(.systemBackground)
+                            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+                            .shadow(color: .black.opacity(0.07), radius: 5, y: 2)
+                    )
+
+                    Divider().padding(.horizontal, 12)
+
+                    // محتوى البطاقة
+                    VStack(spacing: 0) {
+                        CreditCardView(request: createPaymentRequest()) { result in
+                            handleMoyasarResult(result)
+                            showCardSheet = false
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.top, 28)
+                        Spacer()
+                    }
+                    .background(Color(.systemGroupedBackground).ignoresSafeArea())
                 }
+                .background(
+                    RoundedRectangle(cornerRadius: 28, style: .continuous)
+                        .fill(Color(.systemBackground))
+                        .shadow(color: .black.opacity(0.12), radius: 18, x: 0, y: 6)
+                )
+                .padding(.top, 18)
             }
-        }
-        // نافذة نجاح الدفع (لو أردت استخدامها بدل تنقل لصفحة النجاح)
-        .popup(isPresented: $showPaymentSuccess) {
-            VStack(spacing: 20) {
-                Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 54))
-                    .foregroundColor(.green)
-                Text("تم الدفع بنجاح!")
-                    .font(.title2.bold())
-                Button("حسناً") {
-                    showPaymentSuccess = false
-                    appRouter.navigate(to: .paymentSuccess)
-                }
-                .font(.headline)
-                .padding(.vertical, 8)
-            }
-            .padding()
-            .background(RoundedRectangle(cornerRadius: 20).fill(Color.white))
-            .shadow(radius: 18)
-            .frame(maxWidth: 320)
+            .presentationDetents([.fraction(0.72), .large]) // إذا متاح في نسختك
         }
     }
 
@@ -313,7 +318,7 @@ struct CheckoutView: View {
                     .foregroundColor(.white)
                     .cornerRadius(12)
             }
-            .disabled(selectedPaymentType == nil || isLoading)
+            .disabled(selectedPaymentType == nil || orderViewModel.isLoading)
         }
         .padding(.top)
     }
@@ -378,12 +383,13 @@ struct CheckoutView: View {
     }
 
     func checkCoupon() {
+        orderViewModel.errorMessage = nil
         guard !couponCode.trimmingCharacters(in: .whitespaces).isEmpty else {
             couponMessage = "يرجى إدخال كود الكوبون"
             return
         }
-        loadingMessage = "جارٍ التحقق من الكوبون..."
-        isLoading = true
+        orderViewModel.errorMessage = "جارٍ التحقق من الكوبون..."
+        orderViewModel.isLoading = true
         orderViewModel.checkCoupon(params: [
             "coupun": couponCode,
             "extra": [
@@ -394,7 +400,7 @@ struct CheckoutView: View {
             ]
         ]) {
             couponMessage = orderViewModel.coupon != nil ? "تم تطبيق الكوبون!" : "كوبون غير صالح"
-            isLoading = false
+            orderViewModel.isLoading = false
         }
     }
 
@@ -417,44 +423,21 @@ struct CheckoutView: View {
             paymentType: paymentType.apiValue
         )
         print("params ready:", params)
-        let url = "https://jazapp-63bc0a074b4f.herokuapp.com/api/mobile/order/add"
-        let token = UserSettings.shared.token ?? ""
-        print("token token:", token)
-//        let body: [String: Any] = [
-//            "couponCode": "",
-//            "paymentType": 1,
-//            "lat": 18.2418308,
-//            "lng": 42.4660169,
-//            "title": "title",
-//            "streetName": "",
-//            "sub_category_id": "679784cfd196680022b8fb9a",
-//            "category_id": "678e3a75ab46c9002284c7fe",
-//            "notes": "",
-//            "dt_time": "10:00",
-//            "dt_date": "2023-01-01"
-//        ]
-//
-        
-        DataProvider.shared.sendRawJsonRequest(urlString: url, token: token, body: params) { responseString, error in
-            if let error = error {
-                print("خطأ في الطلب:", error)
-                orderViewModel.errorMessage = error.localizedDescription
+        orderViewModel.sendRawJsonRequest(
+            urlString: "https://jazapp-63bc0a074b4f.herokuapp.com/api/mobile/order/add",
+            body: params,
+            onsuccess: { response in
+                // معالجة الاستجابة بنجاح (json string)
+                print("تمت العملية بنجاح: \(response)")
+                // هنا يمكنك فك الاستجابة إلى مودل لو أحببت
+                appRouter.navigate(to: .paymentSuccess)
+            },
+            onerror: { errorMsg in
+                // معالجة الخطأ
+                print("حدث خطأ: \(errorMsg)")
                 showPaymentError = true
-            } else if let response = responseString {
-                print("استجابة السيرفر:", response)
-                showPaymentSuccess = true
             }
-        }
-//
-//        orderViewModel.addOrder(params: params) { id, msg in
-//            print("addOrder callback CALLED with id=\(id), msg=\(msg)")
-//            if id.isEmpty {
-//                orderViewModel.errorMessage = msg
-//                showPaymentError = true
-//            } else {
-//                showPaymentSuccess = true
-//            }
-//        }
+        )
     }
 }
 

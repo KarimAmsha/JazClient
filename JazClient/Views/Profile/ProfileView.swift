@@ -88,6 +88,8 @@ struct ProfileView: View {
                         appRouter.navigate(to: .constant(item))
                     }
                 }
+                profileItem(title: "المحفظة") { appRouter.navigate(to: .walletView) }
+                Divider().padding(.leading)
                 Divider().padding(.leading)
                 profileItem(title: "عناويني") { appRouter.navigate(to: .addressBook) }
                 Divider().padding(.leading)
@@ -98,8 +100,6 @@ struct ProfileView: View {
                         appRouter.navigate(to: .constant(item))
                     }
                 }
-                Divider().padding(.leading)
-                profileItem(title: "المحفظة") { appRouter.navigate(to: .walletView) }
                 Divider().padding(.leading)
                 profileItem(title: "سياسة الخصوصية") {
                     if let item = initialViewModel.constantsItems?.first(where: { $0.constantType == .privacy }) {
@@ -219,12 +219,12 @@ struct ProfileView: View {
             HStack {
                 if let icon = icon {
                     Image(systemName: icon)
-                        .font(.system(size: 18))
+                        .customFont(weight: .medium, size: 12)
                         .foregroundColor(.blue)
                 }
                 Text(title)
                     .foregroundColor(.black)
-                    .font(.system(size: 16))
+                    .customFont(weight: .medium, size: 16)
                 Spacer()
             }
             .padding(.vertical, 14)

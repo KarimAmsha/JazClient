@@ -75,7 +75,7 @@ extension APIClient {
 
         print("ENDPOINT URL:", endpoint.fullURL)
         print("PARAMETERS:", endpoint.parameters ?? [:])
-        print("HEADERS:", endpoint.headers ?? [:])
+        print("HEADERS:", endpoint.headers)
 
         AF.request(endpoint.fullURL,
                    method: .post,
