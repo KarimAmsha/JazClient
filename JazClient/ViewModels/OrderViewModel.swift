@@ -37,11 +37,8 @@ class OrderViewModel: ObservableObject {
     }
     
     var shouldLoadMoreData: Bool {
-        guard let totalPages = pagination?.totalPages else {
-            return false
-        }
-        
-        return currentPage < totalPages
+        guard let totalPages = pagination?.totalPages else { return false }
+        return currentPage + 1 < totalPages // لأن الصفحة تبدأ من صفر
     }
 
     func sendRawJsonRequest(
@@ -389,11 +386,12 @@ extension OrderViewModel {
 }
 
 extension OrderViewModel {
-    func startRealtimeListeners() {
-        // أوقف جميع الليسنرز القديمة أولاً
+    func startRealtimeListenersForVisibleOrders(_ visibleOrders: [OrderModel]) {
+        // أوقف كل listeners القديمة
         stopRealtimeListeners()
-        // أضف Listener لكل طلب جديد
-        for order in orders {
+
+        // فعّل listeners فقط للأوامر المعروضة (مثلاً: الصفحة الحالية)
+        for order in visibleOrders {
             listenForOrderChange(orderId: order.id ?? "")
         }
     }
@@ -427,3 +425,36 @@ extension OrderViewModel {
         orderRefs[orderId] = ref
     }
 }
+
+extension OrderViewModel {
+    func checkPlace(params: [String: Any], onsuccess: @escaping (String) -> Void) {
+        guard let token = userSettings.token else {
+            self.handleAPIError(.customError(message: LocalizedStringKey.tokenError))
+            return
+        }
+
+        isLoading = true
+        errorMessage = nil
+        let endpoint = DataProvider.Endpoint.checkPlace(params: params, token: token)
+        
+        dataProvider.request(endpoint: endpoint, responseType: SingleAPIResponse<String?>.self) { [weak self] result in
+            self?.isLoading = false
+            
+            switch result {
+            case .success(let response):
+                if response.status {
+                    self?.errorMessage = nil
+                    onsuccess(response.message)
+                } else {
+                    // Use the centralized error handling component
+                    self?.handleAPIError(.customError(message: response.message))
+                }
+                self?.isLoading = false
+            case .failure(let error):
+                // Use the centralized error handling component
+                self?.handleAPIError(error)
+            }
+        }
+    }
+}
+

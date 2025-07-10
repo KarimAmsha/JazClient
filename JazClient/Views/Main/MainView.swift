@@ -94,7 +94,11 @@ extension MainView {
         case .orders:
             MyOrdersView()
         case .profile:
-            ProfileView()
+            if settings.id == nil {
+                CustomeEmptyView()
+            } else {
+                ProfileView()
+            }
         }
     }
 }

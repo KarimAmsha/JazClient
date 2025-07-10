@@ -69,10 +69,9 @@ struct MyOrdersView: View {
                         }
                     }
 
+                    // عند تحميل المزيد
                     if viewModel.shouldLoadMoreData && searchText.isEmpty {
-                        Color.clear.onAppear {
-                            loadMore()
-                        }
+                        Color.clear.onAppear { loadMore() }
                     }
 
                     if viewModel.isFetchingMoreData {
@@ -111,8 +110,11 @@ struct MyOrdersView: View {
         .onDisappear {
             viewModel.stopRealtimeListeners()
         }
-        .onReceive(viewModel.$orders) { _ in
-            viewModel.startRealtimeListeners()
+        // استدعِها بعد تحميل الطلبات أو عند تغيير الصفحة أو التاب
+        .onReceive(viewModel.$orders) { newOrders in
+            // فقط الطلبات المعروضة حاليًا، مثل أول 10 أو 20 حسب الصفحة
+            let visibleOrders = Array(newOrders.prefix(10))
+            viewModel.startRealtimeListenersForVisibleOrders(visibleOrders)
         }
         .onReceive(viewModel.$orders) { orders in
             // إذا أي طلب خرج من التاب الحالي (حالة تغيرت)، انتقل للتاب الصحيح تلقائي
@@ -131,13 +133,23 @@ struct MyOrdersView: View {
 
 extension MyOrdersView {
     func loadData() {
+        viewModel.currentPage = 0
         viewModel.orders.removeAll()
         viewModel.getOrders(status: orderType.rawValue, page: 0, limit: 10)
     }
-    
+
     func loadMore() {
         viewModel.loadMoreOrders(status: orderType.rawValue, limit: 10)
     }
+
+//    func loadData() {
+//        viewModel.orders.removeAll()
+//        viewModel.getOrders(status: orderType.rawValue, page: 0, limit: 10)
+//    }
+//    
+//    func loadMore() {
+//        viewModel.loadMoreOrders(status: orderType.rawValue, limit: 10)
+//    }
     
     private func updateOrderStatus(orderID: String, status: OrderStatus, canceledNote: String = "") {
         let params: [String: Any] = [

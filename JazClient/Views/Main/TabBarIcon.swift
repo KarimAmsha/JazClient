@@ -69,14 +69,23 @@ struct CustomTabBar: View {
                     selectedTab = .jaz
                 }) {
                     ZStack {
+                        // الدائرة الخارجية مع ظل خفيف
                         Circle()
                             .fill(Color.orange)
-                            .frame(width: 65, height: 65)
-                            .shadow(radius: 4)
-
-                        Text("JAZ")
-                            .font(.system(size: 16, weight: .bold))
-                            .foregroundColor(.white)
+                            .frame(width: 66, height: 66)
+                            .shadow(color: .orange.opacity(0.25), radius: 6, x: 0, y: 2)
+                        
+                        // الدائرة الداخلية (تضبط الصورة داخل دائرة)
+                        Circle()
+                            .fill(Color.white)
+                            .frame(width: 64, height: 64)
+                            .overlay(
+                                Image("ic_logo")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .clipShape(Circle())
+                                    .padding(7) // حتى تبقى حواف الصورة ناعمة داخل الدائرة
+                            )
                     }
                 }
                 .offset(y: -30)

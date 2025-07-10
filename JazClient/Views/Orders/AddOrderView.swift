@@ -210,6 +210,7 @@ struct AddOrderView: View {
         }
         .environment(\.layoutDirection, .rightToLeft)
         .background(Color.background())
+        .dismissKeyboardOnTap()
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden()
         .sheet(isPresented: $isShowingAllAddresses) {

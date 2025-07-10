@@ -17,6 +17,8 @@ struct CustomeEmptyView: View {
                 Spacer()
                 
                 Image("ic_logo")
+                    .resizable()
+                    .frame(width: 32, height: 32)
                 
                 Text(LocalizedStringKey.pleaseLogin)
                     .customFont(weight: .bold, size: 18)

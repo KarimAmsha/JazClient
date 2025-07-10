@@ -16,6 +16,8 @@ struct SplashView: View {
                 .ignoresSafeArea()
 
             Image("ic_logo")
+                .resizable()
+                .frame(width: 110, height: 110)
                 .opacity(logoOpacity)
         }
         .onAppear {

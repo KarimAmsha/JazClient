@@ -17,8 +17,11 @@ struct ConstantView: View {
             VStack(spacing: 0) {
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: 20) {
-                        Image("ic_logo2")
-                                                
+                        Image("ic_logo")
+                            .resizable()
+                            .frame(width: 65, height: 65)
+                        
+
                         HTMLView(html: item?.Content ?? "", contentHeight: $contentHeight)
                             .frame(height: contentHeight)
 
