@@ -59,6 +59,7 @@ struct OrderDetailsView: View {
                                     Text("تفاصيل إضافية للطلب")
                                         .customFont(weight: .medium, size: 14)
                                         .foregroundColor(.primaryDark())
+                                    Spacer()
                                 }
                                 Text(notes)
                                     .customFont(weight: .regular, size: 14)
@@ -251,52 +252,115 @@ struct OrderDetailsView: View {
     }
 }
 
-// MARK: - سير حالة الطلب
+import SwiftUI
+
+enum OrderStep: Int, CaseIterable {
+    case accepted = 0
+    case way
+    case started
+    case finished
+
+    var icon: String {
+        switch self {
+        case .accepted: return "handshake"
+        case .way: return "car"
+        case .started: return "hammer"
+        case .finished: return "checkmark.seal"
+        }
+    }
+    var label: String {
+        switch self {
+        case .accepted: return "تعيين الفني"
+        case .way: return "في الطريق"
+        case .started: return "قيد التنفيذ"
+        case .finished: return "تم التنفيذ بنجاح!"
+        }
+    }
+    var color: Color {
+        switch self {
+        case .accepted: return .primary()
+        case .way: return .blue0094FF()
+        case .started: return .orangeF7941D()
+        case .finished: return .successNormal()
+        }
+    }
+    var emoji: String {
+        switch self {
+        case .accepted: return "🤝"
+        case .way: return "🚗"
+        case .started: return "🛠️"
+        case .finished: return "✅"
+        }
+    }
+}
+
+func currentStep(for status: OrderStatus) -> Int {
+    switch status {
+    case .accepted: return 0
+    case .way: return 1
+    case .started: return 2
+    case .finished: return 3
+    // إذا عندك حالات إضافية (معدّل/مؤكد/الخ) اضفها هنا حسب ترتيب الفلو
+    default: return 0
+    }
+}
+
 struct OrderStatusStepperView: View {
     let status: OrderStatus
-    var steps: [(icon: String, label: String, isActive: Bool, color: Color, emoji: String?)] {
-        [
-            ("handshake", "تعيين الفني", status == .accepted, .primary(), "🤝"),
-            ("car", "في الطريق", status == .way || status == .started || status == .finished, .blue0094FF(), "🚗"),
-            ("hammer", "قيد التنفيذ", status == .started || status == .finished, .orangeF7941D(), "🛠️"),
-            ("checkmark.seal", "تم التنفيذ بنجاح!", status == .finished, .successNormal(), "✅")
-        ]
-    }
+
     var body: some View {
+        let current = currentStep(for: status)
+
         VStack(alignment: .leading, spacing: 0) {
             Text("حالة الطلب")
                 .customFont(weight: .medium, size: 14)
                 .foregroundColor(.primaryDark())
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.bottom, 2)
-            ForEach(steps.indices, id: \.self) { i in
-                let step = steps[i]
-                HStack(spacing: 10) {
-                    VStack {
-                        Circle()
-                            .fill(step.isActive ? step.color : Color.grayE6E6E6())
-                            .frame(width: 13, height: 13)
-                        if i < steps.count-1 {
-                            Rectangle()
-                                .fill(Color.grayEFEFEF())
-                                .frame(width: 2, height: 32)
+            HStack(alignment: .center, spacing: 10) {
+                // عمود النقاط والخط
+                VStack {
+                    ForEach(OrderStep.allCases.indices, id: \.self) { i in
+                        VStack(spacing: 0) {
+                            Circle()
+                                .fill(i <= current ? OrderStep.allCases[i].color : Color.grayE6E6E6())
+                                .frame(width: 13, height: 13)
+                            if i < OrderStep.allCases.count - 1 {
+                                Rectangle()
+                                    .fill(Color.grayEFEFEF())
+                                    .frame(width: 2, height: 32)
+                                    .padding(.vertical, 0)
+                            }
+                        }
+                        .frame(width: 13) // تثبيت العرض للمحاذاة
+                    }
+                }
+
+                // عمود الكلام والرمز
+                VStack(alignment: .leading, spacing: 32) {
+                    ForEach(OrderStep.allCases.indices, id: \.self) { i in
+                        let step = OrderStep.allCases[i]
+                        let isActive = i <= current
+                        HStack(spacing: 5) {
+                            if isActive {
+                                Text(step.emoji)
+                                    .font(.system(size: 18))
+                            } else {
+                                Image(systemName: step.icon)
+                                    .foregroundColor(.grayA1A1A1())
+                            }
+                            Text(step.label)
+                                .customFont(weight: isActive ? .semiBold : .regular, size: 14)
+                                .foregroundColor(isActive ? step.color : .grayA1A1A1())
                         }
                     }
-
-                    Image(systemName: step.icon)
-                        .foregroundColor(step.isActive ? step.color : .grayA1A1A1())
-
-                    if let emoji = step.emoji, step.isActive {
-                        Text(emoji)
-                            .font(.system(size: 17))
-                    }
-                    Text(step.label)
-                        .customFont(weight: step.isActive ? .semiBold : .regular, size: 14)
-                        .foregroundColor(step.isActive ? step.color : .grayA1A1A1())
-                    Spacer()
                 }
-                .padding(.vertical, 4)
+                .padding(.leading, 4)
             }
+            .padding(.vertical, 16)
+            .padding(.horizontal, 8)
+            .background(Color.backgroundFEF3DE())
+            .cornerRadius(14)
         }
         .padding(.vertical, 14)
         .padding(.horizontal, 8)

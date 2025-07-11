@@ -19,6 +19,7 @@ struct SplashView: View {
                 .resizable()
                 .frame(width: 110, height: 110)
                 .opacity(logoOpacity)
+                .cornerRadius(12)
         }
         .onAppear {
             withAnimation(.easeInOut(duration: 3)) {

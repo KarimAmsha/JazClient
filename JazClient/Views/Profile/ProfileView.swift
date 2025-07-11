@@ -281,7 +281,7 @@ struct ConfirmPopup: View {
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(okTitle.contains("حذف") ? Color.red : Color.blue)
+                    .background(okTitle.contains("حذف") ? Color.red : Color.secondary())
                     .cornerRadius(10)
             }
         }

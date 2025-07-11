@@ -141,15 +141,6 @@ extension MyOrdersView {
     func loadMore() {
         viewModel.loadMoreOrders(status: orderType.rawValue, limit: 10)
     }
-
-//    func loadData() {
-//        viewModel.orders.removeAll()
-//        viewModel.getOrders(status: orderType.rawValue, page: 0, limit: 10)
-//    }
-//    
-//    func loadMore() {
-//        viewModel.loadMoreOrders(status: orderType.rawValue, limit: 10)
-//    }
     
     private func updateOrderStatus(orderID: String, status: OrderStatus, canceledNote: String = "") {
         let params: [String: Any] = [
