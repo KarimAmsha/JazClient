@@ -193,4 +193,6 @@ struct HomeView: View {
 
 #Preview {
     HomeView(selectedTab: .constant(.home))
+        .environmentObject(AppRouter())
+        .environmentObject(AppState())
 }

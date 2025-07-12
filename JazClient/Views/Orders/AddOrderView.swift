@@ -4,8 +4,8 @@ import MapKit
 
 struct AddOrderView: View {
     @EnvironmentObject var appRouter: AppRouter
-    @ObservedObject var viewModel: InitialViewModel
-    @ObservedObject var userViewModel: UserViewModel
+    @StateObject var viewModel = InitialViewModel(errorHandling: ErrorHandling())
+    @StateObject var userViewModel = UserViewModel(errorHandling: ErrorHandling())
     @StateObject var locationManager = LocationManager.shared
 
     let selectedCategory: Category?
@@ -135,6 +135,7 @@ struct AddOrderView: View {
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text("موقعي الحالي")
                                         .fontWeight(.medium)
+                                        .foregroundColor(.primary())
                                     Text(locationManager.address.isEmpty ? "جارٍ تحديد الموقع..." : locationManager.address)
                                         .font(.footnote)
                                         .foregroundColor(.gray)
@@ -296,27 +297,36 @@ struct AddOrderView: View {
             return
         }
 
-        // بناء عنصر الخدمة المختار
         let selectedService = SelectedServiceItem(
             service: subCat,
-            quantity: 1, // عدل حسب اختيار المستخدم للكمية
+            quantity: 1,
             categoryId: mainCat.id,
             subCategoryId: subCat.id,
             categoryTitle: mainCat.title ?? "",
             subCategoryTitle: subCat.title ?? ""
         )
 
-        // بناء OrderData
         let orderData = OrderData(
             services: [selectedService],
-            address: selectedAddress,
-            userLocation: Location(lat: Constants.defaultLocation.latitude, lng: Constants.defaultLocation.longitude),//isCurrentLocationSelected ? Location(lat: finalLat, lng: finalLng) : nil,
+            address: nil,
+            userLocation: Location(
+                lat: Constants.defaultLat,
+                lng: Constants.defaultLng
+            ),
             notes: extraDetails.isEmpty ? nil : extraDetails,
             date: date.toDateString(),
             time: time.toTimeString()
         )
 
-        // التنقل إلى شاشة الدفع
+//        let orderData = OrderData(
+//            services: [selectedService],
+//            address: isCurrentLocationSelected ? nil : selectedAddress,
+//            userLocation: isCurrentLocationSelected ? Location(lat: finalLat, lng: finalLng) : nil,
+//            notes: extraDetails.isEmpty ? nil : extraDetails,
+//            date: date.toDateString(),
+//            time: time.toTimeString()
+//        )
+
         appRouter.navigate(to: .checkout(orderData: orderData))
     }
 }
@@ -338,7 +348,6 @@ extension Date {
 #Preview {
     AddOrderView(
         viewModel: InitialViewModel(errorHandling: ErrorHandling()),
-        userViewModel: UserViewModel(errorHandling: ErrorHandling()),
         locationManager: LocationManager.shared,
         selectedCategory: nil,
         selectedSubCategory: nil,

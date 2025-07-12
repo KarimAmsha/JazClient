@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ServicesView: View {
     @EnvironmentObject var appRouter: AppRouter
-    @ObservedObject var viewModel: InitialViewModel
+    @StateObject var viewModel = InitialViewModel(errorHandling: ErrorHandling())
     let selectedCategoryId: String? // nil if from tab bar
 
     @State private var selectedTabIndex: Int = 0
@@ -154,7 +154,10 @@ struct ServicesView: View {
             .onAppear {
                 updateSelectedTab()
                 showBackButton = selectedCategoryId != nil
-                fetchDataWithSearch()
+                // لا تجلب البيانات إذا كانت موجودة
+                if viewModel.homeItems == nil || viewModel.homeItems?.category?.isEmpty == true {
+                    fetchDataWithSearch()
+                }
             }
         }
     }
@@ -269,5 +272,6 @@ extension Array {
 
 // MARK: - Preview
 #Preview {
-    ServicesView(viewModel: InitialViewModel(errorHandling: ErrorHandling()), selectedCategoryId: nil)
+    ServicesView(selectedCategoryId: nil)
+        .environmentObject(AppRouter())
 }

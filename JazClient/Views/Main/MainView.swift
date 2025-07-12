@@ -81,11 +81,10 @@ extension MainView {
         case .home:
             HomeView(selectedTab: $selectedTab)
         case .services:
-            ServicesView(viewModel: viewModel, selectedCategoryId: nil)
+            ServicesView(selectedCategoryId: nil)
         case .jaz:
             AddOrderView(
                 viewModel: viewModel,
-                userViewModel: UserViewModel(errorHandling: ErrorHandling()),
                 locationManager: LocationManager.shared,
                 selectedCategory: nil,
                 selectedSubCategory: nil,
@@ -126,7 +125,7 @@ extension MainView {
         case .productsListView(let specialCategory): ProductsListView(viewModel: viewModel, specialCategory: specialCategory)
         case .productDetails(let id): ProductDetailsView(viewModel: viewModel, productId: id)
         // Services
-        case .services(let selectedCategoryId): ServicesView(viewModel: viewModel, selectedCategoryId: selectedCategoryId)
+        case .services(let selectedCategoryId): ServicesView(selectedCategoryId: selectedCategoryId)
         case .serviceDetails: ServiceDetailsView()
         // Other Sections
         case .paymentSuccess: SuccessView()
@@ -135,7 +134,6 @@ extension MainView {
         case .addOrder(let selectedCategory, let selectedSubCategory):
             AddOrderView(
                 viewModel: viewModel,
-                userViewModel: UserViewModel(errorHandling: ErrorHandling()),
                 locationManager: LocationManager.shared,
                 selectedCategory: selectedCategory,
                 selectedSubCategory: selectedSubCategory,

@@ -33,6 +33,7 @@ struct EditAddressView: View {
     @State private var addressPlace: PlaceType = .home
     let addressItem: AddressItem
     @State private var isShowingMap = false
+    @State private var didSetInitialValues = false
 
     var body: some View {
         GeometryReader { geometry in
@@ -57,13 +58,29 @@ struct EditAddressView: View {
                                 .disabled(viewModel.isLoading)
                         }
 
+                        HStack {
+                            Image("ic_location")
+                            VStack(alignment: .leading) {
+                                Text(LocalizedStringKey.geographicalLocation)
+                                    .customFont(weight: .bold, size: 14)
+                                    .foregroundColor(.black1F1F1F())
+                                Text(address)
+                                    .customFont(weight: .regular, size: 12)
+                                    .foregroundColor(.black0B0B0B())
+                                    .padding(.trailing, 10)
+                                    .lineLimit(2)
+                                    .multilineTextAlignment(.leading)
+                            }
+                            Spacer()
+                        }
+
                         ZStack {
                             Map(coordinateRegion: $region, showsUserLocation: true, annotationItems: locations) { location in
                                 MapAnnotation(
                                     coordinate: location.coordinate,
                                     anchorPoint: CGPoint(x: 0.5, y: 0.7)
                                 ) {
-                                    VStack{
+                                    VStack {
                                         if location.show {
                                             Text(location.title)
                                                 .customFont(weight: .bold, size: 14)
@@ -81,8 +98,8 @@ struct EditAddressView: View {
                             }
                             .disabled(true)
                             .onChange(of: region, perform: { newRegion in
-                                Utilities.getAddress(for: newRegion.center) { address in
-                                    self.address = address
+                                Utilities.getAddress(for: newRegion.center) { newAddress in
+                                    self.address = newAddress
                                 }
                             })
 
@@ -146,10 +163,17 @@ struct EditAddressView: View {
                                 CustomTextField(text: $flatNo, placeholder: LocalizedStringKey.flatNo, textColor: .black4E5556(), placeholderColor: .grayA4ACAD())
                                     .disabled(viewModel.isLoading)
                             }
-                            
                             Spacer()
                         }
-                        
+
+                        // زر إعادة ضبط الحقول (اختياري)
+                        Button(action: resetFields) {
+                            Text("إعادة ضبط الحقول")
+                                .customFont(weight: .regular, size: 13)
+                                .foregroundColor(.primary())
+                        }
+                        .padding(.top, 10)
+
                         Spacer()
 
                         if viewModel.isLoading {
@@ -167,14 +191,18 @@ struct EditAddressView: View {
                             update()
                         }
                     } label: {
-                        Text(LocalizedStringKey.send)
+                        if viewModel.isLoading {
+                            ProgressView()
+                        } else {
+                            Text(LocalizedStringKey.send)
+                        }
                     }
                     .buttonStyle(PrimaryButton(fontSize: 16, fontWeight: .bold, background: .primary(), foreground: .white, height: 48, radius: 8))
                 }
                 .padding(24)
-                .background(Color.white)
                 .background(
-                    RoundedRectangle(cornerRadius: 12)
+                    Color.white
+                        .cornerRadius(12)
                         .shadow(color: .black.opacity(0.07), radius: 12, x: 0, y: -3)
                 )
             }
@@ -208,8 +236,35 @@ struct EditAddressView: View {
         .onAppear {
             LocationManager.shared.getCurrentLocation { location in
                 if let location = location {
-                    self.userLocation = userLocation
+                    self.userLocation = location
                 }
+            }
+            if !didSetInitialValues {
+                // Populate fields from addressItem
+                if let item = addressItem.title { self.title = item }
+                if let item = addressItem.streetName { self.streetName = item }
+                if let item = addressItem.buildingNo { self.buildingNo = item }
+                if let item = addressItem.floorNo { self.floorNo = item }
+                if let item = addressItem.flatNo { self.flatNo = item }
+                if let item = addressItem.address { self.address = item }
+                if let lat = addressItem.lat, let lng = addressItem.lng {
+                    self.region = MKCoordinateRegion(
+                        center: CLLocationCoordinate2D(latitude: lat, longitude: lng),
+                        span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+                    )
+                    self.locations = [
+                        Mark(
+                            title: addressItem.title ?? "",
+                            coordinate: CLLocationCoordinate2D(latitude: lat, longitude: lng),
+                            show: false,
+                            imageName: "ic_marker"
+                        )
+                    ]
+                }
+                if let type = addressItem.type, let placeType = PlaceType(rawValue: type) {
+                    self.addressPlace = placeType
+                }
+                didSetInitialValues = true
             }
         }
         .overlay(
@@ -242,6 +297,33 @@ struct EditAddressView: View {
             .background((addressPlace == place ? Color.blue057E98() : .white).cornerRadius(8))
         }
     }
+    
+    // إعادة ضبط الحقول لقيم العنوان الأصلي
+    private func resetFields() {
+        if let item = addressItem.title { self.title = item }
+        if let item = addressItem.streetName { self.streetName = item }
+        if let item = addressItem.buildingNo { self.buildingNo = item }
+        if let item = addressItem.floorNo { self.floorNo = item }
+        if let item = addressItem.flatNo { self.flatNo = item }
+        if let item = addressItem.address { self.address = item }
+        if let lat = addressItem.lat, let lng = addressItem.lng {
+            self.region = MKCoordinateRegion(
+                center: CLLocationCoordinate2D(latitude: lat, longitude: lng),
+                span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+            )
+            self.locations = [
+                Mark(
+                    title: addressItem.title ?? "",
+                    coordinate: CLLocationCoordinate2D(latitude: lat, longitude: lng),
+                    show: false, 
+                    imageName: "ic_marker"
+                )
+            ]
+        }
+        if let type = addressItem.type, let placeType = PlaceType(rawValue: type) {
+            self.addressPlace = placeType
+        }
+    }
 }
 
 #Preview {
@@ -250,13 +332,12 @@ struct EditAddressView: View {
 
 extension EditAddressView {
     private func update() {
-        guard !title.isEmpty else {
-            appRouter.toggleAppPopup(.alertError("", LocalizedStringKey.addressTitleRequired))
+        guard !title.isEmpty, !address.isEmpty, region.center.latitude != 0, region.center.longitude != 0 else {
+            appRouter.toggleAppPopup(.alertError("", "يرجى ملء جميع الحقول المطلوبة"))
             return
         }
 
-        var params: [String: Any] = [:]
-        params = [
+        let params: [String: Any] = [
             "id": addressItem.id ?? "",
             "lat": region.center.latitude,
             "lng": region.center.longitude,

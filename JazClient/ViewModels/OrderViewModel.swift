@@ -387,12 +387,13 @@ extension OrderViewModel {
 
 extension OrderViewModel {
     func startRealtimeListenersForVisibleOrders(_ visibleOrders: [OrderModel]) {
-        // أوقف كل listeners القديمة
         stopRealtimeListeners()
-
-        // فعّل listeners فقط للأوامر المعروضة (مثلاً: الصفحة الحالية)
+        let userId = UserSettings.shared.user?.id
         for order in visibleOrders {
-            listenForOrderChange(orderId: order.id ?? "")
+            // 🔥 استمع فقط لطلبات المستخدم الحالي
+            if order.user?.id == userId {
+                listenForOrderChange(orderId: order.id ?? "")
+            }
         }
     }
 

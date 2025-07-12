@@ -48,6 +48,7 @@ struct OrderData: Codable, Equatable, Hashable {
         // نوع الدفع دائمًا لازم يكون Int
         dict["paymentType"] = paymentType ?? 1 // أو القيمة الافتراضية المناسبة لك
 
+        print("dictdict \(dict)")
         return dict
     }
 }

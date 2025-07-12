@@ -417,6 +417,7 @@ struct CheckoutView: View {
     }
     
     func addOrder(paymentType: PaymentType) {
+        orderViewModel.errorMessage = nil
         print("addOrder CALLED")
         let params = orderData.toJson(
             couponCode: couponCode,
@@ -427,15 +428,29 @@ struct CheckoutView: View {
             urlString: "https://jazapp-63bc0a074b4f.herokuapp.com/api/mobile/order/add",
             body: params,
             onsuccess: { response in
-                // معالجة الاستجابة بنجاح (json string)
-                print("تمت العملية بنجاح: \(response)")
-                // هنا يمكنك فك الاستجابة إلى مودل لو أحببت
-                appRouter.navigate(to: .paymentSuccess)
+                // فك الاستجابة JSON
+                if let data = response.data(using: .utf8),
+                   let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                   let status = json["status"] as? Bool,
+                   let message = json["message"] as? String {
+
+                    if status {
+                        // العملية نجحت فعلاً
+                        print("Order Success:", message)
+                        appRouter.navigate(to: .paymentSuccess)
+                    } else {
+                        // العملية فشلت
+                        print("Order Failed:", message)
+                        orderViewModel.errorMessage = message // أو showValidationError/message toast
+                    }
+                } else {
+                    // لو فشل فك JSON
+                    orderViewModel.errorMessage = "استجابة غير مفهومة من السيرفر"
+                }
             },
             onerror: { errorMsg in
-                // معالجة الخطأ
                 print("حدث خطأ: \(errorMsg)")
-                showPaymentError = true
+                orderViewModel.errorMessage = "حدث خطأ: \(errorMsg)"
             }
         )
     }
