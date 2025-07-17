@@ -172,11 +172,10 @@ struct ServicesView: View {
     }
 
     func fetchDataWithSearch() {
-        viewModel.fetchHomeItems(
-            q: searchText.trimmingCharacters(in: .whitespaces).isEmpty ? nil : searchText,
-            lat: 18.2418308,
-            lng: 42.4660169
-        )
+        LocationManager.shared.getCurrentLocation { coordinate in
+            guard let coordinate = coordinate else { return }
+            viewModel.fetchHomeItems(q: nil, lat: coordinate.latitude, lng: coordinate.longitude)
+        }
     }
     
     // دالة الـ tab background مفصولة

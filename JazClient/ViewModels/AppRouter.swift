@@ -53,10 +53,10 @@ final class AppRouter: ObservableObject {
         case freelancerList
         case freelancerProfile
         case serviceDetails
-        case chat(chatId: String, currentUserId: String)
         case services(String?)
         case addOrder(selectedCategory: Category?, selectedSubCategory: SubCategory?)
         case checkout(orderData: OrderData)
+        case chat(chatId: String, currentUserId: String, receiverId: String)
     }
     
     public enum Popup: Hashable {

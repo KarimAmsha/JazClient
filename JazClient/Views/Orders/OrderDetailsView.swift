@@ -23,9 +23,14 @@ struct OrderDetailsView: View {
                         VStack(spacing: 6) {
                             HStack(alignment: .center) {
                                 VStack(alignment: .leading, spacing: 5) {
-                                    Text(order.sub_category_id?.title ?? order.category_id?.title ?? order.title ?? "خدمة")
-                                        .customFont(weight: .medium, size: 15)
-                                        .foregroundColor(.black121212())
+                                    HStack {
+                                        Text(order.category_id?.title ?? "")
+                                        Text("-")
+                                        Text(order.sub_category_id?.title ?? "")
+                                    }
+                                    .customFont(weight: .medium, size: 15)
+                                    .foregroundColor(.black121212())
+                                    
                                     if let date = order.formattedCreateDate {
                                         Text(date)
                                             .customFont(weight: .light, size: 12)
@@ -72,7 +77,7 @@ struct OrderDetailsView: View {
                         }
 
                         // الموقع الجغرافي
-                        if let address = order.address?.streetName, let lat = order.lat, let lng = order.lng {
+                        if let address = order.address?.address, let lat = order.lat, let lng = order.lng {
                             OrderLocationSection(address: address, lat: lat, lng: lng)
                         }
 
@@ -99,7 +104,7 @@ struct OrderDetailsView: View {
                                 onChat: {
                                     let myId = UserSettings.shared.id ?? ""
                                     let chatId = Utilities.makeChatId(currentUserId: myId, otherUserId: providerId)
-                                    appRouter.navigate(to: .chat(chatId: chatId, currentUserId: myId))
+                                    appRouter.navigate(to: .chat(chatId: chatId, currentUserId: myId, receiverId: providerId))
                                 }
                             )
                         }

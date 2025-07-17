@@ -14,9 +14,6 @@ struct HomeView: View {
         GridItem(.flexible())
     ]
     
-    let fixedLat = 18.2418308
-    let fixedLng = 42.4660169
-
     var body: some View {
         NavigationStack {
             ZStack {
@@ -128,14 +125,14 @@ struct HomeView: View {
                         .padding(.top, 18)
                     }
                     .refreshable {
-                        viewModel.fetchHomeItems(q: nil, lat: fixedLat, lng: fixedLng)
+//                        viewModel.fetchHomeItems(q: nil, lat: fixedLat, lng: fixedLng)
                         // --- إذا أردت الموقع الحقيقي مستقبلاً:
-                        /*
+                        
                         LocationManager.shared.getCurrentLocation { coordinate in
                             guard let coordinate = coordinate else { return }
                             viewModel.fetchHomeItems(q: nil, lat: coordinate.latitude, lng: coordinate.longitude)
                         }
-                        */
+                        
                     }
                 }
             }
@@ -164,16 +161,13 @@ struct HomeView: View {
                 }
             }
             .onAppear {
-                viewModel.fetchHomeItems(q: nil, lat: fixedLat, lng: fixedLng)
-                // إذا أردت استخدام اللوكيشن:
-                /*
                 LocationManager.shared.getCurrentLocation { coordinate in
                     guard let coordinate = coordinate else { return }
                     viewModel.fetchHomeItems(q: nil, lat: coordinate.latitude, lng: coordinate.longitude)
                 }
-                */
 
                 refreshFcmToken()
+                ChatViewModel.setUser()
             }
         }
     }

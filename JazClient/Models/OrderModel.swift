@@ -142,6 +142,8 @@ struct LocationPoint: Codable {
 }
 
 struct OrderAddress: Codable {
+    let address: String?
+    let title: String?
     let streetName: String?
     let floorNo: String?
     let buildingNo: String?

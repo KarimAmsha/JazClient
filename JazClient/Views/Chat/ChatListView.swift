@@ -15,6 +15,7 @@ struct ChatListView: View {
                     ChatListRow(
                         chat: chat,
                         myId: viewModel.userId,
+                        receiverId: (chat.senderId == viewModel.userId ? chat.receiverId : chat.senderId) ?? "",
                         appRouter: appRouter,
                         getUser: viewModel.getUser(for:)
                     )
@@ -50,12 +51,13 @@ struct ChatListView: View {
 struct ChatListRow: View {
     let chat: FirebaseChat
     let myId: String
+    let receiverId: String
     let appRouter: AppRouter
     let getUser: (String) -> FirebaseUser? // جلب بيانات الطرف الآخر
 
     var body: some View {
         Button {
-            appRouter.navigate(to: .chat(chatId: chat.id ?? "", currentUserId: myId))
+            appRouter.navigate(to: .chat(chatId: chat.id ?? "", currentUserId: myId, receiverId: receiverId))
         } label: {
             HStack(alignment: .top, spacing: 12) {
                 // الطرف الآخر (الذي ليس أنت)

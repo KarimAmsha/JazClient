@@ -34,9 +34,11 @@ struct OrderData: Codable, Equatable, Hashable {
         if let address = address {
             dict["lat"] = address.lat
             dict["lng"] = address.lng
+            dict["address"] = address.id
         } else if let loc = userLocation {
             dict["lat"] = loc.lat
             dict["lng"] = loc.lng
+            dict["address"] = loc.address ?? ""
         } else {
             dict["lat"] = Constants.defaultLat // أو قيمة افتراضية لو تحب
             dict["lng"] = Constants.defaultLng
@@ -56,6 +58,7 @@ struct OrderData: Codable, Equatable, Hashable {
 struct Location: Codable, Equatable, Hashable {
     let lat: Double
     let lng: Double
+    let address: String?
 
     var coordinate: CLLocationCoordinate2D {
         .init(latitude: lat, longitude: lng)

@@ -261,9 +261,13 @@ struct AddOrderView: View {
             if userViewModel.addressBook == nil {
                 userViewModel.getAddressList()
             }
-            if (viewModel.homeItems?.category ?? []).isEmpty {
-                viewModel.fetchHomeItems(q: nil, lat: 18.2418308, lng: 42.4660169)
+            LocationManager.shared.getCurrentLocation { coordinate in
+                guard let coordinate = coordinate else { return }
+                if (viewModel.homeItems?.category ?? []).isEmpty {
+                    viewModel.fetchHomeItems(q: nil, lat: coordinate.latitude, lng: coordinate.longitude)
+                }
             }
+
             locationManager.requestLocationIfNeeded()
         }
     }
@@ -306,17 +310,27 @@ struct AddOrderView: View {
             subCategoryTitle: subCat.title ?? ""
         )
 
-        let orderData = OrderData(
-            services: [selectedService],
-            address: nil,
-            userLocation: Location(
-                lat: Constants.defaultLat,
-                lng: Constants.defaultLng
-            ),
-            notes: extraDetails.isEmpty ? nil : extraDetails,
-            date: date.toDateString(),
-            time: time.toTimeString()
-        )
+//        let orderData = OrderData(
+//            services: [selectedService],
+//            address: nil,
+//            userLocation: Location(
+//                lat: Constants.defaultLat,
+//                lng: Constants.defaultLng
+//            ),
+//            notes: extraDetails.isEmpty ? nil : extraDetails,
+//            date: date.toDateString(),
+//            time: time.toTimeString()
+//        )
+
+        let currentAddress = AddressItem(streetName: "", floorNo: "", buildingNo: "", flatNo: "", type: "", createAt: "", id: "", title: "", lat: locationManager.userLocation?.latitude ?? 0.0, lng: locationManager.userLocation?.longitude ?? 0.0, address: locationManager.address, userId: "", discount: 0)
+            let orderData = OrderData(
+                services: [selectedService],
+                address: isCurrentLocationSelected ? nil : selectedAddress,
+                userLocation: isCurrentLocationSelected ? Location(lat: locationManager.userLocation?.latitude ?? 0.0, lng: locationManager.userLocation?.longitude ?? 0.0, address: locationManager.address) : nil,
+                notes: extraDetails.isEmpty ? nil : extraDetails,
+                date: date.toDateString(),
+                time: time.toTimeString()
+            )
 
 //        let orderData = OrderData(
 //            services: [selectedService],

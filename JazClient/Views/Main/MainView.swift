@@ -139,6 +139,8 @@ extension MainView {
                 selectedSubCategory: selectedSubCategory,
                 cameFromMain: false
             )
+        case .chat(let chatId, let currentUserId, let receiverId):
+            ChatDetailView(chatId: chatId, currentUserId: currentUserId, receiverId: receiverId)
         case .checkout(let orderData):
             CheckoutView(orderData: orderData)
         case .addressBook:

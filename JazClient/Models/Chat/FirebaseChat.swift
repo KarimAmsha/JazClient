@@ -30,3 +30,11 @@ struct FirebaseChat: Codable, Identifiable {
         case onChat
     }
 }
+
+extension FirebaseChat: Equatable {
+    static func == (lhs: FirebaseChat, rhs: FirebaseChat) -> Bool {
+        lhs.id == rhs.id &&
+        lhs.senderId == rhs.senderId &&
+        lhs.receiverId == rhs.receiverId
+    }
+}

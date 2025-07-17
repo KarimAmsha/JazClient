@@ -363,14 +363,10 @@ extension OrderViewModel {
         self.orderRealtimeRef = ref
         self.orderListenerHandle = ref.observe(.value, with: { [weak self] snapshot in
             guard let dict = snapshot.value as? [String: Any] else { return }
-            if let jsonData = try? JSONSerialization.data(withJSONObject: dict),
-               let realtimeOrder = try? JSONDecoder().decode(OrderRealTime.self, from: jsonData) {
+            if let status = dict["status"] as? String {
                 DispatchQueue.main.async {
-                    if var order = self?.orderBody {
-                        order.status = realtimeOrder.status
-                        // ... إذا فيه حقول ثانية ضيفها هنا
-                        self?.orderBody = order
-                    }
+                    self?.orderBody?.status = status
+                    self?.getOrderDetails(orderId: orderId) {}
                 }
             }
         })
