@@ -35,7 +35,7 @@ struct EditProfileView: View {
                             isFloatingPickerPresented.toggle()
                         }) {
                             Text("اضغط لرفع صورة جديدة")
-                                .font(.system(size: 14))
+                                .customFont(weight: .medium, size: 14)
                                 .foregroundColor(.primary())
                         }
 
@@ -60,11 +60,12 @@ struct EditProfileView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("اسم العرض")
                             .foregroundColor(.gray)
-                            .font(.system(size: 14))
+                            .customFont(weight: .medium, size: 14)
 
                         TextField("", text: $name)
                             .padding()
                             .frame(height: 50)
+                            .customFont(weight: .medium, size: 14)
                             .background(
                                 RoundedRectangle(cornerRadius: 8)
                                     .stroke(Color.gray.opacity(0.4))
@@ -75,11 +76,12 @@ struct EditProfileView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("البريد الإلكتروني")
                             .foregroundColor(.gray)
-                            .font(.system(size: 14))
+                            .customFont(weight: .medium, size: 14)
 
                         TextField("", text: $email)
                             .padding()
                             .frame(height: 50)
+                            .customFont(weight: .medium, size: 14)
                             .background(
                                 RoundedRectangle(cornerRadius: 8)
                                     .stroke(Color.gray.opacity(0.4))
@@ -92,6 +94,7 @@ struct EditProfileView: View {
                         update()
                     }) {
                         Text("حفظ التغييرات")
+                            .customFont(weight: .medium, size: 14)
                             .frame(maxWidth: .infinity)
                             .frame(height: 50)
                             .foregroundColor(.white)
@@ -144,7 +147,7 @@ struct EditProfileView: View {
                     }
 
                     Text("اسم وصورة العرض")
-                        .font(.system(size: 18, weight: .bold))
+                        .customFont(weight: .medium, size: 18)
                         .foregroundColor(.black)
                 }
             }

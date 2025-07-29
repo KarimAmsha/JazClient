@@ -24,11 +24,22 @@ struct OrderDetailsView: View {
                             HStack(alignment: .center) {
                                 VStack(alignment: .leading, spacing: 5) {
                                     HStack {
+                                        Image(systemName: "wrench.and.screwdriver.fill")
+                                            .resizable()
+                                            .frame(width: 20, height: 20)
+                                            .foregroundColor(.primary())
+                                            .background(Color.backgroundFEF3DE())
+                                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                                        Text("الخدمة")
+                                            .customFont(weight: .bold, size: 18)
+                                            .foregroundColor(.black121212())
+                                    }
+                                    HStack {
                                         Text(order.category_id?.title ?? "")
-                                        Text("-")
+                                        Text(" / ")
                                         Text(order.sub_category_id?.title ?? "")
                                     }
-                                    .customFont(weight: .medium, size: 15)
+                                    .customFont(weight: .medium, size: 14)
                                     .foregroundColor(.black121212())
                                     
                                     if let date = order.formattedCreateDate {
@@ -43,12 +54,6 @@ struct OrderDetailsView: View {
                                     }
                                 }
                                 Spacer()
-                                Image(systemName: "wrench.and.screwdriver.fill")
-                                    .resizable()
-                                    .frame(width: 34, height: 34)
-                                    .foregroundColor(.primary())
-                                    .background(Color.backgroundFEF3DE())
-                                    .clipShape(RoundedRectangle(cornerRadius: 10))
                             }
                             .padding(.vertical, 8)
                         }
@@ -72,7 +77,7 @@ struct OrderDetailsView: View {
                                     .padding(.vertical, 4)
                             }
                             .padding(12)
-                            .background(Color.backgroundFEF3DE())
+                            .background(Color.white)
                             .cornerRadius(10)
                         }
 
@@ -364,12 +369,12 @@ struct OrderStatusStepperView: View {
             }
             .padding(.vertical, 16)
             .padding(.horizontal, 8)
-            .background(Color.backgroundFEF3DE())
+            .background(Color.white)
             .cornerRadius(14)
         }
         .padding(.vertical, 14)
         .padding(.horizontal, 8)
-        .background(Color.backgroundFEF3DE())
+        .background(Color.white)
         .cornerRadius(14)
     }
 }
@@ -403,12 +408,12 @@ struct OrderLocationSection: View {
                 Button(action: { showFullMap = true }) {
                     HStack(spacing: 3) {
                         Image(systemName: "map")
-                        Text("عرض على الخريطة")
+                        Text("عرض الموقع ")
                             .customFont(weight: .medium, size: 12)
                     }
-                    .foregroundColor(.blue0094FF())
+                    .foregroundColor(.black121212())
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(CustomButtonStyle(fontSize: 14, fontWeight: .medium, background: .primary(), foreground: .white))
             }
 
             Text(address)
@@ -429,7 +434,7 @@ struct OrderLocationSection: View {
             )
         }
         .padding(12)
-        .background(Color.backgroundFEF3DE())
+        .background(Color.white)
         .cornerRadius(14)
         .sheet(isPresented: $showFullMap) {
             FullScreenMapView(address: address, lat: lat, lng: lng)
@@ -553,7 +558,7 @@ struct ProviderCardWithChatButtonView: View {
                 Spacer()
             }
             .padding()
-            .background(Color.backgroundFEF3DE())
+            .background(Color.white)
             .cornerRadius(16)
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
@@ -609,7 +614,7 @@ struct OrderPriceTableView: View {
             )
         }
         .padding()
-        .background(Color.backgroundFEF3DE())
+        .background(Color.white)
         .cornerRadius(12)
         .padding(.top, 12)
     }
@@ -644,7 +649,7 @@ struct OrderNewTotalsTableView: View {
             }
         }
         .padding()
-        .background(Color.backgroundFEF3DE())
+        .background(Color.white)
         .cornerRadius(12)
         .padding(.top, 12)
     }
@@ -689,7 +694,7 @@ struct ExtraServicesSection: View {
             }
         }
         .padding()
-        .background(Color.backgroundFEF3DE())
+        .background(Color.white)
         .cornerRadius(12)
         .padding(.top, 8)
     }

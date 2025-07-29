@@ -24,7 +24,6 @@ struct ProfileView: View {
                         AsyncImage(url: url) { phase in
                             switch phase {
                             case .empty:
-                                // أثناء التحميل
                                 ProgressView()
                                     .frame(width: 54, height: 54)
                             case .success(let image):
@@ -53,10 +52,10 @@ struct ProfileView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
                 }
-                
+
                 Spacer()
                 Text(phone)
-                    .font(.system(size: 16, weight: .medium))
+                    .customFont(weight: .medium, size: 16)
                 Spacer()
 
                 Button(action: {
@@ -65,7 +64,7 @@ struct ProfileView: View {
                     HStack(spacing: 6) {
                         Image(systemName: "pencil")
                         Text("تعديل الملف")
-                            .font(.system(size: 14, weight: .medium))
+                            .customFont(weight: .medium, size: 14)
                     }
                     .foregroundColor(Color.blue)
                     .padding(.horizontal, 16)
@@ -81,7 +80,6 @@ struct ProfileView: View {
             .shadow(color: .black.opacity(0.03), radius: 3, x: 0, y: 2)
             .padding(.horizontal, 8)
 
-            // --- القائمة الرئيسية ---
             VStack(spacing: 0) {
                 profileItem(title: "نبذة عن تطبيق جاز") {
                     if let item = initialViewModel.constantsItems?.first(where: { $0.constantType == .about }) {
@@ -89,7 +87,6 @@ struct ProfileView: View {
                     }
                 }
                 profileItem(title: "المحفظة") { appRouter.navigate(to: .walletView) }
-                Divider().padding(.leading)
                 Divider().padding(.leading)
                 profileItem(title: "عناويني") { appRouter.navigate(to: .addressBook) }
                 Divider().padding(.leading)
@@ -106,9 +103,6 @@ struct ProfileView: View {
                         appRouter.navigate(to: .constant(item))
                     }
                 }
-//                Divider().padding(.leading)
-//                profileItem(title: "اللغة", icon: "globe") {
-//                }
             }
             .background(Color.white)
             .cornerRadius(12)
@@ -116,7 +110,6 @@ struct ProfileView: View {
             .padding(.horizontal, 8)
             .padding(.top, 6)
 
-            // --- زر حذف الحساب في الأسفل باللون الأحمر ---
             Button(action: {
                 showDeleteAlert = true
             }) {
@@ -126,7 +119,7 @@ struct ProfileView: View {
                         .font(.system(size: 20))
                     Text("حذف الحساب نهائيًا")
                         .foregroundColor(.red)
-                        .fontWeight(.bold)
+                        .customFont(weight: .bold, size: 16)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
@@ -136,7 +129,6 @@ struct ProfileView: View {
             }
             .padding(.top, 14)
 
-            // --- زر تسجيل الخروج ---
             Button(action: {
                 showLogoutAlert = true
             }) {
@@ -146,7 +138,7 @@ struct ProfileView: View {
                         .font(.system(size: 20))
                     Text("تسجيل الخروج!")
                         .foregroundColor(.red)
-                        .fontWeight(.bold)
+                        .customFont(weight: .bold, size: 16)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 10)
@@ -155,9 +147,8 @@ struct ProfileView: View {
                 .padding(.horizontal, 8)
             }
 
-            // --- رقم النسخة ---
             Text("VERSION \(Bundle.main.shortVersion)")
-                .font(.caption)
+                .customFont(weight: .regular, size: 12)
                 .foregroundColor(.gray)
                 .padding(.top, 14)
                 .padding(.bottom, 10)
@@ -168,13 +159,11 @@ struct ProfileView: View {
         .background(Color.background())
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
-                HStack {
-                    Text("الصفحة الشخصية")
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundColor(.black)
-                }
+                Text("الصفحة الشخصية")
+                    .customFont(weight: .bold, size: 20)
+                    .foregroundColor(.black)
             }
-            
+
             ToolbarItem(placement: .navigationBarTrailing) {
                 Image("ic_bell")
                     .onTapGesture {
@@ -188,7 +177,6 @@ struct ProfileView: View {
             phone = UserSettings.shared.user?.phone_number ?? "--"
             imageUrl = UserSettings.shared.user?.image ?? "--"
         }
-        // بوب أب لتسجيل الخروج
         .popup(isPresented: $showLogoutAlert) {
             ConfirmPopup(
                 title: "تسجيل الخروج",
@@ -199,7 +187,6 @@ struct ProfileView: View {
                 cancelAction: { showLogoutAlert = false }
             )
         }
-        // بوب أب حذف الحساب
         .popup(isPresented: $showDeleteAlert) {
             ConfirmPopup(
                 title: "حذف الحساب",
@@ -212,7 +199,6 @@ struct ProfileView: View {
         }
     }
 
-    // ---- صف إعداد فردي ----
     @ViewBuilder
     func profileItem(title: String, icon: String? = nil, action: @escaping () -> Void) -> some View {
         Button(action: action) {
@@ -253,7 +239,6 @@ struct ProfileView: View {
     }
 }
 
-// --- PopUp تأكيد عام ---
 struct ConfirmPopup: View {
     let title: String
     let message: String
@@ -265,9 +250,9 @@ struct ConfirmPopup: View {
     var body: some View {
         VStack(spacing: 20) {
             Text(title)
-                .font(.title2.bold())
+                .customFont(weight: .bold, size: 20)
             Text(message)
-                .font(.body)
+                .customFont(weight: .regular, size: 14)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 10)
             HStack {
@@ -292,7 +277,6 @@ struct ConfirmPopup: View {
     }
 }
 
-// لجلب رقم النسخة تلقائيًا (مثال: 1.5.7)
 extension Bundle {
     var shortVersion: String {
         return infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"

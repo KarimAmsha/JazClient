@@ -21,12 +21,11 @@ struct HomeView: View {
                     .ignoresSafeArea()
                 
                 if viewModel.isLoading {
-                    // Centered ProgressView
                     VStack {
                         Spacer()
                         ProgressView("جارٍ تحميل البيانات...")
                             .progressViewStyle(CircularProgressViewStyle(tint: .accentColor))
-                            .font(.system(size: 17, weight: .semibold))
+                            .customFont(weight: .medium, size: 17)
                             .padding()
                             .background(Color.white.opacity(0.94))
                             .cornerRadius(18)
@@ -38,7 +37,7 @@ struct HomeView: View {
                 } else {
                     ScrollView(showsIndicators: false) {
                         VStack(spacing: 22) {
-                            // --- Slider ---
+                            
                             if let sliders = viewModel.homeItems?.slider, !sliders.isEmpty {
                                 TabView {
                                     ForEach(sliders) { slide in
@@ -51,7 +50,6 @@ struct HomeView: View {
                                 .padding(.horizontal)
                             }
 
-                            // --- Categories ---
                             if let categories = viewModel.homeItems?.category, !categories.isEmpty {
                                 LazyVGrid(columns: columns, spacing: 18) {
                                     ForEach(categories, id: \.id) { category in
@@ -68,7 +66,7 @@ struct HomeView: View {
                                                     contentMode: .fit
                                                 )
                                                 Text(category.localizedName)
-                                                    .font(.system(size: 14, weight: .semibold))
+                                                    .customFont(weight: .medium, size: 14)
                                                     .multilineTextAlignment(.center)
                                                     .foregroundColor(.primary)
                                             }
@@ -86,20 +84,18 @@ struct HomeView: View {
                                 .padding(.horizontal)
                                 .transition(.opacity.combined(with: .move(edge: .bottom)))
                             } else if !viewModel.isLoading {
-                                // Empty State
                                 VStack(spacing: 8) {
                                     Image(systemName: "tray")
                                         .font(.system(size: 38))
                                         .foregroundColor(.gray.opacity(0.22))
                                     Text("لا توجد خدمات متاحة حالياً")
-                                        .font(.system(size: 15))
+                                        .customFont(weight: .regular, size: 15)
                                         .foregroundColor(.gray)
                                 }
                                 .frame(maxWidth: .infinity)
                                 .padding(.top, 38)
                             }
 
-                            // --- All Orders Button ---
                             Button(action: {
                                 appRouter.navigate(to: .myOrders)
                             }) {
@@ -108,7 +104,7 @@ struct HomeView: View {
                                     Image(systemName: "shippingbox.fill")
                                         .foregroundColor(.white)
                                     Text("كل الطلبات")
-                                        .font(.system(size: 16, weight: .bold))
+                                        .customFont(weight: .bold, size: 16)
                                         .foregroundColor(.white)
                                     Spacer()
                                 }
@@ -125,14 +121,10 @@ struct HomeView: View {
                         .padding(.top, 18)
                     }
                     .refreshable {
-//                        viewModel.fetchHomeItems(q: nil, lat: fixedLat, lng: fixedLng)
-                        // --- إذا أردت الموقع الحقيقي مستقبلاً:
-                        
                         LocationManager.shared.getCurrentLocation { coordinate in
                             guard let coordinate = coordinate else { return }
                             viewModel.fetchHomeItems(q: nil, lat: coordinate.latitude, lng: coordinate.longitude)
                         }
-                        
                     }
                 }
             }
@@ -140,7 +132,7 @@ struct HomeView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Text("الرئيسية")
-                        .font(.system(size: 21, weight: .bold))
+                        .customFont(weight: .bold, size: 21)
                         .foregroundColor(.primary)
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -190,3 +182,4 @@ struct HomeView: View {
         .environmentObject(AppRouter())
         .environmentObject(AppState())
 }
+

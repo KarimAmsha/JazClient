@@ -104,7 +104,7 @@ struct CustomTabBar: View {
                     .foregroundColor(selectedTab == tab ? .cyan() : .gray)
 
                 Text(title)
-                    .font(.caption)
+                    .customFont(weight: .bold, size: 12)
                     .foregroundColor(selectedTab == tab ? .cyan() : .gray)
             }
         }

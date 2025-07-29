@@ -81,6 +81,7 @@ enum APIEndpoint {
     case checkCartCoupun(params: [String: Any], token: String)
     case addOrderWish(params: [String: Any], token: String)
     case refreshFcmToken(params: [String: Any], token: String)
+    case registerCompany(params: [String: Any])
 
     // Define the base API URL
     private static let baseURL = Constants.baseURL
@@ -457,6 +458,8 @@ enum APIEndpoint {
             return "/mobile/order/add_wish"
         case .refreshFcmToken:
             return "/mobile/user/refresh-fcm-token"
+        case .registerCompany:
+            return "/mobile/add-company"
         }
     }
     
@@ -464,14 +467,14 @@ enum APIEndpoint {
         switch self {
         case .getWelcome, .getConstants, .getUserProfile, .getConstantDetails, .map, .getOrders, .getOrderDetails, .getNotifications, .getWallet, .getCategories, .getAddressByType, .getAddressList, .getRates, .getAppConstants, .getHome, .guest, .getContact, .getProducts, .getProductDetails, .cartCount, .getFavorite, .getWishGroups, .getGroup, .getFriends, .explore, .reminder, .getUserWishes, .getWish:
             return .get
-        case .register, .verify, .resend, .updateUserDataWithImage, .updateUserData, .logout, .addOrder, .addOfferToOrder, .updateOfferStatus, .updateOrderStatus, .addReview, .deleteNotification, .addBalanceToWallet, .addComplain, .createReferal, .checkCoupon, .addAddress, .updateAddress, .deleteAddress, .getTotalPrices, .deleteAccount, .tamaraCheckout, .checkPlace, .checkPoint, .rechangePoint, .addToCart, .getCartItems, .cartTotal, .updateCartItems, .deleteCart, .deleteCartItem, .addToFavorite, .addGroup, .editGroup, .deleteGroup, .addFriend, .addReminder, .deleteReminder, .addUserProduct, .addVIP, .addWish, .payWish, .checkCartCoupun, .addOrderWish, .refreshFcmToken:
+        case .register, .verify, .resend, .updateUserDataWithImage, .updateUserData, .logout, .addOrder, .addOfferToOrder, .updateOfferStatus, .updateOrderStatus, .addReview, .deleteNotification, .addBalanceToWallet, .addComplain, .createReferal, .checkCoupon, .addAddress, .updateAddress, .deleteAddress, .getTotalPrices, .deleteAccount, .tamaraCheckout, .checkPlace, .checkPoint, .rechangePoint, .addToCart, .getCartItems, .cartTotal, .updateCartItems, .deleteCart, .deleteCartItem, .addToFavorite, .addGroup, .editGroup, .deleteGroup, .addFriend, .addReminder, .deleteReminder, .addUserProduct, .addVIP, .addWish, .payWish, .checkCartCoupun, .addOrderWish, .refreshFcmToken, .registerCompany:
             return .post
         }
     }
     
     var headers: HTTPHeaders {
         switch self {
-        case .getWelcome, .getConstants, .getConstantDetails, .register, .verify, .resend, .getCategories, .getAppConstants, .getHome, .guest, .getContact, .logout(_):
+        case .getWelcome, .getConstants, .getConstantDetails, .register, .verify, .resend, .getCategories, .getAppConstants, .getHome, .guest, .getContact, .logout(_), .registerCompany:
             var headers = HTTPHeaders()
             headers.add(name: "Accept-Language", value: getUserPreferredLanguageCode() ?? "ar")
             return headers
@@ -487,7 +490,7 @@ enum APIEndpoint {
         switch self {
         case .getWelcome, .getConstants, .getConstantDetails, .getUserProfile, .logout, .map, .getOrders, .getOrderDetails, .getNotifications, .deleteNotification, .getWallet, .createReferal, .getCategories, .getAddressByType, .getAddressList, .getRates, .getAppConstants, .getHome, .guest, .deleteAccount, .getContact, .getProducts, .getProductDetails, .getCartItems, .deleteCart, .cartCount, .cartTotal, .getFavorite, .getWishGroups, .getGroup, .getFriends, .explore, .reminder, .getUserWishes, .getWish:
             return nil
-        case .register(let params), .verify(let params), .resend(let params), .updateUserDataWithImage(let params, _, _), .updateUserData(let params, _), .addOrder(let params, _), .addOfferToOrder(_, let params, _), .updateOfferStatus(_, let params, _), .updateOrderStatus(_, let params, _), .addReview(_, let params, _), .addBalanceToWallet(let params, _), .addComplain(let params, _), .checkCoupon(let params, _), .addAddress(let params, _), .updateAddress(let params, _), .getTotalPrices(let params, _), .tamaraCheckout(let params, _), .checkPlace(let params, _), .checkPoint(let params, _), .rechangePoint(let params, _), .addToCart(let params, _), .updateCartItems(let params, _), .deleteCartItem(let params, _), .addToFavorite(let params, _), .addGroup(let params, _), .editGroup(_, let params, _), .deleteGroup(_, let params, _), .addFriend(let params, _), .addReminder(let params, _), .deleteReminder(_, let params, _), .addUserProduct(let params, _), .addVIP(let params, _), .addWish(let params, _), .payWish(_, let params, _), .checkCartCoupun(let params, _), .addOrderWish(let params, _), .refreshFcmToken(let params, _):
+        case .register(let params), .verify(let params), .resend(let params), .updateUserDataWithImage(let params, _, _), .updateUserData(let params, _), .addOrder(let params, _), .addOfferToOrder(_, let params, _), .updateOfferStatus(_, let params, _), .updateOrderStatus(_, let params, _), .addReview(_, let params, _), .addBalanceToWallet(let params, _), .addComplain(let params, _), .checkCoupon(let params, _), .addAddress(let params, _), .updateAddress(let params, _), .getTotalPrices(let params, _), .tamaraCheckout(let params, _), .checkPlace(let params, _), .checkPoint(let params, _), .rechangePoint(let params, _), .addToCart(let params, _), .updateCartItems(let params, _), .deleteCartItem(let params, _), .addToFavorite(let params, _), .addGroup(let params, _), .editGroup(_, let params, _), .deleteGroup(_, let params, _), .addFriend(let params, _), .addReminder(let params, _), .deleteReminder(_, let params, _), .addUserProduct(let params, _), .addVIP(let params, _), .addWish(let params, _), .payWish(_, let params, _), .checkCartCoupun(let params, _), .addOrderWish(let params, _), .refreshFcmToken(let params, _), .registerCompany(let params):
             return params
         case .deleteAddress(let id, _):
             let params: [String: Any] = ["id": id]

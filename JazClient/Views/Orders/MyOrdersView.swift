@@ -1,3 +1,5 @@
+// ✅ MyOrdersView مع الخطوط المخصصة والشكل كما هو في الصورة
+
 import SwiftUI
 
 struct MyOrdersView: View {
@@ -10,75 +12,61 @@ struct MyOrdersView: View {
         if searchText.trimmingCharacters(in: .whitespaces).isEmpty {
             return viewModel.orders
         }
-        return viewModel.orders.filter { order in
-            // عدّل هنا للبحث في أي خاصية تريدها داخل OrderModel
-            order.order_no?.localizedCaseInsensitiveContains(searchText) == true
-            || order.id?.localizedCaseInsensitiveContains(searchText) == true
-            // أو أضف خصائص مثل اسم العميل أو رقم الطلب ...
+        return viewModel.orders.filter {
+            $0.order_no?.localizedCaseInsensitiveContains(searchText) == true ||
+            $0.id?.localizedCaseInsensitiveContains(searchText) == true
         }
     }
 
     var body: some View {
-        GeometryReader { geometry in
-            VStack {
-                // شريط الحالات
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 3) {
-                        OrderStatusButton(title: LocalizedStringKey.news, status: .new, selectedStatus: $orderType)
-                        OrderStatusButton(title: LocalizedStringKey.started, status: .started, selectedStatus: $orderType)
-                        OrderStatusButton(title: LocalizedStringKey.way, status: .way, selectedStatus: $orderType)
-                        OrderStatusButton(title: LocalizedStringKey.unconfirmed, status: .prefinished, selectedStatus: $orderType)
-                        OrderStatusButton(title: LocalizedStringKey.finished, status: .finished, selectedStatus: $orderType)
-                        OrderStatusButton(title: LocalizedStringKey.canceled, status: .canceled, selectedStatus: $orderType)
-                    }
-                    .frame(maxWidth: .infinity)
+        VStack(spacing: 12) {
+            // ✅ شريط الحالات
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 10) {
+                    OrderStatusButton(title: "الطلبات الجديدة", status: .new, selectedStatus: $orderType)
+                    OrderStatusButton(title: "طلبات قيد التنفيذ", status: .started, selectedStatus: $orderType)
+                    OrderStatusButton(title: "في الطريق", status: .way, selectedStatus: $orderType)
+                    OrderStatusButton(title: "بانتظار التأكيد", status: .prefinished, selectedStatus: $orderType)
+                    OrderStatusButton(title: "مكتملة", status: .finished, selectedStatus: $orderType)
+                    OrderStatusButton(title: "ملغية", status: .canceled, selectedStatus: $orderType)
                 }
-                .background(Color.white.cornerRadius(8))
-                .frame(height: 60)
+                .padding(.horizontal, 6)
+            }
 
-                // شريط البحث
-                HStack {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundColor(.gray)
-                    TextField("بحث في الطلبات...", text: $searchText)
-                        .autocapitalization(.none)
-                        .disableAutocorrection(true)
-                        .padding(.vertical, 8)
-                    if !searchText.isEmpty {
-                        Button(action: { searchText = "" }) {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundColor(.gray.opacity(0.6))
-                        }
+            // ✅ شريط البحث
+            HStack(spacing: 8) {
+                Image(systemName: "magnifyingglass")
+                    .foregroundColor(.gray)
+                TextField("البحث برقم الطلب", text: $searchText)
+                    .customFont(weight: .medium, size: 15)
+                if !searchText.isEmpty {
+                    Button(action: { searchText = "" }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(.gray.opacity(0.6))
                     }
                 }
-                .padding(.horizontal, 10)
-                .background(Color.gray.opacity(0.08))
-                .cornerRadius(12)
-                .padding(.vertical, 8)
-                .animation(.default, value: searchText)
+            }
+            .padding(.horizontal, 12)
+            .frame(height: 44)
+            .background(Color.gray.opacity(0.07))
+            .cornerRadius(12)
 
-                ScrollView(showsIndicators: false) {
-                    if filteredOrders.isEmpty {
-                        DefaultEmptyView(title: LocalizedStringKey.noOrdersFound)
-                    } else {
+            // ✅ الطلبات
+            ScrollView(showsIndicators: false) {
+                if filteredOrders.isEmpty {
+                    DefaultEmptyView(title: "لا توجد طلبات")
+                } else {
+                    VStack(spacing: 14) {
                         ForEach(filteredOrders.indices, id: \.self) { index in
                             let item = filteredOrders[index]
-                            OrderItemView(item: item, onSelect: {
+                            OrderItemView(item: item) {
                                 appRouter.navigate(to: .orderDetails(item.id ?? ""))
-                            })
+                            }
+                        }
+                        if viewModel.isFetchingMoreData {
+                            LoadingView()
                         }
                     }
-
-                    // عند تحميل المزيد
-                    if viewModel.shouldLoadMoreData && searchText.isEmpty {
-                        Color.clear.onAppear { loadMore() }
-                    }
-
-                    if viewModel.isFetchingMoreData {
-                        LoadingView()
-                    }
-
-                    Spacer()
                 }
             }
         }
@@ -87,45 +75,26 @@ struct MyOrdersView: View {
         .background(Color.background())
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
-                HStack {
-                    Text(LocalizedStringKey.myOrders)
-                        .customFont(weight: .bold, size: 20)
-                        .foregroundColor(Color.primaryBlack())
-                }
+                Text("طلباتي")
+                    .customFont(weight: .bold, size: 20)
             }
         }
-        .onChange(of: orderType) { type in
-            loadData()
-        }
-        .overlay(
-            MessageAlertObserverView(
-                message: $viewModel.errorMessage,
-                alertType: .constant(.error)
-            )
-        )
-        .onAppear {
-            loadData()
-            print("tttt \(UserSettings.shared.token)")
-        }
-        .onDisappear {
-            viewModel.stopRealtimeListeners()
-        }
-        // استدعِها بعد تحميل الطلبات أو عند تغيير الصفحة أو التاب
+        .onChange(of: orderType) { _ in loadData() }
+        .onAppear { loadData() }
+        .onDisappear { viewModel.stopRealtimeListeners() }
         .onReceive(viewModel.$orders) { newOrders in
-            // فقط الطلبات المعروضة حاليًا، مثل أول 10 أو 20 حسب الصفحة
             let visibleOrders = Array(newOrders.prefix(10))
             viewModel.startRealtimeListenersForVisibleOrders(visibleOrders)
         }
         .onReceive(viewModel.$orders) { orders in
-            // إذا أي طلب خرج من التاب الحالي (حالة تغيرت)، انتقل للتاب الصحيح تلقائي
-            if let changedOrder = orders.first(where: { $0.status != orderType.rawValue }) {
-                if let newStatus = OrderStatus(rawValue: changedOrder.status ?? "") {
-                    orderType = newStatus
-                }
+            if let changedOrder = orders.first(where: { $0.status != orderType.rawValue }),
+               let newStatus = OrderStatus(rawValue: changedOrder.status ?? "") {
+                orderType = newStatus
             }
         }
     }
 }
+
 
 #Preview {
     MyOrdersView()

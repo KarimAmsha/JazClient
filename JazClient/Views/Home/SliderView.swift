@@ -41,13 +41,13 @@ struct SliderView: View {
             VStack(alignment: .leading, spacing: 6) {
                 if let title = slider.title {
                     Text(title)
-                        .font(.headline)
+                        .customFont(weight: .bold, size: 14)
                         .foregroundColor(.white)
                         .shadow(color: .black.opacity(0.7), radius: 3, x: 0, y: 1)
                 }
                 if let desc = slider.description {
                     Text(desc)
-                        .font(.subheadline)
+                        .customFont(weight: .regular, size: 14)
                         .foregroundColor(.white)
                         .shadow(color: .black.opacity(0.5), radius: 2, x: 0, y: 1)
                 }

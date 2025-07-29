@@ -140,7 +140,6 @@
 		1ECC94C92BDC5E49002BFE54 /* CustomMapAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ECC94BC2BDC5E48002BFE54 /* CustomMapAnnotation.swift */; };
 		1ECC94CA2BDC5E49002BFE54 /* DismissingKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ECC94BD2BDC5E48002BFE54 /* DismissingKeyboard.swift */; };
 		1ECC94CB2BDC5E49002BFE54 /* RootPresentationModeKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ECC94BE2BDC5E48002BFE54 /* RootPresentationModeKey.swift */; };
-		1ECC94CC2BDC5E49002BFE54 /* CustomFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ECC94BF2BDC5E48002BFE54 /* CustomFont.swift */; };
 		1ECC94CD2BDC5E49002BFE54 /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ECC94C02BDC5E49002BFE54 /* ImagePicker.swift */; };
 		1ECC94CE2BDC5E49002BFE54 /* CustomToggleStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ECC94C12BDC5E49002BFE54 /* CustomToggleStyle.swift */; };
 		1ECC94CF2BDC5E49002BFE54 /* ButtonsStyles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ECC94C22BDC5E49002BFE54 /* ButtonsStyles.swift */; };
@@ -230,6 +229,10 @@
 		1EFB9B352C1C4CFE00C15CE4 /* VIPGiftView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EFB9B342C1C4CFE00C15CE4 /* VIPGiftView.swift */; };
 		1EFB9B372C1C624B00C15CE4 /* EventListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EFB9B362C1C624B00C15CE4 /* EventListView.swift */; };
 		521DAC352DCDD9FF003BB59B /* JazClientApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EEC2BCF2BD83E6000975953 /* JazClientApp.swift */; };
+		522662292E38BD010097A350 /* al_jazeera_arabic_bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 522662282E38BD010097A350 /* al_jazeera_arabic_bold.ttf */; };
+		5226622B2E38BD400097A350 /* al_jazeera_arabic_regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5226622A2E38BD400097A350 /* al_jazeera_arabic_regular.ttf */; };
+		5226622D2E38F64C0097A350 /* CompanyRegisterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5226622C2E38F64B0097A350 /* CompanyRegisterView.swift */; };
+		5226622F2E38F6CE0097A350 /* Company.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5226622E2E38F6CD0097A350 /* Company.swift */; };
 		5235B18B2DCC93BC009F75FA /* ClientProjectsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5235B18A2DCC93BB009F75FA /* ClientProjectsView.swift */; };
 		5235B18F2DCC98BB009F75FA /* SpeedRequestSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5235B18E2DCC98BA009F75FA /* SpeedRequestSheet.swift */; };
 		5235B1912DCC98D7009F75FA /* EditRequestSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5235B1902DCC98D6009F75FA /* EditRequestSheet.swift */; };
@@ -391,7 +394,6 @@
 		1ECC94BC2BDC5E48002BFE54 /* CustomMapAnnotation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomMapAnnotation.swift; sourceTree = "<group>"; };
 		1ECC94BD2BDC5E48002BFE54 /* DismissingKeyboard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DismissingKeyboard.swift; sourceTree = "<group>"; };
 		1ECC94BE2BDC5E48002BFE54 /* RootPresentationModeKey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RootPresentationModeKey.swift; sourceTree = "<group>"; };
-		1ECC94BF2BDC5E48002BFE54 /* CustomFont.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomFont.swift; sourceTree = "<group>"; };
 		1ECC94C02BDC5E49002BFE54 /* ImagePicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
 		1ECC94C12BDC5E49002BFE54 /* CustomToggleStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomToggleStyle.swift; sourceTree = "<group>"; };
 		1ECC94C22BDC5E49002BFE54 /* ButtonsStyles.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ButtonsStyles.swift; sourceTree = "<group>"; };
@@ -483,6 +485,10 @@
 		1EFB9B312C1C40B900C15CE4 /* AddUserProduct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddUserProduct.swift; sourceTree = "<group>"; };
 		1EFB9B342C1C4CFE00C15CE4 /* VIPGiftView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VIPGiftView.swift; sourceTree = "<group>"; };
 		1EFB9B362C1C624B00C15CE4 /* EventListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventListView.swift; sourceTree = "<group>"; };
+		522662282E38BD010097A350 /* al_jazeera_arabic_bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = al_jazeera_arabic_bold.ttf; sourceTree = "<group>"; };
+		5226622A2E38BD400097A350 /* al_jazeera_arabic_regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = al_jazeera_arabic_regular.ttf; sourceTree = "<group>"; };
+		5226622C2E38F64B0097A350 /* CompanyRegisterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompanyRegisterView.swift; sourceTree = "<group>"; };
+		5226622E2E38F6CD0097A350 /* Company.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Company.swift; sourceTree = "<group>"; };
 		5235B18A2DCC93BB009F75FA /* ClientProjectsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientProjectsView.swift; sourceTree = "<group>"; };
 		5235B18E2DCC98BA009F75FA /* SpeedRequestSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeedRequestSheet.swift; sourceTree = "<group>"; };
 		5235B1902DCC98D6009F75FA /* EditRequestSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditRequestSheet.swift; sourceTree = "<group>"; };
@@ -745,6 +751,7 @@
 		1ECC944D2BDC56EE002BFE54 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				5226622E2E38F6CD0097A350 /* Company.swift */,
 				526CBCDE2E13C32E00B1324C /* OrderRealTime.swift */,
 				528541512E002A1E00ED92D1 /* OrderData.swift */,
 				5267FAB82DCD3D980063AF67 /* Chat */,
@@ -825,7 +832,6 @@
 				1ECC94C72BDC5E49002BFE54 /* APIErrorHandling.swift */,
 				1ECC94C52BDC5E49002BFE54 /* AsyncImageView.swift */,
 				1ECC94C22BDC5E49002BFE54 /* ButtonsStyles.swift */,
-				1ECC94BF2BDC5E48002BFE54 /* CustomFont.swift */,
 				1ECC94BC2BDC5E48002BFE54 /* CustomMapAnnotation.swift */,
 				1ECC94C12BDC5E49002BFE54 /* CustomToggleStyle.swift */,
 				1ECC94C42BDC5E49002BFE54 /* DefaultEmptyView.swift */,
@@ -855,6 +861,8 @@
 			children = (
 				1ECC94DF2BDC6362002BFE54 /* IBMPlexSansArabic-Bold.ttf */,
 				1ECC94DB2BDC6361002BFE54 /* IBMPlexSansArabic-Light.ttf */,
+				5226622A2E38BD400097A350 /* al_jazeera_arabic_regular.ttf */,
+				522662282E38BD010097A350 /* al_jazeera_arabic_bold.ttf */,
 				1ECC94DD2BDC6361002BFE54 /* IBMPlexSansArabic-Medium.ttf */,
 				1ECC94DE2BDC6362002BFE54 /* IBMPlexSansArabic-Regular.ttf */,
 				1ECC94DC2BDC6361002BFE54 /* IBMPlexSansArabic-SemiBold.ttf */,
@@ -897,6 +905,7 @@
 		1ECC95052BDD156F002BFE54 /* Auth */ = {
 			isa = PBXGroup;
 			children = (
+				5226622C2E38F64B0097A350 /* CompanyRegisterView.swift */,
 				5291E9DF2DED968C0019BB66 /* AccountCreatedView.swift */,
 				52D9E6C02DCB500B00ED2874 /* RegistrationSteper */,
 				1ECC95062BDD1587002BFE54 /* AuthenticationView.swift */,
@@ -1275,10 +1284,12 @@
 				1ECC94E42BDC6362002BFE54 /* IBMPlexSansArabic-Bold.ttf in Resources */,
 				1ECC94E22BDC6362002BFE54 /* IBMPlexSansArabic-Medium.ttf in Resources */,
 				1ECC950F2BDD166A002BFE54 /* CountryNumbers.json in Resources */,
+				522662292E38BD010097A350 /* al_jazeera_arabic_bold.ttf in Resources */,
 				1ECC95222BDD1C21002BFE54 /* Localizable.strings in Resources */,
 				1EEC2BD42BD83E6300975953 /* Assets.xcassets in Resources */,
 				1ECC94E12BDC6362002BFE54 /* IBMPlexSansArabic-SemiBold.ttf in Resources */,
 				52B2A64D2E1291DB00981534 /* GoogleService-Info.plist in Resources */,
+				5226622B2E38BD400097A350 /* al_jazeera_arabic_regular.ttf in Resources */,
 				1ECC94E32BDC6362002BFE54 /* IBMPlexSansArabic-Regular.ttf in Resources */,
 				1ECC94E02BDC6362002BFE54 /* IBMPlexSansArabic-Light.ttf in Resources */,
 			);
@@ -1425,7 +1436,9 @@
 				1ECC94C82BDC5E49002BFE54 /* RoundedCorner.swift in Sources */,
 				5267FAC12DCD40D10063AF67 /* ChatDetailView.swift in Sources */,
 				1EFB9B322C1C40B900C15CE4 /* AddUserProduct.swift in Sources */,
+				5226622F2E38F6CE0097A350 /* Company.swift in Sources */,
 				1E1EDA782C1CBCA6003047CA /* GroupListView.swift in Sources */,
+				5226622D2E38F64C0097A350 /* CompanyRegisterView.swift in Sources */,
 				5235B18B2DCC93BC009F75FA /* ClientProjectsView.swift in Sources */,
 				1E2804362C04E3E50021DFB0 /* FavoriteItem.swift in Sources */,
 				1ECC94FE2BDD1379002BFE54 /* AuthViewModel.swift in Sources */,
@@ -1505,7 +1518,6 @@
 				1EDEF67B2BE18D6D00863C10 /* UpcomingRemindersView.swift in Sources */,
 				1E2804322C04D4560021DFB0 /* NotificationItem.swift in Sources */,
 				1E2804172C04C6700021DFB0 /* AddAddressView.swift in Sources */,
-				1ECC94CC2BDC5E49002BFE54 /* CustomFont.swift in Sources */,
 				1EDEF6682BE1607E00863C10 /* SuccessView.swift in Sources */,
 				1ECC94742BDC5B68002BFE54 /* Double+Extensions.swift in Sources */,
 				5267FABF2DCD40420063AF67 /* ChatListView.swift in Sources */,

@@ -3,7 +3,7 @@ import SwiftUI
 struct ServicesView: View {
     @EnvironmentObject var appRouter: AppRouter
     @StateObject var viewModel = InitialViewModel(errorHandling: ErrorHandling())
-    let selectedCategoryId: String? // nil if from tab bar
+    let selectedCategoryId: String?
 
     @State private var selectedTabIndex: Int = 0
     @State private var showBackButton: Bool = false
@@ -17,7 +17,6 @@ struct ServicesView: View {
         viewModel.homeItems?.category ?? []
     }
 
-    // تصفية الخدمات بناءً على البحث (كل العناصر من كل التصنيفات)
     var filteredSubItems: [(Category, SubCategory)] {
         guard isSearching else { return [] }
         return categories.flatMap { category in
@@ -36,14 +35,13 @@ struct ServicesView: View {
             Color.background().ignoresSafeArea()
             VStack(spacing: 0) {
 
-                // Tabs
                 if !isSearching, !categories.isEmpty {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
                             ForEach(Array(categories.enumerated()), id: \.element.id) { idx, category in
                                 Button(action: { selectedTabIndex = idx }) {
                                     Text(category.localizedName)
-                                        .font(.system(size: 16, weight: .semibold))
+                                        .customFont(weight: .medium, size: 16)
                                         .padding(.vertical, 8)
                                         .padding(.horizontal, 16)
                                         .background(tabBackground(isSelected: selectedTabIndex == idx))
@@ -57,7 +55,6 @@ struct ServicesView: View {
                     .transition(.move(edge: .top))
                 }
 
-                // Search Bar
                 HStack {
                     TextField("ابحث عن خدمة", text: $searchText)
                         .padding(12)
@@ -80,13 +77,12 @@ struct ServicesView: View {
                 .padding(.horizontal)
                 .padding(.bottom, 10)
 
-                // Services List or Loader
                 if viewModel.isLoading {
                     VStack {
                         Spacer()
                         ProgressView("جاري تحميل الخدمات...")
                             .progressViewStyle(CircularProgressViewStyle(tint: .accentColor))
-                            .font(.system(size: 17, weight: .medium))
+                            .customFont(weight: .medium, size: 17)
                             .padding()
                             .background(Color.white.opacity(0.96))
                             .cornerRadius(16)
@@ -96,7 +92,6 @@ struct ServicesView: View {
                 } else {
                     ScrollView {
                         LazyVStack(spacing: 18) {
-                            // --- Search Mode ---
                             if isSearching {
                                 if filteredSubItems.isEmpty {
                                     EmptyResultsView(message: "لا توجد خدمات مطابقة لبحثك.")
@@ -111,7 +106,6 @@ struct ServicesView: View {
                                     }
                                 }
                             } else {
-                                // --- Tabs Mode ---
                                 if let subItems = currentCategory?.sub, !subItems.isEmpty {
                                     ForEach(subItems, id: \.id) { item in
                                         ServiceCardView(
@@ -131,7 +125,6 @@ struct ServicesView: View {
                     }
                 }
             }
-            // Toolbar / Navigation
             .navigationBarBackButtonHidden()
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -144,7 +137,7 @@ struct ServicesView: View {
                             }
                         }
                         Text("الخدمات")
-                            .font(.system(size: 20, weight: .bold))
+                            .customFont(weight: .bold, size: 20)
                             .padding(.leading, showBackButton ? 8 : 0)
                         Spacer()
                     }
@@ -154,7 +147,6 @@ struct ServicesView: View {
             .onAppear {
                 updateSelectedTab()
                 showBackButton = selectedCategoryId != nil
-                // لا تجلب البيانات إذا كانت موجودة
                 if viewModel.homeItems == nil || viewModel.homeItems?.category?.isEmpty == true {
                     fetchDataWithSearch()
                 }
@@ -177,8 +169,7 @@ struct ServicesView: View {
             viewModel.fetchHomeItems(q: nil, lat: coordinate.latitude, lng: coordinate.longitude)
         }
     }
-    
-    // دالة الـ tab background مفصولة
+
     @ViewBuilder
     private func tabBackground(isSelected: Bool) -> some View {
         if isSelected {
@@ -192,25 +183,14 @@ struct ServicesView: View {
     }
 }
 
-// MARK: - Service Card View
 struct ServiceCardView: View {
     let item: SubCategory
-    let categoryName: String
+    let categoryName: String // يمكن تجاهلها الآن
     let onOrderTap: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(item.title)
-                        .font(.system(size: 16, weight: .bold))
-                    if !categoryName.isEmpty {
-                        Text(categoryName)
-                            .font(.system(size: 14))
-                            .foregroundColor(.accentColor)
-                    }
-                }
-                Spacer()
                 AsyncImage(url: URL(string: item.image ?? "")) { image in
                     image.resizable()
                 } placeholder: {
@@ -218,15 +198,27 @@ struct ServiceCardView: View {
                 }
                 .frame(width: 52, height: 52)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(item.title)
+                        .customFont(weight: .bold, size: 16)
+                    if let price = item.price {
+                        Text("\(Int(price)) ر.س")
+                            .customFont(weight: .medium, size: 13)
+                            .foregroundColor(.primary)
+                            .padding(.vertical, 4)
+                            .padding(.horizontal, 10)
+                    }
+                }
+                Spacer()
             }
             Text(item.description)
-                .font(.system(size: 13))
+                .customFont(weight: .regular, size: 13)
                 .foregroundColor(.black)
                 .lineLimit(3)
                 .padding(.bottom, 3)
             Button(action: onOrderTap) {
                 Text("اطلب الآن")
-                    .font(.system(size: 15, weight: .bold))
+                    .customFont(weight: .bold, size: 15)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 11)
                     .background(Color.primary())
@@ -245,7 +237,6 @@ struct ServiceCardView: View {
     }
 }
 
-// MARK: - Empty State
 struct EmptyResultsView: View {
     let message: String
     var body: some View {
@@ -254,7 +245,7 @@ struct EmptyResultsView: View {
                 .font(.system(size: 34))
                 .foregroundColor(.gray.opacity(0.23))
             Text(message)
-                .font(.system(size: 14, weight: .medium))
+                .customFont(weight: .medium, size: 14)
                 .foregroundColor(.gray)
         }
         .frame(maxWidth: .infinity)
@@ -262,14 +253,12 @@ struct EmptyResultsView: View {
     }
 }
 
-// MARK: - Safe Array Access
 extension Array {
     subscript(safe index: Index) -> Element? {
         indices.contains(index) ? self[index] : nil
     }
 }
 
-// MARK: - Preview
 #Preview {
     ServicesView(selectedCategoryId: nil)
         .environmentObject(AppRouter())

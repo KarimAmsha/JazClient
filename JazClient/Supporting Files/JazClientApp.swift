@@ -51,6 +51,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         configureNotifications(application)
         Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(true)
+        
+        for family in UIFont.familyNames.sorted() {
+            print("📁 Font Family: \(family)")
+            for fontName in UIFont.fontNames(forFamilyName: family) {
+                print("    🔤 \(fontName)")
+            }
+        }
+
         return true
     }
 

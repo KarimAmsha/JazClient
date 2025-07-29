@@ -6,101 +6,75 @@ struct OrderItemView: View {
 
     var body: some View {
         Button(action: { onSelect() }) {
-            HStack(alignment: .top, spacing: 16) {
-                // صورة المزود أو الخدمة (اختياري حسب الداتا المتوفرة)
-                AsyncImage(
-                    url: item.provider?.image?.toURL() ?? item.sub_category_id?.image?.toURL(),
-                    content: { image in
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                    },
-                    placeholder: {
-                        Image(systemName: "photo")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .foregroundColor(.gray.opacity(0.2))
-                    }
-                )
-                .frame(width: 54, height: 54)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-
-                // تفاصيل الطلب
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack {
-                        Text(item.order_no ?? "-")
-                            .font(.system(size: 16, weight: .bold))
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(alignment: .top) {
+                    VStack(alignment: .leading) {
+                        Text(item.category_id?.title ?? "—")
+                            .customFont(weight: .bold, size: 16)
                             .foregroundColor(.primary)
-
-                        Spacer()
-
-                        // حالة الطلب بشكل كبسولة
-                        if let statusText = item.orderStatus?.value {
-                            Text(statusText)
-                                .font(.system(size: 13, weight: .semibold))
-                                .foregroundColor(.orange)
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 4)
-                                .background(Color.orange.opacity(0.13))
-                                .clipShape(Capsule())
-                        }
+                        Text(item.sub_category_id?.title ?? "—")
+                            .customFont(weight: .regular, size: 16)
+                            .foregroundColor(.primary)
                     }
-
-                    // اسم الخدمة أو التصنيف
-                    Text(item.sub_category_id?.title ?? item.category_id?.title ?? "-")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.secondary)
-
-                    // العنوان مختصر
-                    if let address = item.address?.streetName, !address.isEmpty {
-                        HStack(spacing: 4) {
-                            Image(systemName: "mappin.and.ellipse")
-                                .font(.system(size: 13))
-                                .foregroundColor(.gray)
-                            Text(address)
-                                .font(.system(size: 13))
-                                .foregroundColor(.gray)
-                                .lineLimit(1)
-                        }
-                    }
-
-                    // التاريخ والوقت والسعر
-                    HStack(spacing: 16) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "calendar")
-                            Text(item.formattedCreateDate ?? "-")
-                        }
-                        .font(.system(size: 12))
-                        .foregroundColor(.gray)
-
-                        if let time = item.dt_time {
-                            HStack(spacing: 4) {
-                                Image(systemName: "clock")
-                                Text(time)
-                            }
-                            .font(.system(size: 12))
-                            .foregroundColor(.gray)
-                        }
-
-                        Spacer()
-
-                        // السعر
-                        if let price = item.price {
-                            Text("\(Int(price)) ريال")
-                                .font(.system(size: 15, weight: .bold))
-                                .foregroundColor(.green)
-                        }
+                    Spacer()
+                    if let statusText = item.orderStatus?.value {
+                        Text(statusText)
+                            .customFont(weight: .regular, size: 14)
+                            .foregroundColor(item.orderStatus?.colors.foreground)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 2)
+                            .background(item.orderStatus?.colors.background)
+                            .cornerRadius(6)
                     }
                 }
+
+                if let address = item.address?.address {
+                    HStack(spacing: 6) {
+                        Image(systemName: "mappin.and.ellipse")
+                        Text(address)
+                            .lineLimit(2)
+                    }
+                    .customFont(weight: .regular, size: 14)
+                    .foregroundColor(.gray)
+                }
+
+                HStack(spacing: 16) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "calendar")
+                        Text(item.formattedCreateDate ?? "—")
+                    }
+
+                    HStack(spacing: 4) {
+                        Image(systemName: "clock")
+                        Text(item.dt_time ?? "—")
+                    }
+                }
+                .customFont(weight: .regular, size: 14)
+                .foregroundColor(.gray)
+
+                if let providerName = item.provider?.name {
+                    HStack(spacing: 6) {
+                        Image(systemName: "wrench.adjustable")
+                        Text("مزود الخدمة: \(providerName)")
+                    }
+                    .customFont(weight: .bold, size: 13)
+                    .foregroundColor(.gray)
+                }
+
+                HStack {
+                    Spacer()
+                    Text("\(String(format: "%.2f", item.price ?? 0)) SAR")
+                        .customFont(weight: .bold, size: 16)
+                        .foregroundColor(.black)
+                }
+
+                Divider()
             }
-            .padding(12)
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color(.systemGray6))
-                    .shadow(color: .black.opacity(0.06), radius: 3, y: 1)
-            )
-            .padding(.horizontal, 2)
+            .padding()
+            .background(Color.white)
+            .cornerRadius(12)
+            .shadow(color: Color.black.opacity(0.04), radius: 2, x: 0, y: 1)
         }
-        .buttonStyle(PlainButtonStyle())
+        .buttonStyle(.plain)
     }
 }

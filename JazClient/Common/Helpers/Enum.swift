@@ -8,12 +8,17 @@
 import Foundation
 import SwiftUI
 
-enum FontWeight: String {
-    case regular  = "IBMPlexSansArabic-Regular"
-    case medium   = "IBMPlexSansArabic-Medium"
-    case light    = "IBMPlexSansArabic-Light"
-    case bold     = "IBMPlexSansArabic-Bold"
-    case semiBold = "IBMPlexSansArabic-SemiBold"
+enum FontWeight {
+    case regular, medium, light, bold, semiBold
+
+    var fontName: String {
+        switch self {
+        case .regular, .light:
+            return "Al-Jazeera-Arabic-Regular"
+        case .medium, .bold, .semiBold:
+            return "Al-Jazeera-Arabic-Bold"
+        }
+    }
 }
 
 enum Language: String {

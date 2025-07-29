@@ -103,3 +103,9 @@ extension View {
             )
     }
 }
+
+extension View {
+    func customFont(weight: FontWeight, size: CGFloat) -> some View {
+        self.font(.custom(weight.fontName, size: size))
+    }
+}

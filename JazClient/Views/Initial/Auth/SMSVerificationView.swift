@@ -36,13 +36,13 @@ struct SMSVerificationView: View {
                 HStack(spacing: 8) {
                     Text("👋")
                     Text("ادخل رمز التحقق!")
-                        .font(.title3.bold())
+                        .customFont(weight: .medium, size: 16)
                         .foregroundColor(.primaryBlack())
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
                 Text("قم بادخال رمز التفعيل المرسل الى رقم هاتفك")
-                    .font(.footnote)
+                    .customFont(weight: .regular, size: 14)
                     .multilineTextAlignment(.leading)
                     .foregroundColor(.gray)
 

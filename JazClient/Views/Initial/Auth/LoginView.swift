@@ -29,6 +29,7 @@ struct LoginView: View {
     @State var presentSheet = false
     @State private var privacyPolicyTapped = false
     @EnvironmentObject var appRouter: AppRouter
+    @State private var showCompanyRegisterSheet = false
 
     var body: some View {
         GeometryReader { geometry in
@@ -37,24 +38,17 @@ struct LoginView: View {
                     VStack(alignment: .leading, spacing: 12) {
                         HStack {
                             Text("مرحبا بك ! 👋")
-                                .font(.title2.bold())
+                                .customFont(weight: .medium, size: 16)
                                 .foregroundColor(.black)
                             Spacer()
-                            Button {
-                            } label: {
-                                Text("ادخل كزائر")
-                                    .padding()
-                            }
-                            .foregroundColor(.black)
-                            .background(Color.primary().cornerRadius(8))
                         }
 
                         Text("سعيدين برؤيتك من جديد! قم بإدخال البيانات التالية بشكل صحيح للوصول إلى حسابك ...")
-                            .font(.subheadline)
+                            .customFont(weight: .regular, size: 14)
                             .foregroundColor(.gray)
                             .multilineTextAlignment(.leading)
                     }
-                    .padding(.top, 40)
+                    .padding(.top, 20)
 
                     MobileView(mobile: $mobile, presentSheet: $presentSheet)
 
@@ -78,33 +72,13 @@ struct LoginView: View {
                         .disabled(viewModel.isLoading)
 
                         Button {
-                            //
+                            showCompanyRegisterSheet = true
                         } label: {
                             Text("تسجيل الشركة")
                         }
                         .buttonStyle(GradientPrimaryButton(fontSize: 16, fontWeight: .bold, background: Color.GetGradientWhiteColor(), foreground: .primary(), height: 48, radius: 12))
                         .border(.primary(), width: 1, cornerRadius: 12)
                         .disabled(viewModel.isLoading)
-
-//                        HStack {
-//                            Button("سجل الآن") {
-//                                loginType = .register
-//                            }
-//                            .font(.footnote)
-//                            .foregroundColor(.gray)
-//                            .padding(.horizontal)
-//                            .padding(.vertical, 10)
-//                            .background(Color.gray.opacity(0.1))
-//                            .cornerRadius(10)
-//
-//                            Spacer()
-//
-//                            Button("ليس لديك حساب؟") {
-//                                loginType = .register
-//                            }
-//                            .font(.footnote)
-//                            .foregroundColor(.gray)
-//                        }
                     }
 
                     Spacer()
@@ -141,6 +115,12 @@ struct LoginView: View {
             }
             .environment(\.layoutDirection, .rightToLeft)
         }
+        .sheet(isPresented: $showCompanyRegisterSheet) {
+            CompanyRegisterView()
+                .presentationDetents([.large, .medium])
+                .presentationCornerRadius(22)
+        }
+        .environment(\.layoutDirection, .rightToLeft)
         .overlay(
             MessageAlertObserverView(
                 message: $viewModel.errorMessage,

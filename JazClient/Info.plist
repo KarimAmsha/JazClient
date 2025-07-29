@@ -9,6 +9,8 @@
 	</dict>
 	<key>UIAppFonts</key>
 	<array>
+		<string>al_jazeera_arabic_bold.ttf</string>
+		<string>al_jazeera_arabic_regular.ttf</string>
 		<string>IBMPlexSansArabic-Bold.ttf</string>
 		<string>IBMPlexSansArabic-Light.ttf</string>
 		<string>IBMPlexSansArabic-Medium.ttf</string>

@@ -25,6 +25,47 @@ class AuthViewModel: ObservableObject {
         self.errorHandling = errorHandling
     }
 
+    func registerCompany(
+        params: [String: Any],
+        onsuccess: @escaping (Company) -> Void,
+        onerror: ((String) -> Void)? = nil
+    ) {
+        isLoading = true
+        errorMessage = nil
+
+        // endpoint مبني على DataProvider حسب مشروعك
+        let endpoint = DataProvider.Endpoint.registerCompany(params: params)
+
+        DataProvider.shared.request(endpoint: endpoint, responseType: SingleAPIResponse<Company>.self)
+            .sink(receiveCompletion: { [weak self] completion in
+                // إنهاء التحميل في كل الأحوال
+                self?.isLoading = false
+                switch completion {
+                case .finished:
+                    break
+                case .failure(let error):
+                    // التعامل مع خطأ API بشكل مركزي
+                    let errorMsg = self?.errorHandling.handleAPIError(error) ?? "حدث خطأ غير متوقع"
+                    self?.errorMessage = errorMsg
+                    self?.showErrorPopup = true
+                    onerror?(errorMsg)
+                }
+            }, receiveValue: { [weak self] response in
+                if response.status, let company = response.items {
+                    // نجاح التسجيل، أعد العنصر الرئيسي
+                    self?.errorMessage = nil
+                    onsuccess(company)
+                } else {
+                    // فشل التسجيل، أظهر الرسالة
+                    let apiMsg = response.message.isEmpty ? "فشل في تسجيل الشركة" : response.message
+                    self?.errorMessage = apiMsg
+                    self?.showErrorPopup = true
+                    onerror?(apiMsg)
+                }
+            })
+            .store(in: &cancellables)
+    }
+
     func registerUser(params: [String: Any], onsuccess: @escaping (String, String) -> Void) {
         isLoading = true
         errorMessage = nil

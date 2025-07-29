@@ -78,15 +78,15 @@ struct CheckoutView: View {
                         appRouter.navigateBack()
                     }) {
                         Image(systemName: "chevron.backward")
-                            .font(.system(size: 20, weight: .bold))
+                            .customFont(weight: .bold, size: 18)
                             .foregroundColor(.black)
                     }
                     VStack(alignment: .leading) {
                         Text("الدفع")
-                            .font(.title2.bold())
+                            .customFont(weight: .bold, size: 18)
                         Text("اختر طريقة الدفع المناسبة لك")
                             .foregroundColor(.gray)
-                            .font(.subheadline)
+                            .customFont(weight: .regular, size: 14)
                     }
                 }
             }
@@ -135,7 +135,7 @@ struct CheckoutView: View {
                     // شريط علوي احترافي
                     HStack {
                         Text("إدخال بيانات البطاقة")
-                            .font(.title3.bold())
+                            .customFont(weight: .bold, size: 16)
                             .foregroundColor(.primary)
                         Spacer()
                         Button(action: { showCardSheet = false }) {
@@ -248,7 +248,7 @@ struct CheckoutView: View {
                     .frame(height: 48)
                     .background(Color.gray.opacity(0.07))
                     .cornerRadius(10)
-                    .font(.system(size: 16, weight: .medium))
+                    .customFont(weight: .medium, size: 16)
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
                             .stroke(Color.gray.opacity(0.16), lineWidth: 1)
@@ -256,7 +256,7 @@ struct CheckoutView: View {
                 Button(action: checkCoupon) {
                     Text("فحص")
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .font(.system(size: 16, weight: .semibold))
+                        .customFont(weight: .semiBold, size: 16)
                 }
                 .frame(width: 80, height: 48)
                 .background(Color.primary())
@@ -268,47 +268,46 @@ struct CheckoutView: View {
             .clipped()
             if let message = couponMessage {
                 Text(message)
-                    .font(.footnote)
+                    .customFont(weight: .regular, size: 13)
                     .foregroundColor(discountValue > 0 ? .green : .red)
                     .padding(.top, 2)
             }
         }
     }
-    
+
     private var summarySection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("البيانات المالية")
-                .font(.headline)
+                .customFont(weight: .bold, size: 18)
             financialRow(title: "المبلغ قبل الضريبة", value: totalBeforeDiscount)
             financialRow(title: "قيمة الخصم", value: discountValue)
             financialRow(title: "مبلغ الضريبة", value: taxAmount)
             financialRow(title: "المبلغ الاجمالي", value: totalAmount, isBold: true)
         }
     }
-    
+
     func financialRow(title: String, value: Double, isBold: Bool = false) -> some View {
         HStack {
             Text(title)
                 .foregroundColor(.gray)
-                .font(.subheadline)
+                .customFont(weight: .regular, size: 14)
             Spacer()
             Text("\(value, specifier: "%.2f") SAR")
-                .font(.subheadline)
-                .fontWeight(isBold ? .bold : .regular)
+                .customFont(weight: isBold ? .bold : .regular, size: 14)
                 .foregroundColor(isBold ? .black : .primary)
         }
         .padding(.vertical, 4)
     }
-    
+
     private var payBar: some View {
         VStack(spacing: 12) {
             HStack {
                 Text("المجموع")
-                    .font(.subheadline)
+                    .customFont(weight: .regular, size: 14)
                     .foregroundColor(.gray)
                 Spacer()
                 Text("\(totalAmount, specifier: "%.2f") SAR")
-                    .fontWeight(.bold)
+                    .customFont(weight: .bold, size: 16)
             }
             Button(action: payNow) {
                 Text("ادفع الآن")
@@ -317,6 +316,7 @@ struct CheckoutView: View {
                     .background(selectedPaymentType == nil ? Color.gray : Color.primary())
                     .foregroundColor(.white)
                     .cornerRadius(12)
+                    .customFont(weight: .bold, size: 16)
             }
             .disabled(selectedPaymentType == nil || orderViewModel.isLoading)
         }
@@ -325,7 +325,8 @@ struct CheckoutView: View {
 
     var paymentSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("طريقة الدفع").font(.headline)
+            Text("طريقة الدفع")
+                .customFont(weight: .bold, size: 18)
             LazyVStack(spacing: 14) {
                 ForEach([PaymentType.cash, PaymentType.moyasarCard, PaymentType.moyasarApplePay], id: \.self) { method in
                     paymentCard(method: method)
@@ -352,10 +353,10 @@ struct CheckoutView: View {
                     .padding(.trailing, 2)
                 VStack(alignment: .leading, spacing: 5) {
                     Text(method.displayName)
-                        .font(.system(size: 17, weight: .bold))
+                        .customFont(weight: .bold, size: 17)
                         .foregroundColor(.primary)
                     Text(method.subtitle)
-                        .font(.system(size: 14, weight: .medium))
+                        .customFont(weight: .medium, size: 14)
                         .foregroundColor(.gray)
                 }
                 Spacer()

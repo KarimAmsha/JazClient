@@ -25,6 +25,8 @@ struct AddOrderView: View {
     @State private var validationMessage = ""
     @State private var pickedCategoryId: String? = nil
     @State private var pickedSubCategoryId: String? = nil
+    @State private var showDatePicker = false
+    @State private var showTimePicker = false
 
     var subCategories: [SubCategory] {
         pickedCategory?.sub ?? []
@@ -36,86 +38,118 @@ struct AddOrderView: View {
                 VStack(alignment: .leading, spacing: 18) {
                     // --- المعلومات الأساسية ---
                     Text("المعلومات الاساسية")
-                        .font(.system(size: 18, weight: .bold))
+                        .customFont(weight: .bold, size: 18)
                         .padding(.top, 16)
                         .padding(.leading)
 
-                    // --- Main Category Dropdown ---
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("نوع الخدمة الاساسي")
-                            .font(.system(size: 14, weight: .medium))
-                        Picker(selection: $pickedCategoryId) {
-                            Text("اضغط لاختيار نوع الخدمة").tag(String?.none)
-                            ForEach(viewModel.homeItems?.category ?? [], id: \.id) { category in
-                                Text(category.title ?? "").tag(String?.some(category.id))
+                    VStack(spacing: 20) {
+
+                        // --- Main Category Dropdown ---
+                        DropdownField(
+                            title: "نوع الخدمة الأساسي",
+                            selection: $pickedCategoryId,
+                            options: viewModel.homeItems?.category?.compactMap { $0.id } ?? [],
+                            displayFor: { id in
+                                viewModel.homeItems?.category?.first(where: { $0.id == id })?.title ?? ""
                             }
-                        } label: { EmptyView() }
-                        .pickerStyle(.menu)
-                        .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
+                        )
                         .onChange(of: pickedCategoryId) { newValue in
-                            if let id = newValue,
-                               let found = viewModel.homeItems?.category?.first(where: { $0.id == id }) {
+                            if let found = viewModel.homeItems?.category?.first(where: { $0.id == newValue }) {
                                 pickedCategory = found
-                                // عند تغيير الخدمة الأساسية، صفّر الفرعية
-                                pickedSubCategoryId = nil
+                                pickedSubCategoryId = ""
                                 pickedSubCategory = nil
                             }
                         }
-                        // رسالة إذا فاضي
-                        if (viewModel.homeItems?.category ?? []).isEmpty {
-                            Text("لا توجد خدمات رئيسية متاحة حاليًا")
-                                .foregroundColor(.red)
-                                .font(.footnote)
-                        }
-                    }
-                    .padding(.horizontal)
 
-                    // --- SubCategory Dropdown ---
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("الخدمات")
-                            .font(.system(size: 14, weight: .medium))
-                        Picker(selection: $pickedSubCategoryId) {
-                            Text("اضغط لاختيار نوع الخدمة").tag(String?.none)
-                            ForEach(subCategories, id: \.id) { sub in
-                                Text(sub.title ?? "").tag(String?.some(sub.id))
+                        // --- SubCategory Dropdown ---
+                        DropdownField(
+                            title: "الخدمات",
+                            selection: $pickedSubCategoryId,
+                            options: pickedCategory?.sub?.compactMap { $0.id } ?? [],
+                            displayFor: { id in
+                                pickedCategory?.sub?.first(where: { $0.id == id })?.title ?? ""
                             }
-                        } label: { EmptyView() }
-                        .pickerStyle(.menu)
-                        .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
+                        )
                         .onChange(of: pickedSubCategoryId) { newValue in
-                            if let id = newValue,
-                               let found = subCategories.first(where: { $0.id == id }) {
+                            if let found = pickedCategory?.sub?.first(where: { $0.id == newValue }) {
                                 pickedSubCategory = found
                             }
                         }
-                        // رسالة إذا فاضي
-                        if pickedCategory != nil && subCategories.isEmpty {
-                            Text("لا توجد خدمات فرعية متاحة لهذا التصنيف")
-                                .foregroundColor(.red)
-                                .font(.footnote)
-                        }
-                    }
-                    .padding(.horizontal)
 
-                    // --- Date & Time ---
-                    HStack {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("التاريخ")
-                                .font(.system(size: 14))
-                            DatePicker("", selection: $date, displayedComponents: .date)
-                                .labelsHidden()
-                                .environment(\.locale, Locale(identifier: "ar"))
-                                .frame(maxWidth: .infinity)
-                                .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
-                        }
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("الوقت")
-                                .font(.system(size: 14))
-                            DatePicker("", selection: $time, displayedComponents: .hourAndMinute)
-                                .labelsHidden()
-                                .environment(\.locale, Locale(identifier: "ar"))
-                                .frame(maxWidth: .infinity)
-                                .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
+                        // --- Date & Time Pickers ---
+                        HStack(spacing: 12) {
+                            // --- التاريخ كـ Dropdown ---
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text("التاريخ")
+                                    .customFont(weight: .regular, size: 14)
+
+                                Button {
+                                    showDatePicker.toggle()
+                                } label: {
+                                    HStack {
+                                        Text(date.formatted(.dateTime.year().month().day())
+                                                .replacingOccurrences(of: "-", with: " / "))
+                                            .foregroundColor(.primary)
+                                        Spacer()
+                                        Image(systemName: "chevron.down")
+                                            .font(.system(size: 14, weight: .medium))
+                                            .foregroundColor(.gray)
+                                    }
+                                    .padding(.horizontal)
+                                    .frame(height: 48)
+                                    .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
+                                }
+                                .sheet(isPresented: $showDatePicker) {
+                                    VStack {
+                                        DatePicker("اختر التاريخ", selection: $date, displayedComponents: .date)
+                                            .datePickerStyle(.wheel)
+                                            .labelsHidden()
+                                            .environment(\.locale, Locale(identifier: "ar"))
+                                            .padding()
+                                        Button("تم") {
+                                            showDatePicker = false
+                                        }
+                                        .padding()
+                                    }
+                                    .presentationDetents([.fraction(0.35)])
+                                }
+                            }
+
+                            // --- الوقت كـ Dropdown ---
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text("الوقت")
+                                    .customFont(weight: .regular, size: 14)
+
+                                Button {
+                                    showTimePicker.toggle()
+                                } label: {
+                                    HStack {
+                                        Text(time.formatted(date: .omitted, time: .shortened))
+                                            .foregroundColor(.primary)
+                                        Spacer()
+                                        Image(systemName: "chevron.down")
+                                            .font(.system(size: 14, weight: .medium))
+                                            .foregroundColor(.gray)
+                                    }
+                                    .padding(.horizontal)
+                                    .frame(height: 48)
+                                    .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
+                                }
+                                .sheet(isPresented: $showTimePicker) {
+                                    VStack {
+                                        DatePicker("اختر الوقت", selection: $time, displayedComponents: .hourAndMinute)
+                                            .datePickerStyle(.wheel)
+                                            .labelsHidden()
+                                            .environment(\.locale, Locale(identifier: "ar"))
+                                            .padding()
+                                        Button("تم") {
+                                            showTimePicker = false
+                                        }
+                                        .padding()
+                                    }
+                                    .presentationDetents([.fraction(0.35)])
+                                }
+                            }
                         }
                     }
                     .padding(.horizontal)
@@ -123,7 +157,7 @@ struct AddOrderView: View {
                     // --- العنوان ---
                     VStack(alignment: .leading, spacing: 8) {
                         Text("العنوان")
-                            .font(.system(size: 14, weight: .medium))
+                            .customFont(weight: .bold, size: 14)
                         // ✅ موقعي الحالي
                         Button(action: {
                             selectedAddress = nil
@@ -134,10 +168,10 @@ struct AddOrderView: View {
                                     .foregroundColor(.primary)
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text("موقعي الحالي")
-                                        .fontWeight(.medium)
+                                        .customFont(weight: .medium, size: 18)
                                         .foregroundColor(.primary())
                                     Text(locationManager.address.isEmpty ? "جارٍ تحديد الموقع..." : locationManager.address)
-                                        .font(.footnote)
+                                        .customFont(weight: .medium, size: 18)
                                         .foregroundColor(.gray)
                                         .lineLimit(1)
                                         .truncationMode(.tail)
@@ -149,7 +183,7 @@ struct AddOrderView: View {
                         let addressList = userViewModel.addressBook ?? []
                         if addressList.isEmpty {
                             Text("لا يوجد عناوين محفوظة")
-                                .foregroundColor(.gray)
+                                .customFont(weight: .medium, size: 18)
                                 .font(.footnote)
                         }
                         ForEach(addressList.prefix(3), id: \.id) { address in
@@ -166,7 +200,7 @@ struct AddOrderView: View {
                             Button("عرض كل العناوين") {
                                 isShowingAllAddresses = true
                             }
-                            .font(.footnote)
+                            .customFont(weight: .medium, size: 18)
                             .foregroundColor(.secondary)
                         }
                     }
@@ -187,7 +221,7 @@ struct AddOrderView: View {
 
                     // --- Extra Details ---
                     Text("تفاصيل إضافية")
-                        .font(.system(size: 18, weight: .bold))
+                        .customFont(weight: .bold, size: 18)
                         .padding(.leading)
                     TextEditor(text: $extraDetails)
                         .frame(height: 100)
@@ -200,7 +234,7 @@ struct AddOrderView: View {
             // --- زر تقديم الطلب ---
             Button(action: submitOrder) {
                 Text("تقديم طلب الخدمة!")
-                    .font(.system(size: 18, weight: .bold))
+                    .customFont(weight: .bold, size: 18)
                     .frame(maxWidth: .infinity)
                     .padding()
                     .foregroundColor(.white)
@@ -234,7 +268,7 @@ struct AddOrderView: View {
                         }
                     }
                     Text("اضافة طلب جديد")
-                        .font(.system(size: 20, weight: .bold))
+                        .customFont(weight: .medium, size: 20)
                         .padding(.leading, !cameFromMain ? 6 : 0)
                 }
             }
@@ -309,19 +343,6 @@ struct AddOrderView: View {
             categoryTitle: mainCat.title ?? "",
             subCategoryTitle: subCat.title ?? ""
         )
-
-//        let orderData = OrderData(
-//            services: [selectedService],
-//            address: nil,
-//            userLocation: Location(
-//                lat: Constants.defaultLat,
-//                lng: Constants.defaultLng
-//            ),
-//            notes: extraDetails.isEmpty ? nil : extraDetails,
-//            date: date.toDateString(),
-//            time: time.toTimeString()
-//        )
-
         let currentAddress = AddressItem(streetName: "", floorNo: "", buildingNo: "", flatNo: "", type: "", createAt: "", id: "", title: "", lat: locationManager.userLocation?.latitude ?? 0.0, lng: locationManager.userLocation?.longitude ?? 0.0, address: locationManager.address, userId: "", discount: 0)
             let orderData = OrderData(
                 services: [selectedService],
@@ -331,15 +352,6 @@ struct AddOrderView: View {
                 date: date.toDateString(),
                 time: time.toTimeString()
             )
-
-//        let orderData = OrderData(
-//            services: [selectedService],
-//            address: isCurrentLocationSelected ? nil : selectedAddress,
-//            userLocation: isCurrentLocationSelected ? Location(lat: finalLat, lng: finalLng) : nil,
-//            notes: extraDetails.isEmpty ? nil : extraDetails,
-//            date: date.toDateString(),
-//            time: time.toTimeString()
-//        )
 
         appRouter.navigate(to: .checkout(orderData: orderData))
     }
@@ -406,16 +418,15 @@ struct AddressItemView: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
-            // دائرة التحديد
             Image(systemName: isSelected ? "largecircle.fill.circle" : "circle")
                 .font(.system(size: 22))
                 .foregroundColor(isSelected ? .orange : .gray)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text((address.title?.isEmpty ?? false) ? "عنوان بدون اسم" : address.title ?? "")
-                    .font(.system(size: 16, weight: .medium))
+                    .customFont(weight: .medium, size: 16)
                 Text(address.address)
-                    .font(.footnote)
+                    .customFont(weight: .regular, size: 13)
                     .foregroundColor(.gray)
                     .lineLimit(1)
                     .truncationMode(.tail)
@@ -439,7 +450,6 @@ struct FullAddressListView: View {
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 0) {
-                // ✅ زر اختيار "موقعي الحالي"
                 Button(action: {
                     selectedAddress = nil
                     isCurrentLocationSelected = true
@@ -450,9 +460,9 @@ struct FullAddressListView: View {
                             .foregroundColor(.primary)
                         VStack(alignment: .leading, spacing: 4) {
                             Text("موقعي الحالي")
-                                .fontWeight(.medium)
+                                .customFont(weight: .medium, size: 15)
                             Text("استخدم الموقع الجغرافي الحالي")
-                                .font(.footnote)
+                                .customFont(weight: .regular, size: 13)
                                 .foregroundColor(.gray)
                         }
                     }
@@ -465,14 +475,13 @@ struct FullAddressListView: View {
 
                 Divider().padding(.vertical, 2)
 
-                // ✅ قائمة جميع العناوين
                 ScrollView {
                     VStack(spacing: 8) {
                         let addressList = userViewModel.addressBook ?? []
                         if addressList.isEmpty {
                             Text("لا يوجد عناوين محفوظة")
                                 .foregroundColor(.gray)
-                                .font(.footnote)
+                                .customFont(weight: .regular, size: 13)
                                 .padding()
                         }
                         ForEach(addressList, id: \.id) { address in
@@ -502,3 +511,48 @@ struct FullAddressListView: View {
         }
     }
 }
+
+import SwiftUI
+
+struct DropdownField<T: Hashable>: View {
+    let title: String
+    @Binding var selection: T
+    let options: [T]
+    let displayFor: (T) -> String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .customFont(weight: .medium, size: 14)
+
+            Menu {
+                ForEach(options, id: \.self) { option in
+                    Button(action: {
+                        selection = option
+                    }) {
+                        Text(displayFor(option))
+                            .customFont(weight: .regular, size: 12)
+                    }
+                }
+            } label: {
+                HStack {
+                    Text(displayFor(selection).isEmpty ? "اضغط للاختيار" : displayFor(selection))
+                        .foregroundColor(displayFor(selection).isEmpty ? .gray : .primary)
+                        .customFont(weight: .regular, size: 12)
+                        .lineLimit(1)
+                    Spacer()
+                    Image(systemName: "chevron.down")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.gray)
+                }
+                .padding(.horizontal)
+                .frame(height: 48)
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(Color(.systemGray6))
+                )
+            }
+        }
+    }
+}
+

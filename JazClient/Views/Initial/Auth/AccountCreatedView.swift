@@ -25,11 +25,11 @@ struct AccountCreatedView: View {
                 .padding(.bottom, 10)
 
             Text("لقد تم إنشاء الحساب بنجاح!")
-                .font(.title2.bold())
+                .customFont(weight: .medium, size: 14)
                 .multilineTextAlignment(.center)
 
             Text("لقد قمت بإنشاء حساب جديد والآن يمكنك البدء باستخدام التطبيق. ولكن ننصح بإكمال معلومات الملف الشخصي الخاص لتحسين تجربتك كمستخدم!")
-                .font(.body)
+                .customFont(weight: .medium, size: 14)
                 .multilineTextAlignment(.center)
                 .foregroundColor(.gray)
                 .padding(.horizontal)
@@ -42,7 +42,7 @@ struct AccountCreatedView: View {
                     loginStatus = .completeProfile(appState.token)
                 }) {
                     Text("اكمال الملف الشخصي")
-                        .foregroundColor(.white)
+                        .customFont(weight: .medium, size: 14)
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(Color.orange)
@@ -54,7 +54,7 @@ struct AccountCreatedView: View {
                     UserSettings.shared.loggedIn = true
                 }) {
                     Text("تصفح الخدمات!")
-                        .foregroundColor(.black)
+                        .customFont(weight: .medium, size: 14)
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(Color.white)
