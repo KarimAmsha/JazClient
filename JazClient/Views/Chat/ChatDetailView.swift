@@ -42,7 +42,7 @@ struct ChatDetailView: View {
                     if viewModel.isOtherUserTyping {
                         HStack {
                             Text("يكتب الآن...")
-                                .font(.caption)
+                                .customFont(weight: .regular, size: 14)
                                 .foregroundColor(.gray)
                             Spacer()
                         }
@@ -114,7 +114,7 @@ struct ChatDetailView: View {
                             Text(user.displayName)
                                 .customFont(weight: .bold, size: 16)
                             Text(viewModel.isOtherUserTyping ? "يكتب الآن..." : "متاح الآن")
-                                .font(.caption)
+                                .customFont(weight: .regular, size: 14)
                                 .foregroundColor(viewModel.isOtherUserTyping ? .orange : .green)
                         }
                     } else {

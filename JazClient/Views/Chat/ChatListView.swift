@@ -84,22 +84,22 @@ struct ChatListRow: View {
                 VStack(alignment: .leading, spacing: 4) {
                     HStack {
                         Text(otherUser?.displayName ?? "مستخدم")
-                            .font(.system(size: 14, weight: .semibold))
+                            .customFont(weight: .medium, size: 14)
 
                         Spacer()
 
                         Text(chat.lastMessageDateFormatted)
-                            .font(.caption)
+                            .customFont(weight: .regular, size: 14)
                             .foregroundColor(.gray)
                     }
 
                     Text(chat.lastMessage ?? "")
-                        .font(.system(size: 13))
+                        .customFont(weight: .regular, size: 14)
                         .foregroundColor(.gray)
                         .lineLimit(1)
 
                     Text("مشروع: \(chat.orderId ?? "بدون")")
-                        .font(.caption2)
+                        .customFont(weight: .medium, size: 14)
                         .foregroundColor(.gray)
                 }
             }

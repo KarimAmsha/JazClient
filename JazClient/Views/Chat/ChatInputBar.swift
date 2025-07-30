@@ -21,6 +21,7 @@ struct ChatInputBar: View {
 //            }
 
             TextField("اكتب رسالتك هنا", text: $text)
+                .customFont(weight: .medium, size: 14)
                 .padding(10)
                 .background(Color.gray.opacity(0.1))
                 .cornerRadius(20)
