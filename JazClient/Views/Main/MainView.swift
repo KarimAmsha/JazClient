@@ -7,7 +7,7 @@ struct MainView: View {
     @State var showAddOrder = false
     @State private var path = NavigationPath()
     @ObservedObject var appRouter = AppRouter()
-    @ObservedObject var viewModel = InitialViewModel(errorHandling: ErrorHandling())
+    @StateObject var viewModel = InitialViewModel(errorHandling: ErrorHandling())
     @StateObject var cartViewModel = CartViewModel(errorHandling: ErrorHandling())
     @State private var selectedTab: TabItem2 = .home
 

@@ -188,11 +188,13 @@ class InitialViewModel: ObservableObject {
         
         DataProvider.shared.request(endpoint: endpoint, responseType: SingleAPIResponse<HomeItems>.self)
             .sink(receiveCompletion: { completion in
+                print("Karim2 \(completion)")
                 switch completion {
                 case .finished:
                     break
                 case .failure(let error):
                     // Use the centralized error handling component
+                    self.isLoading = false 
                     self.handleAPIError(error)
                 }
             }, receiveValue: { [weak self] (response: SingleAPIResponse<HomeItems>) in

@@ -13,6 +13,10 @@ struct AddressDetailsView: View {
     let addressItem: AddressItem
     @StateObject var viewModel = UserViewModel(errorHandling: ErrorHandling())
 
+    // Toast نجاح
+    @State private var showSuccessToast = false
+    @State private var successText: String = ""
+
     var body: some View {
         VStack(spacing: 0) {
             VStack {
@@ -122,7 +126,7 @@ struct AddressDetailsView: View {
                 }
             }
             
-            // Add Edit Button
+            // Edit Button
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: {
                     appRouter.navigate(to: .editAddressBook(addressItem))
@@ -136,7 +140,7 @@ struct AddressDetailsView: View {
                 }
             }
 
-            // Add Delete Button
+            // Delete Button
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: {
                     showAlertMessage()
@@ -150,6 +154,15 @@ struct AddressDetailsView: View {
                 }
             }
         }
+        // Toast النجاح أعلى الشاشة
+        .overlay(alignment: .top) {
+            if showSuccessToast {
+                SuccessToast(message: successText)
+                    .padding(.top, 12)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+            }
+        }
+        .animation(.spring(response: 0.35, dampingFraction: 0.85), value: showSuccessToast)
     }
 }
 #Preview {
@@ -159,7 +172,21 @@ struct AddressDetailsView: View {
 extension AddressDetailsView {
     private func deleteAddress() {
         viewModel.deleteAddress(id: addressItem.id ?? "") { message in
-            showSuccessMessage(message: message)
+            // أبلغ شاشة قائمة العناوين لتعيد الجلب
+            NotificationCenter.default.post(name: .addressBookUpdated, object: nil)
+
+            // Haptic + Toast نجاح واضح
+            #if canImport(UIKit)
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            #endif
+            successText = message.isEmpty ? "تم حذف العنوان بنجاح" : message
+            showSuccessToast = true
+
+            // أغلق التوست ثم ارجع
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+                withAnimation { showSuccessToast = false }
+                appRouter.navigateBack()
+            }
         }
     }
     
@@ -189,29 +216,25 @@ extension AddressDetailsView {
 
         appRouter.togglePopup(.alert(alertModel))
     }
-    
-    private func showSuccessMessage(message: String) {
-        let alertModel = AlertModel(
-            icon: "",
-            title: "",
-            message: message,
-            hasItem: false,
-            item: "",
-            okTitle: LocalizedStringKey.ok,
-            cancelTitle: LocalizedStringKey.back,
-            hidesIcon: true,
-            hidesCancel: true,
-            onOKAction: {
-                appRouter.togglePopup(nil)
-                appRouter.navigateBack()
-            },
-            onCancelAction: {
-                withAnimation {
-                    appRouter.togglePopup(nil)
-                }
-            }
-        )
+}
 
-        appRouter.togglePopup(.alert(alertModel))
+// Toast نجاح بسيط
+private struct SuccessToast: View {
+    let message: String
+    var body: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "checkmark.circle.fill")
+                .foregroundColor(.white)
+                .font(.system(size: 18, weight: .bold))
+            Text(message)
+                .customFont(weight: .medium, size: 14)
+                .foregroundColor(.white)
+                .lineLimit(2)
+        }
+        .padding(.vertical, 10)
+        .padding(.horizontal, 14)
+        .background(Color.green.opacity(0.92))
+        .cornerRadius(12)
+        .shadow(color: .black.opacity(0.12), radius: 8, y: 3)
     }
 }

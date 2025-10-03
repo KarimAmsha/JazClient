@@ -128,10 +128,19 @@ struct ContactUsView: View {
                 Button {
                     addComplain()
                 } label: {
-                    Text(LocalizedStringKey.send)
+                    if viewModel.isLoading {
+                        HStack(spacing: 8) {
+                            ProgressView()
+                            Text(LocalizedStringKey.send)
+                        }
+                    } else {
+                        Text(LocalizedStringKey.send)
+                    }
                 }
                 .buttonStyle(PrimaryButton(fontSize: 16, fontWeight: .bold, background: .primary(), foreground: .white, height: 48, radius: 8))
                 .disabled(viewModel.isLoading)
+                .allowsHitTesting(!viewModel.isLoading)
+                .opacity(viewModel.isLoading ? 0.7 : 1.0)
             }
         }
         .padding(24)
@@ -239,27 +248,13 @@ extension ContactUsView {
     }
     
     private func showMessage(message: String) {
-        let alertModel = AlertModel(
-            icon: "",
-            title: "",
-            message: message,
-            hasItem: false,
-            item: "",
-            okTitle: LocalizedStringKey.ok,
-            cancelTitle: LocalizedStringKey.back,
-            hidesIcon: true,
-            hidesCancel: true,
-            onOKAction: {
-                appRouter.togglePopup(nil)
-                appRouter.navigateBack()
-            },
-            onCancelAction: {
-                withAnimation {
-                    appRouter.togglePopup(nil)
-                }
-            }
-        )
-
-        appRouter.togglePopup(.alert(alertModel))
+        // إظهار توست نجاح عام
+        appRouter.toggleAppPopup(.alertSuccess("", message))
+        
+        // تفريغ الحقول وإرجاع placeholder
+        name = ""
+        email = ""
+        phone = ""
+        description = placeholderString
     }
 }

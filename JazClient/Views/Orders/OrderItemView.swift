@@ -4,6 +4,17 @@ struct OrderItemView: View {
     let item: OrderModel
     let onSelect: () -> Void
 
+    // المبلغ النهائي شامل الضريبة (مع الأخذ بالتعديلات إن وجدت)
+    private var finalAmount: Double {
+        if let newTotal = item.new_total, newTotal > 0 { return newTotal }
+        if let net = item.netTotal, net > 0 { return net }
+        if let total = item.total, total > 0 { return total }
+        let base = item.price ?? 0
+        let discount = item.totalDiscount ?? 0
+        let tax = item.tax ?? 0
+        return max(0, base - discount + tax)
+    }
+
     var body: some View {
         Button(action: { onSelect() }) {
             VStack(alignment: .leading, spacing: 12) {
@@ -61,11 +72,15 @@ struct OrderItemView: View {
                     .foregroundColor(.gray)
                 }
 
-                HStack {
+                HStack(alignment: .firstTextBaseline) {
                     Spacer()
-                    Text("\(String(format: "%.2f", item.price ?? 0)) SAR")
+                    Text("\(String(format: "%.2f", finalAmount)) SAR")
                         .customFont(weight: .bold, size: 16)
                         .foregroundColor(.black)
+                    // يمكنك إظهار توضيح صغير إن رغبت
+                    // Text("شامل الضريبة")
+                    //     .customFont(weight: .regular, size: 11)
+                    //     .foregroundColor(.gray)
                 }
 
                 Divider()

@@ -226,6 +226,8 @@ struct ProfileView: View {
 
     private func logout() {
         authViewModel.logoutUser {
+            // تصفير مسار الملاحة قبل الرجوع للرئيسية
+            appRouter.navigateToRoot()
             appState.currentPage = .home
         }
         showLogoutAlert = false
@@ -233,6 +235,7 @@ struct ProfileView: View {
 
     private func deleteAccount() {
         authViewModel.deleteAccount {
+            appRouter.navigateToRoot()
             appState.currentPage = .home
         }
         showDeleteAlert = false

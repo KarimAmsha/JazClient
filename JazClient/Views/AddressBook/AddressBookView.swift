@@ -12,56 +12,41 @@ struct AddressBookView: View {
     @StateObject private var viewModel = UserViewModel(errorHandling: ErrorHandling())
 
     var body: some View {
-        VStack {
-            GeometryReader { geometry in
-                VStack(alignment: .center) {
-                    if viewModel.isLoading {
-                        LoadingView()
-                    }
-
-                    ScrollView(.vertical, showsIndicators: false) {
-                        VStack(spacing: 20) {
-                            if let addressBook = viewModel.addressBook, addressBook.isEmpty {
-                                DefaultEmptyView(title: LocalizedStringKey.noDataFound)
-                            } else {
-                                List {
-                                    ForEach(viewModel.addressBook ?? [], id: \.id) { item in
-                                        AddressRowView(item: item)
-                                            .onTapGesture {
-                                                appRouter.navigate(to: .addressBookDetails(item))
-                                            }
-                                            .swipeActions {
-                                                Button {
-                                                    showAlertDeleteMessage(item: item)
-                                                } label: {
-                                                    Label(LocalizedStringKey.delete, systemImage: "trash")
-                                                }
-                                                .tint(.red)
-                                            }
-                                            .listRowSeparator(.hidden)
-                                    }
-                                }
-                                .listStyle(.plain)
-                                .listRowInsets(EdgeInsets())
-                                .scrollIndicators(.hidden)
-                                .environment(\.layoutDirection, .leftToRight)
-                            }
-                            Spacer()
-                        }
-                        .frame(maxWidth: .infinity)
-                        .frame(minHeight: geometry.size.height)
-                        .background(Color.white.cornerRadius(8))
-                    }
-                    
-                    Spacer()
-                    
-                }
-                .padding(.horizontal, 24)
-                .edgesIgnoringSafeArea(.bottom)
+        VStack(spacing: 0) {
+            if viewModel.isLoading {
+                LoadingView()
             }
 
-            Spacer()
+            if let addressBook = viewModel.addressBook, addressBook.isEmpty {
+                DefaultEmptyView(title: LocalizedStringKey.noDataFound)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.white.cornerRadius(8))
+                    .padding(.horizontal, 24)
+            } else {
+                // اجعل List هو عنصر التمرير الوحيد
+                List {
+                    ForEach(viewModel.addressBook ?? [], id: \.id) { item in
+                        AddressRowView(item: item)
+                            .onTapGesture {
+                                appRouter.navigate(to: .addressBookDetails(item))
+                            }
+                            .swipeActions {
+                                Button(role: .destructive) {
+                                    showAlertDeleteMessage(item: item)
+                                } label: {
+                                    Label(LocalizedStringKey.delete, systemImage: "trash")
+                                }
+                            }
+                            .listRowSeparator(.hidden)
+                    }
+                }
+                .listStyle(.plain)
+                .environment(\.layoutDirection, .leftToRight)
+                .background(Color.white.cornerRadius(8))
+                .padding(.horizontal, 24)
+            }
 
+            // زر الإضافة العائم
             HStack {
                 Spacer()
                 Button(action: {
@@ -81,7 +66,7 @@ struct AddressBookView: View {
             }
         }
         .navigationBarBackButtonHidden()
-        .background(Color.background())
+        .background(Color.background().ignoresSafeArea())
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 HStack {
@@ -98,7 +83,7 @@ struct AddressBookView: View {
                             .padding(.horizontal, 8)
                             .background(Color.white.cornerRadius(8))
                     }
-                    
+
                     Text(LocalizedStringKey.addressBook)
                         .customFont(weight: .bold, size: 20)
                         .foregroundColor(Color.black141F1F())
@@ -106,6 +91,10 @@ struct AddressBookView: View {
             }
         }
         .onAppear {
+            getAddressList()
+        }
+        // استقبل إشعار التحديث بعد الإضافة/التعديل
+        .onReceive(NotificationCenter.default.publisher(for: .addressBookUpdated)) { _ in
             getAddressList()
         }
     }
@@ -119,7 +108,7 @@ extension AddressBookView {
     private func getAddressList() {
         viewModel.getAddressList()
     }
-    
+
     private func showAlertDeleteMessage(item: AddressItem) {
         let alertModel = AlertModel(
             icon: "",
@@ -133,9 +122,9 @@ extension AddressBookView {
             hidesCancel: false,
             onOKAction: {
                 appRouter.togglePopup(nil)
-                DispatchQueue.main.asyncAfter(deadline: .now()+0.3, execute: {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                     deleteAddress(item: item)
-                })
+                }
             },
             onCancelAction: {
                 withAnimation {
@@ -146,14 +135,20 @@ extension AddressBookView {
 
         appRouter.togglePopup(.alert(alertModel))
     }
-    
+
     private func deleteAddress(item: AddressItem) {
+        // حذف متفائل: حدّث القائمة محليًا فورًا
+        if let idx = viewModel.addressBook?.firstIndex(where: { $0.id == item.id }) {
+            viewModel.addressBook?.remove(at: idx)
+        }
+
         viewModel.deleteAddress(id: item.id ?? "") { message in
-            showSuccessMessage(message: message)
+            // أعد الجلب للتأكد من الاتساق
             getAddressList()
+            showSuccessMessage(message: message)
         }
     }
-    
+
     private func showSuccessMessage(message: String) {
         let alertModel = AlertModel(
             icon: "",
@@ -167,7 +162,7 @@ extension AddressBookView {
             hidesCancel: true,
             onOKAction: {
                 appRouter.togglePopup(nil)
-                appRouter.navigateBack()
+                // لا نعود للخلف؛ نبقى في الشاشة ليرى المستخدم أن العنصر اختفى
             },
             onCancelAction: {
                 withAnimation {
@@ -178,4 +173,9 @@ extension AddressBookView {
 
         appRouter.togglePopup(.alert(alertModel))
     }
+}
+
+// إشعار مشترك لتحديث القائمة بعد إضافة/تعديل/حذف
+extension Notification.Name {
+    static let addressBookUpdated = Notification.Name("addressBookUpdated")
 }

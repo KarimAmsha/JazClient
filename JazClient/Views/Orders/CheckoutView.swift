@@ -28,6 +28,10 @@ struct CheckoutView: View {
     @State private var loadingMessage: String? = nil
     @State private var showPaymentError = false
 
+    // Apple Pay handler/state
+    @State private var applePayHandler: ApplePayPaymentHandler?
+    @State private var isApplePayPresented = false
+
     // لمفتاح ميسرة
     let apiKey = MoyasarEnvironment.test.apiKey   // أو .production حسب البيئة
 
@@ -75,7 +79,7 @@ struct CheckoutView: View {
             ToolbarItem(placement: .navigationBarLeading) {
                 HStack {
                     Button(action: {
-                        appRouter.navigateBack()
+                        handleBack()
                     }) {
                         Image(systemName: "chevron.backward")
                             .customFont(weight: .bold, size: 18)
@@ -110,13 +114,16 @@ struct CheckoutView: View {
         )
         .popup(isPresented: $showPaymentError) {
             PaymentErrorPopup(
-                message: orderViewModel.errorMessage ?? "حدث خطأ أثناء الدفع. حاول مرة أخرى.",
+                message: (orderViewModel.errorMessage?.decodedFromURLEncoding())
+                    ?? "حدث خطأ أثناء الدفع. حاول مرة أخرى.",
                 onClose: { showPaymentError = false }
             )
             .padding(.horizontal, 20)
+            .padding(.bottom, 8) // مسافة إضافية داخلية
         } customize: {
             $0
-                .type(.toast)
+                // Floater مع مسافة رأسية ليبتعد عن الـ Home Indicator
+                .type(.floater(verticalPadding: 24))
                 .position(.bottom)
                 .animation(.spring())
                 .closeOnTapOutside(true)
@@ -176,6 +183,12 @@ struct CheckoutView: View {
             }
             .presentationDetents([.fraction(0.72), .large]) // إذا متاح في نسختك
         }
+        .onDisappear {
+            // في حال غادرت الشاشة و Apple Pay لا يزال معروضاً، اغلقه
+            if isApplePayPresented {
+                applePayHandler?.cancel()
+            }
+        }
     }
 
     // MARK: - Moyasar Integration
@@ -213,11 +226,11 @@ struct CheckoutView: View {
                 default:
                     break
                 }
-                orderViewModel.errorMessage = errorMsg
+                orderViewModel.errorMessage = errorMsg.decodedFromURLEncoding()
                 showPaymentError = true
             }
         case .failed(let error):
-            orderViewModel.errorMessage = "فشل الدفع: \(error.localizedDescription)"
+            orderViewModel.errorMessage = "فشل الدفع: \(error.localizedDescription)".decodedFromURLEncoding()
             showPaymentError = true
         case .canceled:
             orderViewModel.errorMessage = "تم إلغاء عملية الدفع"
@@ -229,13 +242,21 @@ struct CheckoutView: View {
 
     func startApplePay() {
         let handler = ApplePayPaymentHandler(paymentRequest: createPaymentRequest())
+        self.applePayHandler = handler
+
         handler.onSuccess = {
             // نجح الدفع عبر أبل باي
             addOrder(paymentType: .moyasarApplePay)
         }
         handler.onFailure = { errorMsg in
-            orderViewModel.errorMessage = errorMsg
+            orderViewModel.errorMessage = errorMsg.decodedFromURLEncoding()
             showPaymentError = true
+        }
+        handler.onPresent = {
+            isApplePayPresented = true
+        }
+        handler.onDismiss = {
+            isApplePayPresented = false
         }
         handler.present()
     }
@@ -455,6 +476,18 @@ struct CheckoutView: View {
             }
         )
     }
+
+    // MARK: - Back handling when Apple Pay is presented
+    private func handleBack() {
+        if isApplePayPresented {
+            // اغلق Apple Pay أولاً ثم ارجع
+            applePayHandler?.cancel { 
+                appRouter.navigateBack()
+            }
+        } else {
+            appRouter.navigateBack()
+        }
+    }
 }
 
 // زر أبل باي جاهز
@@ -478,6 +511,10 @@ class ApplePayPaymentHandler: NSObject, PKPaymentAuthorizationControllerDelegate
     var paymentRequest: PaymentRequest
     var onSuccess: (() -> Void)?
     var onFailure: ((String) -> Void)?
+    var onPresent: (() -> Void)?
+    var onDismiss: (() -> Void)?
+
+    private(set) var controller: PKPaymentAuthorizationController?
 
     init(paymentRequest: PaymentRequest) {
         self.paymentRequest = paymentRequest
@@ -502,7 +539,24 @@ class ApplePayPaymentHandler: NSObject, PKPaymentAuthorizationControllerDelegate
 
         let controller = PKPaymentAuthorizationController(paymentRequest: request)
         controller.delegate = self
-        controller.present(completion: nil)
+        self.controller = controller
+        controller.present { [weak self] presented in
+            if presented {
+                self?.onPresent?()
+            }
+        }
+    }
+
+    func cancel(completion: (() -> Void)? = nil) {
+        guard let controller = controller else {
+            completion?()
+            return
+        }
+        controller.dismiss { [weak self] in
+            self?.onDismiss?()
+            self?.controller = nil
+            completion?()
+        }
     }
 
     func paymentAuthorizationController(
@@ -553,6 +607,8 @@ class ApplePayPaymentHandler: NSObject, PKPaymentAuthorizationControllerDelegate
 
     func paymentAuthorizationControllerDidFinish(_ controller: PKPaymentAuthorizationController) {
         controller.dismiss(completion: nil)
+        onDismiss?()
+        self.controller = nil
     }
 }
 
@@ -680,5 +736,15 @@ struct PaymentErrorPopup: View {
             UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
             #endif
         }
+    }
+}
+
+// MARK: - Helpers
+
+extension String {
+    /// يحاول فك ترميز رسائل تأتي URL-encoded من مزود الدفع.
+    func decodedFromURLEncoding() -> String {
+        let spaced = self.replacingOccurrences(of: "+", with: " ")
+        return spaced.removingPercentEncoding ?? spaced
     }
 }

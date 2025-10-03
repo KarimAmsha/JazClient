@@ -152,6 +152,12 @@ struct HomeView: View {
                     }
                 }
             }
+            .overlay(
+                MessageAlertObserverView(
+                    message: $viewModel.errorMessage,
+                    alertType: .constant(.error)
+                )
+            )
             .onAppear {
                 LocationManager.shared.getCurrentLocation { coordinate in
                     guard let coordinate = coordinate else { return }

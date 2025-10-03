@@ -1731,13 +1731,13 @@
 				CODE_SIGN_ENTITLEMENTS = JazClient/JazClient.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"JazClient/Preview Content\"";
 				DEVELOPMENT_TEAM = 2Z499Z4ZM8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = JazClient/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = JazClient;
+				INFOPLIST_KEY_CFBundleDisplayName = Jaz;
 				INFOPLIST_KEY_NSCameraUsageDescription = "JazClient will use camera to upload user photo";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "JazClient will use location to send orders, track your order, and continuously provide real-time updates";
 				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "JazClient will use location to send orders, track your order, and continuously provide real-time updates";
@@ -1754,7 +1754,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.0.4;
+				MARKETING_VERSION = 3.0.3;
 				PRODUCT_BUNDLE_IDENTIFIER = sa.com.jaz.client;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1764,7 +1764,7 @@
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -1777,13 +1777,13 @@
 				CODE_SIGN_ENTITLEMENTS = JazClient/JazClient.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"JazClient/Preview Content\"";
 				DEVELOPMENT_TEAM = 2Z499Z4ZM8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = JazClient/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = JazClient;
+				INFOPLIST_KEY_CFBundleDisplayName = Jaz;
 				INFOPLIST_KEY_NSCameraUsageDescription = "JazClient will use camera to upload user photo";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "JazClient will use location to send orders, track your order, and continuously provide real-time updates";
 				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "JazClient will use location to send orders, track your order, and continuously provide real-time updates";
@@ -1800,7 +1800,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.0.4;
+				MARKETING_VERSION = 3.0.3;
 				PRODUCT_BUNDLE_IDENTIFIER = sa.com.jaz.client;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1810,7 +1810,7 @@
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};

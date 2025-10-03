@@ -5,57 +5,17 @@
 //  Copyright © 2019 Tap Payments. All rights reserved.
 //
 
-import var		Accelerate.vImage.kvImageEdgeExtend
-import var		Accelerate.vImage.kvImageNoFlags
-import struct	Accelerate.vImage.vImage_Buffer
-import func		Accelerate.vImage.vImageBoxConvolve_ARGB8888
-import func		Accelerate.vImage.vImageMatrixMultiply_ARGB8888
-import struct	Accelerate.vImage.vImagePixelCount
-import struct	Accelerate.vImage.vImage_Flags
-
-import class	CoreFoundation.CFData.CFData
-import func		CoreFoundation.CFData.CFDataGetBytePtr
-
+import Accelerate
+import CoreFoundation
 import CoreGraphics
-
-import class	CoreImage.CIContext.CIContext
-import class	CoreImage.CIFilter.CIFilter
-import class	CoreImage.CIImage.CIImage
-import var		CoreImage.kCIInputImageKey
-import var		CoreImage.kCIOutputImageKey
-
-import func		Darwin.C.math.lrint
-import struct	Darwin.C.stddef.size_t
-import func		Darwin.fabs
-import func		Darwin.floor
-import func		Darwin.round
-import func		Darwin.sqrt
-
+import CoreImage
+import Darwin
 import Foundation
-
-import class	ImageIO.CGImageSource
-import func		ImageIO.CGImageSource.CGImageSourceCopyPropertiesAtIndex
-import func		ImageIO.CGImageSource.CGImageSourceCreateImageAtIndex
-import func		ImageIO.CGImageSource.CGImageSourceCreateWithData
-import func		ImageIO.CGImageSource.CGImageSourceGetCount
-import var		ImageIO.CGImageSource.kCGImagePropertyGIFDelayTime
-import var		ImageIO.CGImageSource.kCGImagePropertyGIFDictionary
-
-import class	UIKit.UIBezierPath.UIBezierPath
-import class	UIKit.UIColor.UIColor
-import struct	UIKit.UIEdgeInsets
-import func		UIKit.UIGraphics.UIRectFill
-import func		UIKit.UIGraphicsBeginImageContext
-import func		UIKit.UIGraphicsBeginImageContextWithOptions
-import func		UIKit.UIGraphicsEndImageContext
-import func		UIKit.UIGraphicsGetCurrentContext
-import func		UIKit.UIGraphicsGetImageFromCurrentImageContext
-import class	UIKit.UIImage.UIImage
-import class	UIKit.UIScreen.UIScreen
-import class	UIKit.UIView.UIView
+import ImageIO
+import UIKit
 
 #if !swift(>=4.2)
-import func		UIKit.UIImage.UIImagePNGRepresentation
+import func     UIKit.UIImage.UIImagePNGRepresentation
 #endif
 
 /// Useful extension of UIImage class.

@@ -9,10 +9,39 @@ import Foundation
 import Alamofire
 import Combine
 
+extension Data {
+    var isLikelyHTML: Bool {
+        if isEmpty { return false }
+        let head = String(decoding: prefix(256), as: UTF8.self).lowercased()
+        return head.contains("<!doctype html") || head.contains("<html")
+    }
+}
+
 class APIClient {
     static let shared = APIClient()
     private var activeRequest: DataRequest?
     
+    // أنواع JSON المقبولة
+    private let acceptableContentTypes = [
+        "application/json",
+        "text/json",
+        "application/vnd.api+json"
+    ]
+
+    // نصّ رسالة خطأ عند رد HTML (نستقبل URL كنص لتفادي optional/throws)
+    private func htmlResponseMessage(snippet: String, mime: String?, url: String) -> String {
+        """
+        تعذّر جلب البيانات لأن الخادم أعاد صفحة HTML بدل JSON.
+        (قد يكون العنوان خاطئًا أو التطبيق غير متاح - مثل Heroku: "No such app")
+
+        URL: \(url)
+        MIME: \(mime ?? "-")
+
+        مقتطف الرد:
+        \(snippet.prefix(180))
+        """
+    }
+
     // MARK: Error Handling
     enum APIError: Error {
         case networkError(AFError)
@@ -33,20 +62,39 @@ class APIClient {
         for endpoint: APIEndpoint,
         with publisher: DataRequest
     ) -> AnyPublisher<T, APIError> {
-        return publisher
+        publisher
             .publishData()
-            .tryMap { response in
-                if let data = response.data {
-                    return data
-                } else {
+            .tryMap { resp -> Data in
+                // فشل validate؟
+                if let err = resp.error {
+                    try self.throwIfHTMLResponse(
+                        data: resp.data,
+                        mime: resp.response?.mimeType,
+                        urlString: resp.request?.url?.absoluteString
+                    )
+                    throw APIError.networkError(err)
+                }
+
+                guard let data = resp.data else {
                     throw APIError.invalidData
                 }
+
+                // رد HTML رغم 200
+                try self.throwIfHTMLResponse(
+                    data: data,
+                    mime: resp.response?.mimeType,
+                    urlString: resp.request?.url?.absoluteString
+                )
+
+                return data
             }
             .decode(type: T.self, decoder: JSONDecoder())
             .mapError { error in
-                self.mapDecodingError(error)
+                if let apiErr = error as? APIError { return apiErr }
+                if let decErr = error as? DecodingError { return self.mapDecodingError(decErr) }
+                return .unknownError
             }
-            .receive(on: DispatchQueue.main) // You can add this to ensure the result is on the main thread
+            .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
 }
@@ -62,11 +110,16 @@ extension APIClient {
     }
     
     func requestPublisher<T: Decodable>(endpoint: APIEndpoint) -> AnyPublisher<T, APIError> {
-        let dataRequest = AF.request(endpoint.fullURL, method: endpoint.method, parameters: endpoint.parameters, headers: endpoint.headers)
-        
-        return performRequest(for: endpoint, with: dataRequest)
+        let req = AF.request(endpoint.fullURL,
+                             method: endpoint.method,
+                             parameters: endpoint.parameters,
+                             headers: endpoint.headers)
+            .validate(statusCode: 200..<300)
+            .validate(contentType: self.acceptableContentTypes)
+
+        return performRequest(for: endpoint, with: req)
     }
-    
+
     func sendData(
         endpoint: APIEndpoint,
         completion: @escaping (Result<Any, AFError>) -> Void
@@ -317,3 +370,46 @@ extension APIClient {
         }
     }
 }
+
+extension APIClient {
+    /// للاستخدام داخل responseData {...} — لا نرمي throw هنا
+    @discardableResult
+    private func completeIfHTMLResponse(
+        data: Data?,
+        mime: String?,
+        urlString: String?,
+        completion: (Result<Never, APIError>) -> Void
+    ) -> Bool {
+        guard let data = data else { return false }
+        let isHTML = (mime?.contains("text/html") == true) || data.isLikelyHTML
+        if isHTML {
+            let msg = htmlResponseMessage(
+                snippet: String(decoding: data, as: UTF8.self),
+                mime: mime,
+                url: urlString ?? "unknown URL"
+            )
+            completion(.failure(.customError(message: msg)))
+            return true
+        }
+        return false
+    }
+
+    /// للاستخدام داخل tryMap — هنا مسموح throw
+    private func throwIfHTMLResponse(
+        data: Data?,
+        mime: String?,
+        urlString: String?
+    ) throws {
+        guard let data = data else { return }
+        let isHTML = (mime?.contains("text/html") == true) || data.isLikelyHTML
+        if isHTML {
+            let msg = htmlResponseMessage(
+                snippet: String(decoding: data, as: UTF8.self),
+                mime: mime,
+                url: urlString ?? "unknown URL"
+            )
+            throw APIError.customError(message: msg)
+        }
+    }
+}
+

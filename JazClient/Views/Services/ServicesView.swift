@@ -1,16 +1,28 @@
 import SwiftUI
+import CoreLocation
 
 struct ServicesView: View {
     @EnvironmentObject var appRouter: AppRouter
     @StateObject var viewModel = InitialViewModel(errorHandling: ErrorHandling())
+    @StateObject private var locationManager = LocationManager.shared
     let selectedCategoryId: String?
 
     @State private var selectedTabIndex: Int = 0
     @State private var showBackButton: Bool = false
     @State private var searchText: String = ""
 
+    // تحسينات الأداء
+    @State private var lastQuery: String? = nil
+    @State private var lastCoordinate: CLLocationCoordinate2D? = nil
+    @State private var lastFetchSignature: String? = nil
+    @State private var searchTask: Task<Void, Never>? = nil
+
+    private var trimmedSearchText: String {
+        searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     var isSearching: Bool {
-        !searchText.trimmingCharacters(in: .whitespaces).isEmpty
+        !trimmedSearchText.isEmpty
     }
 
     var categories: [Category] {
@@ -21,7 +33,10 @@ struct ServicesView: View {
         guard isSearching else { return [] }
         return categories.flatMap { category in
             (category.sub ?? [])
-                .filter { $0.title?.localizedStandardContains(searchText) ?? false }
+                .filter {
+                    ($0.title?.localizedStandardContains(trimmedSearchText) ?? false) ||
+                    ($0.description?.localizedStandardContains(trimmedSearchText) ?? false)
+                }
                 .map { (category, $0) }
         }
     }
@@ -63,8 +78,15 @@ struct ServicesView: View {
                         .submitLabel(.search)
                         .onSubmit { fetchDataWithSearch() }
                         .onChange(of: searchText) { _ in
-                            if searchText.count > 2 || searchText.isEmpty {
-                                fetchDataWithSearch()
+                            // Debounce لمنع إطلاق طلب عند كل حرف
+                            searchTask?.cancel()
+                            let currentText = trimmedSearchText
+                            searchTask = Task { [currentText] in
+                                try? await Task.sleep(nanoseconds: 350_000_000) // 350ms
+                                if Task.isCancelled { return }
+                                if currentText.count > 2 || currentText.isEmpty {
+                                    fetchDataWithSearch(query: currentText)
+                                }
                             }
                         }
                     Button(action: { fetchDataWithSearch() }) {
@@ -112,7 +134,9 @@ struct ServicesView: View {
                                             item: item,
                                             categoryName: currentCategory?.localizedName ?? ""
                                         ) {
-                                            appRouter.navigate(to: .addOrder(selectedCategory: currentCategory!, selectedSubCategory: item))
+                                            if let currentCategory = currentCategory {
+                                                appRouter.navigate(to: .addOrder(selectedCategory: currentCategory, selectedSubCategory: item))
+                                            }
                                         }
                                     }
                                 } else {
@@ -147,7 +171,24 @@ struct ServicesView: View {
             .onAppear {
                 updateSelectedTab()
                 showBackButton = selectedCategoryId != nil
+
+                // اطلب الموقع في الخلفية لكن لا تنتظر وصوله لبدء الجلب
+                locationManager.requestLocationIfNeeded()
+
+                // جلب سريع بإحداثيات معروفة (آخر محفوظ أو افتراضي) حتى تظهر النتائج فورًا
                 if viewModel.homeItems == nil || viewModel.homeItems?.category?.isEmpty == true {
+                    fetchDataWithSearch()
+                }
+            }
+            .onChange(of: viewModel.homeItems) { _ in
+                // أعد ضبط التبويب بعد وصول البيانات
+                updateSelectedTab()
+            }
+            .onChange(of: locationManager.userLocation) { newCoord in
+                guard let coord = newCoord else { return }
+                // إذا كنا نستخدم إحداثيات افتراضية أو تغيّر الموقع بشكل ملحوظ، أعِد الجلب
+                if lastCoordinate == nil || coordinatesDifferent(lastCoordinate!, coord) {
+                    lastCoordinate = coord
                     fetchDataWithSearch()
                 }
             }
@@ -163,11 +204,37 @@ struct ServicesView: View {
         }
     }
 
-    func fetchDataWithSearch() {
-        LocationManager.shared.getCurrentLocation { coordinate in
-            guard let coordinate = coordinate else { return }
-            viewModel.fetchHomeItems(q: nil, lat: coordinate.latitude, lng: coordinate.longitude)
+    // توقيع لمنع تكرار نفس الطلب (query + lat/lng)
+    private func makeSignature(query: String?, coord: CLLocationCoordinate2D) -> String {
+        let q = query ?? "nil"
+        let lat = (coord.latitude * 1000).rounded() / 1000
+        let lng = (coord.longitude * 1000).rounded() / 1000
+        return "\(q)|\(lat),\(lng)"
+    }
+
+    private func coordinatesDifferent(_ a: CLLocationCoordinate2D, _ b: CLLocationCoordinate2D) -> Bool {
+        abs(a.latitude - b.latitude) > 0.01 || abs(a.longitude - b.longitude) > 0.01
+    }
+
+    func fetchDataWithSearch(query: String? = nil) {
+        let qTrim = (query ?? trimmedSearchText).trimmingCharacters(in: .whitespacesAndNewlines)
+        let effectiveQuery: String? = qTrim.isEmpty ? nil : qTrim
+
+        // استخدم آخر موقع معروف أو افتراضي مباشرة لتسريع الظهور
+        let coord: CLLocationCoordinate2D = locationManager.userLocation
+            ?? lastCoordinate
+            ?? CLLocationCoordinate2D(latitude: 24.7136, longitude: 46.6753) // الرياض كافتراضي
+
+        let signature = makeSignature(query: effectiveQuery, coord: coord)
+        if signature == lastFetchSignature {
+            return // لا تعيد نفس الطلب
         }
+
+        lastFetchSignature = signature
+        lastQuery = effectiveQuery
+        lastCoordinate = coord
+
+        viewModel.fetchHomeItems(q: effectiveQuery, lat: coord.latitude, lng: coord.longitude)
     }
 
     @ViewBuilder
@@ -185,7 +252,7 @@ struct ServicesView: View {
 
 struct ServiceCardView: View {
     let item: SubCategory
-    let categoryName: String // يمكن تجاهلها الآن
+    let categoryName: String
     let onOrderTap: () -> Void
 
     var body: some View {
@@ -199,10 +266,10 @@ struct ServiceCardView: View {
                 .frame(width: 52, height: 52)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(item.title)
+                    Text(item.title ?? "")
                         .customFont(weight: .bold, size: 16)
                     if let price = item.price {
-                        Text("\(Int(price)) ر.س")
+                        Text("\(String(format: "%.0f", price)) ر.س")
                             .customFont(weight: .medium, size: 13)
                             .foregroundColor(.primary)
                             .padding(.vertical, 4)
@@ -211,7 +278,7 @@ struct ServiceCardView: View {
                 }
                 Spacer()
             }
-            Text(item.description)
+            Text(item.description ?? "")
                 .customFont(weight: .regular, size: 13)
                 .foregroundColor(.black)
                 .lineLimit(3)

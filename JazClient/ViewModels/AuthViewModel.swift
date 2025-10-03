@@ -37,6 +37,7 @@ class AuthViewModel: ObservableObject {
         let endpoint = DataProvider.Endpoint.registerCompany(params: params)
 
         DataProvider.shared.request(endpoint: endpoint, responseType: SingleAPIResponse<Company>.self)
+            .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 // إنهاء التحميل في كل الأحوال
                 self?.isLoading = false
@@ -72,6 +73,7 @@ class AuthViewModel: ObservableObject {
         let endpoint = DataProvider.Endpoint.register(params: params)
         
         DataProvider.shared.request(endpoint: endpoint, responseType: SingleAPIResponse<User>.self)
+            .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { completion in
                 switch completion {
                 case .finished:
@@ -105,6 +107,7 @@ class AuthViewModel: ObservableObject {
         let endpoint = DataProvider.Endpoint.verify(params: params)
         
         DataProvider.shared.request(endpoint: endpoint, responseType: SingleAPIResponse<User>.self)
+            .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { completion in
                 switch completion {
                 case .finished:
@@ -114,21 +117,26 @@ class AuthViewModel: ObservableObject {
                     self.handleAPIError(error)
                 }
             }, receiveValue: { [weak self] (response: SingleAPIResponse<User>) in
-                if response.status {
-                    self?.user = response.items
-                    self?.errorMessage = nil
-                    let profileCompleted = !(self?.user?.full_name?.isEmpty ?? false)
-                    if profileCompleted {
-                        self?.handleVerificationStatus(isVerified: response.items?.isVerify ?? false)
-                    } else {
-                        self?.userSettings.token = self?.user?.token ?? ""
-                        onsuccess(profileCompleted, self?.user?.token ?? "")
-                    }
+                guard let self = self else { return }
+                if response.status, let user = response.items {
+                    self.user = user
+                    self.errorMessage = nil
+
+                    let profileCompleted = !(user.full_name?.isEmpty ?? false)
+
+                    // تسجيل المستخدم دائماً بعد التحقق (حتى لو الملف غير مكتمل)
+                    UserSettings.shared.login(user: user, id: user.id ?? "", token: user.token ?? "")
+
+                    // يمكنك أيضاً التأكد من حالة التحقق إن أردت (عادة verify ناجح يعني isVerify = true)
+                    // self.handleVerificationStatus(isVerified: user.isVerify ?? true)
+
+                    // أعِد العلم profileCompleted لتقرر الواجهة هل تنتقل لإكمال البيانات
+                    onsuccess(profileCompleted, user.token ?? "")
                 } else {
                     // Use the centralized error handling component
-                    self?.handleAPIError(.customError(message: response.message))
+                    self.handleAPIError(.customError(message: response.message))
                 }
-                self?.isLoading = false
+                self.isLoading = false
             })
             .store(in: &cancellables)
     }
@@ -139,6 +147,7 @@ class AuthViewModel: ObservableObject {
         let endpoint = DataProvider.Endpoint.resend(params: params)
         
         DataProvider.shared.request(endpoint: endpoint, responseType: SingleAPIResponse<User>.self)
+            .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { completion in
                 switch completion {
                 case .finished:
@@ -170,9 +179,21 @@ class AuthViewModel: ObservableObject {
 
         isLoading = true
         errorMessage = nil
-        let endpoint = DataProvider.Endpoint.logout(userID: userSettings.id ?? "")
+
+        // إذا لا يوجد userID، نفّذ تسجيل خروج محلياً
+        guard let userID = userSettings.id, !userID.isEmpty else {
+            DispatchQueue.main.async {
+                self.userSettings.logout()
+                self.isLoading = false
+                onsuccess()
+            }
+            return
+        }
+
+        let endpoint = DataProvider.Endpoint.logout(userID: userID)
         
         DataProvider.shared.request(endpoint: endpoint, responseType: SingleAPIResponse<User>.self)
+            .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { completion in
                 switch completion {
                 case .finished:
@@ -207,6 +228,7 @@ class AuthViewModel: ObservableObject {
         let endpoint = DataProvider.Endpoint.deleteAccount(id: userSettings.id ?? "", token: token)
         
         DataProvider.shared.request(endpoint: endpoint, responseType: SingleAPIResponse<User>.self)
+            .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { completion in
                 switch completion {
                 case .finished:
@@ -236,6 +258,7 @@ class AuthViewModel: ObservableObject {
         let endpoint = DataProvider.Endpoint.guest
         
         DataProvider.shared.request(endpoint: endpoint, responseType: CustomApiResponse.self)
+            .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { completion in
                 switch completion {
                 case .finished:
@@ -259,17 +282,8 @@ class AuthViewModel: ObservableObject {
     }
 
     func logout() {
-        // Perform the logout operation
-//        userSettings.id = 0
-//        userSettings.access_token = ""
-        // ... Reset other user-related properties ...
-
-//        updateLoginStatus()
+        // Perform the logout operation if needed
     }
-
-    // Other authentication-related functions
-
-    // You can include user profile management functions here as well.
 }
 
 extension AuthViewModel {
