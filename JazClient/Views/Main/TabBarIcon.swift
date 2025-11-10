@@ -11,7 +11,7 @@ struct TabBarIcon: View {
     
     @StateObject var appState: AppState
     let assignedPage: Page
-    @ObservedObject private var settings = UserSettings()
+    @EnvironmentObject var settings: UserSettings
 
     let width, height: CGFloat
     let iconName, tabName: String

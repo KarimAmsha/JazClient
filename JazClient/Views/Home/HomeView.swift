@@ -166,6 +166,7 @@ struct HomeView: View {
 
                 refreshFcmToken()
                 ChatViewModel.setUser()
+                print("ssstt \(UserSettings.shared.token)")
             }
         }
     }

@@ -23,7 +23,7 @@ struct ContentView: View {
     @StateObject private var initialViewModel = InitialViewModel(errorHandling: ErrorHandling())
     @EnvironmentObject var settings: UserSettings
     @ObservedObject var appRouter = AppRouter()
-    
+
     var body: some View {
         VStack {
             if !isActive {

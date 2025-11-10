@@ -6,7 +6,7 @@ struct MainView: View {
     @EnvironmentObject var settings: UserSettings
     @State var showAddOrder = false
     @State private var path = NavigationPath()
-    @ObservedObject var appRouter = AppRouter()
+    @EnvironmentObject var appRouter: AppRouter
     @StateObject var viewModel = InitialViewModel(errorHandling: ErrorHandling())
     @StateObject var cartViewModel = CartViewModel(errorHandling: ErrorHandling())
     @State private var selectedTab: TabItem2 = .home
@@ -192,4 +192,5 @@ extension MainView {
     MainView()
         .environmentObject(UserSettings())
         .environmentObject(AppState())
+        .environmentObject(AppRouter())
 }

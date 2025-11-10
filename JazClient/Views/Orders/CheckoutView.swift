@@ -447,7 +447,7 @@ struct CheckoutView: View {
         )
         print("params ready:", params)
         orderViewModel.sendRawJsonRequest(
-            urlString: "https://jazapp-63bc0a074b4f.herokuapp.com/api/mobile/order/add",
+            urlString: "https://jazz-app-e8610cf6d4f5.herokuapp.com/api/mobile/order/add",
             body: params,
             onsuccess: { response in
                 // فك الاستجابة JSON

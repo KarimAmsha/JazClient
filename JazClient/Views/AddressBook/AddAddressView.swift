@@ -58,22 +58,27 @@ struct AddAddressView: View {
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 20) {
 
-                        // توضيح الحقول المطلوبة
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("الحقول المطلوبة")
-                                .customFont(weight: .bold, size: 14)
-                                .foregroundColor(.black1F1F1F())
-                            HStack(spacing: 10) {
-                                requiredBadge("اسم العنوان", isOK: isTitleValid)
-                                requiredBadge("الشارع", isOK: isStreetValid)
-                                requiredBadge("رقم المبنى", isOK: isBuildingValid)
-                                requiredBadge("تحديد الموقع", isOK: isAddressValid)
-                            }
-                        }
-
                         Text(LocalizedStringKey.addressDetails)
                             .customFont(weight: .bold, size: 16)
                             .foregroundColor(.black1F1F1F())
+
+                        // شريط إرشادي: أفضل ممارسات لتوضيح المطلوب
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack(alignment: .top, spacing: 8) {
+                                Image(systemName: "info.circle.fill")
+                                    .foregroundColor(.blue)
+                                Text("الحقول المعلّمة بعلامة ✱ مطلوبة لإضافة العنوان بنجاح: الاسم، الشارع، رقم المبنى، وتحديد الموقع على الخريطة.")
+                                    .customFont(weight: .regular, size: 12)
+                                    .foregroundColor(.black1F1F1F())
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                            Text("يمكنك تحريك الخريطة أو التكبير لتحديد موقعك بدقة، وسيتم تعبئة العنوان تلقائياً.")
+                                .customFont(weight: .regular, size: 11)
+                                .foregroundColor(.gray)
+                        }
+                        .padding(12)
+                        .background(Color.gray.opacity(0.10))
+                        .cornerRadius(8)
 
                         HStack {
                             createButton(image: "ic_house", title: LocalizedStringKey.house, place: .home)
@@ -346,7 +351,8 @@ struct AddAddressView: View {
             Text(title)
                 .customFont(weight: .regular, size: 12)
                 .foregroundColor(.black1F1F1F())
-            Text("*")
+            // استخدم نجمة بديلة لمنع استبدال الخط لها بشعار
+            Text("✱")
                 .customFont(weight: .bold, size: 14)
                 .foregroundColor(.red)
         }
@@ -446,7 +452,7 @@ extension AddAddressView {
         successText = message.isEmpty ? "تم إضافة العنوان بنجاح" : message
         showSuccessToast = true
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.4) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
             withAnimation {
                 showSuccessToast = false
             }

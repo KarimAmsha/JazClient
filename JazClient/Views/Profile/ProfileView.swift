@@ -165,7 +165,8 @@ struct ProfileView: View {
             }
 
             ToolbarItem(placement: .navigationBarTrailing) {
-                Image("ic_bell")
+                Image(systemName: "bell")
+                    .foregroundColor(.primary)
                     .onTapGesture {
                         appRouter.navigate(to: .notifications)
                     }
