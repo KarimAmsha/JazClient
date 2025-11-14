@@ -417,6 +417,7 @@ struct AddAddressView: View {
 
 extension AddAddressView {
     private func add() {
+        guard !viewModel.isLoading else { return } // لمنع التكرار أثناء التحميل
         // لا تعرض Popup عامّة إلا بعد إظهار رسائل الحقول
         guard isFormValid else { return }
 

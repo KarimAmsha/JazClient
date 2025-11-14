@@ -182,11 +182,11 @@ struct OrderDetailsView: View {
         }
         .onAppear {
             viewModel.getOrderDetails(orderId: orderID) {
-                viewModel.startListeningOrderRealtime(orderId: orderID)
+//                viewModel.startListeningOrderRealtime(orderId: orderID)
             }
         }
         .onDisappear {
-            viewModel.stopListeningOrderRealtime()
+//            viewModel.stopListeningOrderRealtime()
         }
         .sheet(isPresented: $showCancelSheet) {
             CancelOrderSheet(

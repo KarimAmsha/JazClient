@@ -197,7 +197,7 @@ struct CheckoutView: View {
         do {
             return try PaymentRequest(
                 apiKey: apiKey,
-                amount: Int(totalAmount * 100), // بالهللات
+                amount: Int((totalAmount * 100).rounded()), // بالهللات مع التقريب الصحيح
                 currency: "SAR",
                 description: "طلب خدمة",
                 metadata: [:]

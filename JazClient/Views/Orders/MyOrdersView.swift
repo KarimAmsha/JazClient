@@ -81,11 +81,13 @@ struct MyOrdersView: View {
         }
         .onChange(of: orderType) { _ in loadData() }
         .onAppear { loadData() }
-        .onDisappear { viewModel.stopRealtimeListeners() }
+        // .onDisappear { viewModel.stopRealtimeListeners() } // 🔴 الريل تايم معلق
+        /*
         .onReceive(viewModel.$orders) { newOrders in
             let visibleOrders = Array(newOrders.prefix(10))
             viewModel.startRealtimeListenersForVisibleOrders(visibleOrders)
         }
+        */
         .onReceive(viewModel.$orders) { orders in
             if let changedOrder = orders.first(where: { $0.status != orderType.rawValue }),
                let newStatus = OrderStatus(rawValue: changedOrder.status ?? "") {
